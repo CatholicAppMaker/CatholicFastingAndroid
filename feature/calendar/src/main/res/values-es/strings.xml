@@ -1,0 +1,12 @@
+<resources>
+    <string name="calendar_title">Dias de Ayuno</string>
+    <string name="calendar_search_label">Buscar observancias</string>
+    <string name="calendar_progress_overview">Resumen del progreso</string>
+    <string name="calendar_required_overall_value">Cumplimiento obligatorio: %1$d%% • General: %2$d%%</string>
+    <string name="calendar_missed_substituted_value">Omitidas: %1$d • Sustituidas: %2$d</string>
+    <string name="calendar_season_percent_value">%1$s: %2$d%%</string>
+    <string name="calendar_kind_obligation_value">%1$s • %2$s</string>
+    <string name="calendar_citation_value">%1$s: %2$s (%3$s)</string>
+    <string name="calendar_friday_note_label">Nota del viernes</string>
+    <string name="calendar_friday_note_supporting">Registra el acto penitencial que elegiste para este viernes.</string>
+</resources>

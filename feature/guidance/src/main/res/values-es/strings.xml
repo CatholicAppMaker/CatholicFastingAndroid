@@ -1,0 +1,17 @@
+<resources>
+    <string name="guidance_title">Guia y Reglas</string>
+    <string name="guidance_food_title">Guia de alimentos</string>
+    <string name="guidance_avoid_value">Evitar: %1$s</string>
+    <string name="guidance_permitted_value">Permitido: %1$s</string>
+    <string name="guidance_meal_pattern_value">Patron de comida: %1$s</string>
+    <string name="guidance_common_question_value">Pregunta comun: %1$s</string>
+    <string name="guidance_stricter_practice">Practica mas estricta</string>
+    <string name="guidance_if_unsure">Si tienes dudas</string>
+    <string name="guidance_bullet_value">• %1$s</string>
+    <string name="guidance_rule_audit_title">Auditoria del paquete de reglas</string>
+    <string name="guidance_source_value">Fuente: %1$s</string>
+    <string name="guidance_verified">Verificado con el paquete de reglas de Android.</string>
+    <string name="guidance_needs_review">El paquete de reglas necesita revision.</string>
+    <string name="guidance_no_warnings">No se detectaron advertencias.</string>
+    <string name="guidance_warning_value">Advertencia: %1$s</string>
+</resources>

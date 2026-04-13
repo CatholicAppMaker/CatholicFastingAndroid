@@ -1,0 +1,13 @@
+.DS_Store
+.gradle/
+.idea/
+.kotlin/
+*.iml
+
+# Android and Gradle outputs
+**/build/
+captures/
+local.properties
+
+# Local tooling
+.local-tools/

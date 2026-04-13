@@ -1,0 +1,12 @@
+<resources>
+    <string name="calendar_title">Fasting Days</string>
+    <string name="calendar_search_label">Search observances</string>
+    <string name="calendar_progress_overview">Progress overview</string>
+    <string name="calendar_required_overall_value">Required completion: %1$d%% • Overall: %2$d%%</string>
+    <string name="calendar_missed_substituted_value">Missed: %1$d • Substituted: %2$d</string>
+    <string name="calendar_season_percent_value">%1$s: %2$d%%</string>
+    <string name="calendar_kind_obligation_value">%1$s • %2$s</string>
+    <string name="calendar_citation_value">%1$s: %2$s (%3$s)</string>
+    <string name="calendar_friday_note_label">Friday note</string>
+    <string name="calendar_friday_note_supporting">Track your chosen penitential act for this Friday.</string>
+</resources>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:enabled="true"
+        android:icon="@android:drawable/ic_menu_today"
+        android:shortcutDisabledMessage="@string/shortcut_disabled"
+        android:shortcutId="open_today"
+        android:shortcutLongLabel="@string/shortcut_today_long"
+        android:shortcutShortLabel="@string/shortcut_today_short">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:data="catholicfasting://open/today"
+            android:targetClass="com.kevpierce.catholicfastingapp.MainActivity"
+            android:targetPackage="com.kevpierce.catholicfastingapp" />
+    </shortcut>
+    <shortcut
+        android:enabled="true"
+        android:icon="@android:drawable/ic_media_play"
+        android:shortcutDisabledMessage="@string/shortcut_disabled"
+        android:shortcutId="track_fast"
+        android:shortcutLongLabel="@string/shortcut_tracker_long"
+        android:shortcutShortLabel="@string/shortcut_tracker_short">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:data="catholicfasting://open/tracker"
+            android:targetClass="com.kevpierce.catholicfastingapp.MainActivity"
+            android:targetPackage="com.kevpierce.catholicfastingapp" />
+    </shortcut>
+    <shortcut
+        android:enabled="true"
+        android:icon="@android:drawable/ic_menu_edit"
+        android:shortcutDisabledMessage="@string/shortcut_disabled"
+        android:shortcutId="friday_note"
+        android:shortcutLongLabel="@string/shortcut_friday_note_long"
+        android:shortcutShortLabel="@string/shortcut_friday_note_short">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:data="catholicfasting://open/calendar/friday-note"
+            android:targetClass="com.kevpierce.catholicfastingapp.MainActivity"
+            android:targetPackage="com.kevpierce.catholicfastingapp" />
+    </shortcut>
+    <shortcut
+        android:enabled="true"
+        android:icon="@android:drawable/ic_lock_idle_alarm"
+        android:shortcutDisabledMessage="@string/shortcut_disabled"
+        android:shortcutId="reminder_center"
+        android:shortcutLongLabel="@string/shortcut_setup_long"
+        android:shortcutShortLabel="@string/shortcut_setup_short">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:data="catholicfasting://open/more/setup"
+            android:targetClass="com.kevpierce.catholicfastingapp.MainActivity"
+            android:targetPackage="com.kevpierce.catholicfastingapp" />
+    </shortcut>
+</shortcuts>

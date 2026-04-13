@@ -1,0 +1,15 @@
+<resources>
+    <string name="today_title">Hoy</string>
+    <string name="today_default_detail">Usa hoy para revisar el proximo dia obligatorio y mantener una regla de vida estable.</string>
+    <string name="today_no_observance">No hay observancia hoy</string>
+    <string name="today_quote_value">"%1$s"</string>
+    <string name="today_quote_author_value">%1$s • %2$s</string>
+    <string name="today_year_plan_title">Resumen del plan anual</string>
+    <string name="today_personal_insights_title">Perspectivas personales</string>
+    <string name="today_action_value">Accion: %1$s</string>
+    <string name="today_season_motivation_value">%1$s • %2$s</string>
+    <string name="today_bullet_value">• %1$s</string>
+    <string name="today_devotional_gallery_title">Imagenes sagradas del ayuno</string>
+    <string name="today_important_notice_title">Aviso importante</string>
+    <string name="today_notice_body">Sigue siempre a tu parroco, obispo local y a la autoridad legitima de la Iglesia cuando la orientacion difiera.</string>
+</resources>

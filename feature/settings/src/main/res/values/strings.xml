@@ -1,0 +1,12 @@
+<resources>
+    <string name="settings_more_title">More</string>
+    <string name="settings_profile_norms">Profile &amp; norms</string>
+    <string name="settings_region">Region</string>
+    <string name="settings_calendar">Calendar</string>
+    <string name="settings_friday_mode">Friday mode</string>
+    <string name="settings_ascension_observance">Ascension observance</string>
+    <string name="settings_age_14">Age 14+ for abstinence</string>
+    <string name="settings_age_18">Age 18+ for fasting</string>
+    <string name="settings_medical_dispensation">Medical dispensation</string>
+    <string name="settings_birth_year">Birth year</string>
+</resources>

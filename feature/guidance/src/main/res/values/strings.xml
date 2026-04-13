@@ -1,0 +1,17 @@
+<resources>
+    <string name="guidance_title">Guidance &amp; Rules</string>
+    <string name="guidance_food_title">Food guidance</string>
+    <string name="guidance_avoid_value">Avoid: %1$s</string>
+    <string name="guidance_permitted_value">Permitted: %1$s</string>
+    <string name="guidance_meal_pattern_value">Meal pattern: %1$s</string>
+    <string name="guidance_common_question_value">Common question: %1$s</string>
+    <string name="guidance_stricter_practice">Stricter practice</string>
+    <string name="guidance_if_unsure">If unsure</string>
+    <string name="guidance_bullet_value">• %1$s</string>
+    <string name="guidance_rule_audit_title">Rule bundle audit</string>
+    <string name="guidance_source_value">Source: %1$s</string>
+    <string name="guidance_verified">Verified against the Android rule bundle.</string>
+    <string name="guidance_needs_review">Rule bundle needs review.</string>
+    <string name="guidance_no_warnings">No warnings detected.</string>
+    <string name="guidance_warning_value">Warning: %1$s</string>
+</resources>

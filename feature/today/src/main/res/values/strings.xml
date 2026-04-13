@@ -1,0 +1,15 @@
+<resources>
+    <string name="today_title">Today</string>
+    <string name="today_default_detail">Use today to review the next required day and keep a steady rule of life.</string>
+    <string name="today_no_observance">No observance today</string>
+    <string name="today_quote_value">"%1$s"</string>
+    <string name="today_quote_author_value">%1$s • %2$s</string>
+    <string name="today_year_plan_title">Year Plan Snapshot</string>
+    <string name="today_personal_insights_title">Personal Insights</string>
+    <string name="today_action_value">Action: %1$s</string>
+    <string name="today_season_motivation_value">%1$s • %2$s</string>
+    <string name="today_bullet_value">• %1$s</string>
+    <string name="today_devotional_gallery_title">Sacred Fasting Imagery</string>
+    <string name="today_important_notice_title">Important Notice</string>
+    <string name="today_notice_body">Always follow your pastor, local bishop, and legitimate Church authority when guidance differs.</string>
+</resources>
