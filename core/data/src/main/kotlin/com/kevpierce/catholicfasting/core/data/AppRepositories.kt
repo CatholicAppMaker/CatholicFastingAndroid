@@ -43,6 +43,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import java.time.Instant
@@ -349,6 +350,33 @@ class AppRepository(private val context: Context) {
         }
     }
 
+    fun endIntermittentFastFromAction(
+        startIso: String?,
+        targetHours: Int,
+        now: Instant = Instant.now(),
+    ): Boolean {
+        val storedState =
+            runBlocking {
+                storage.readSnapshot().toDashboardState()
+            }
+        val fallbackActiveFast =
+            startIso?.let {
+                ActiveIntermittentFast(
+                    startIso = it,
+                    targetHours = boundedPresetHours(targetHours),
+                )
+            }
+        val endedState =
+            resolveEndedFastState(
+                liveState = state.value,
+                storedState = storedState,
+                fallbackActiveFast = fallbackActiveFast,
+                now = now,
+            ) ?: return false
+        persistBlocking(endedState)
+        return true
+    }
+
     fun cancelIntermittentFast() {
         if (state.value.activeIntermittentFast == null) {
             return
@@ -407,6 +435,14 @@ class AppRepository(private val context: Context) {
         val syncedState = nextState.copy(lastSyncDateIso = Instant.now().toString())
         state.value = syncedState
         scope.launch {
+            storage.writeSnapshot(syncedState.toStorageSnapshot())
+        }
+    }
+
+    private fun persistBlocking(nextState: DashboardState) {
+        val syncedState = nextState.copy(lastSyncDateIso = Instant.now().toString())
+        state.value = syncedState
+        runBlocking {
             storage.writeSnapshot(syncedState.toStorageSnapshot())
         }
     }
@@ -598,20 +634,29 @@ fun buildStorageDiagnosticsState(state: DashboardState): StorageDiagnosticsState
     )
 }
 
-fun buildSeasonalHeroState(): SeasonalHeroState {
-    val locale =
-        if (Locale.getDefault().language.startsWith("es")) {
+fun buildSeasonalHeroState(): SeasonalHeroState =
+    buildSeasonalHeroState(
+        locale = Locale.getDefault(),
+        today = LocalDate.now(),
+    )
+
+internal fun buildSeasonalHeroState(
+    locale: Locale,
+    today: LocalDate,
+): SeasonalHeroState {
+    val contentLocale =
+        if (locale.language.startsWith("es")) {
             com.kevpierce.catholicfasting.core.model.ContentLocale.SPANISH
         } else {
             com.kevpierce.catholicfasting.core.model.ContentLocale.ENGLISH
         }
-    val season = LiturgicalSeasonThemeEngine.seasonFor(LocalDate.now())
-    val pack = SeasonalContentPackCatalog.pack(season = season, locale = locale)
+    val season = LiturgicalSeasonThemeEngine.seasonFor(today)
+    val pack = SeasonalContentPackCatalog.pack(season = season, locale = contentLocale)
     return SeasonalHeroState(
         campaignTitle = pack.campaignTitle,
         campaignSubtitle = pack.campaignSubtitle,
-        formationLine = SeasonalContentSupport.dailyFormationLine(pack, LocalDate.now()),
-        quote = SeasonalContentSupport.dailyQuote(season, pack, LocalDate.now()),
+        formationLine = SeasonalContentSupport.dailyFormationLine(pack, today),
+        quote = SeasonalContentSupport.dailyQuote(season, pack, today),
         imagery = SacredImageryCatalog.fastingGallery.take(3),
     )
 }
@@ -723,6 +768,16 @@ private fun DashboardState.endIntermittentFast(now: Instant): DashboardState? =
                 )
             }
         }
+
+internal fun resolveEndedFastState(
+    liveState: DashboardState,
+    storedState: DashboardState,
+    fallbackActiveFast: ActiveIntermittentFast? = null,
+    now: Instant,
+): DashboardState? =
+    liveState.endIntermittentFast(now)
+        ?: storedState.endIntermittentFast(now)
+        ?: fallbackActiveFast?.let { liveState.copy(activeIntermittentFast = it).endIntermittentFast(now) }
 
 fun DashboardState.buildWidgetSnapshot(now: Instant = Instant.now()): WidgetSnapshot {
     val todayKey = LocalDate.now().toString()

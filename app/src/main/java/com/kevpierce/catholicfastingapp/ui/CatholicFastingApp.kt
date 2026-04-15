@@ -5,7 +5,10 @@ package com.kevpierce.catholicfastingapp.ui
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.os.Build
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -86,21 +89,6 @@ import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 import java.util.Locale
 
-private enum class TopLevelDestination {
-    TODAY,
-    FASTING_DAYS,
-    TRACK_FAST,
-    MORE,
-}
-
-private enum class MoreSection {
-    SUPPORT_PREMIUM,
-    SETUP_REMINDERS,
-    PROFILE_NORMS,
-    GUIDANCE_RULES,
-    PRIVACY_DATA,
-}
-
 private data class AppSupportState(
     val premiumSnapshot: PremiumSnapshot,
     val seasonProgramActions: List<String>,
@@ -122,34 +110,56 @@ private data class AppSupportState(
     val streakMessage: String,
 )
 
+private data class BillingActions(
+    val onRefresh: () -> Unit,
+    val onManageSubscription: () -> Unit,
+    val onPurchase: (String) -> Unit,
+)
+
+private data class NotificationPermissionActions(
+    val granted: Boolean,
+    val requestPermission: () -> Unit,
+)
+
+private data class SetupReminderActions(
+    val onReminderTierChange: (ReminderTier) -> Unit,
+    val onDailyQuoteReminderEnabledChange: (Boolean) -> Unit,
+    val onDailyQuoteReminderTimeChange: (Int, Int) -> Unit,
+    val onNoticeAcknowledgedChange: (Boolean) -> Unit,
+    val onCompleteOnboarding: () -> Unit,
+)
+
 @Composable
 fun catholicFastingApp(initialDeepLink: String? = null) {
     val repository = AppContainer.repository
     val billingRepository = BillingContainer.repository
     val state by repository.dashboardState.collectAsState()
     val billingState by billingRepository.billingState.collectAsState()
-    val initialDestination = resolveTopLevelDestination(initialDeepLink)
-    val initialMoreSection = resolveMoreSection(initialDeepLink)
+    val launchDestination = AppRouteResolver.resolve(initialDeepLink)
+    val initialDestination = launchDestination.topLevelDestination
+    val initialMoreSection = launchDestination.moreSection
     var destination by rememberSaveable(initialDeepLink) { mutableStateOf(initialDestination) }
+    LaunchedEffect(initialDeepLink, initialDestination) {
+        destination = initialDestination
+    }
     val context = LocalContext.current
-
-    LaunchedEffect(state.activeIntermittentFast, state.intermittentPresetHours) {
-        IntermittentFastNotificationManager.syncActiveFast(
+    val notificationPermissionActions =
+        rememberNotificationPermissionActions(
             context = context,
-            startIso = state.activeIntermittentFast?.startIso,
-            targetHours = state.activeIntermittentFast?.targetHours ?: state.intermittentPresetHours,
+            refreshKey =
+                listOf(
+                    destination,
+                    state.launchFunnelSnapshot.selectedReminderTier,
+                    state.launchFunnelSnapshot.completedOnboardingAtIso,
+                ),
         )
-    }
-
-    LaunchedEffect(state) {
-        ReminderScheduler.sync(context, state)
-        WidgetSnapshotStore.persist(context, state.buildWidgetSnapshot())
-    }
+    appRuntimeEffects(context = context, state = state)
 
     if (state.launchFunnelSnapshot.completedOnboardingAtIso == null) {
         onboardingRoute(
             state = state,
             repository = repository,
+            notificationPermissionActions = notificationPermissionActions,
             modifier = Modifier.fillMaxSize(),
         )
         return
@@ -164,14 +174,38 @@ fun catholicFastingApp(initialDeepLink: String? = null) {
             state = state,
             repository = repository,
             billingState = billingState,
-            onBillingRefresh = billingRepository::refresh,
-            onBillingPurchase = { productId ->
-                (context as? ComponentActivity)?.let { activity ->
-                    billingRepository.launchPurchase(activity, productId)
-                }
-            },
+            billingActions =
+                BillingActions(
+                    onRefresh = billingRepository::refresh,
+                    onManageSubscription = billingRepository::openManageSubscription,
+                    onPurchase = { productId ->
+                        (context as? ComponentActivity)?.let { activity ->
+                            billingRepository.launchPurchase(activity, productId)
+                        }
+                    },
+                ),
+            notificationPermissionActions = notificationPermissionActions,
             modifier = Modifier.fillMaxSize().padding(padding),
         )
+    }
+}
+
+@Composable
+private fun appRuntimeEffects(
+    context: Context,
+    state: com.kevpierce.catholicfasting.core.data.DashboardState,
+) {
+    LaunchedEffect(state.activeIntermittentFast, state.intermittentPresetHours) {
+        IntermittentFastNotificationManager.syncActiveFast(
+            context = context,
+            startIso = state.activeIntermittentFast?.startIso,
+            targetHours = state.activeIntermittentFast?.targetHours ?: state.intermittentPresetHours,
+        )
+    }
+
+    LaunchedEffect(state) {
+        ReminderScheduler.sync(context, state)
+        WidgetSnapshotStore.persist(context, state.buildWidgetSnapshot())
     }
 }
 
@@ -204,8 +238,8 @@ private fun appContent(
     state: com.kevpierce.catholicfasting.core.data.DashboardState,
     repository: com.kevpierce.catholicfasting.core.data.AppRepository,
     billingState: com.kevpierce.catholicfasting.core.billing.BillingState,
-    onBillingRefresh: () -> Unit,
-    onBillingPurchase: (String) -> Unit,
+    billingActions: BillingActions,
+    notificationPermissionActions: NotificationPermissionActions,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -255,8 +289,8 @@ private fun appContent(
                 repository = repository,
                 onSettingsChange = repository::updateSettings,
                 billingState = billingState,
-                onBillingRefresh = onBillingRefresh,
-                onBillingPurchase = onBillingPurchase,
+                billingActions = billingActions,
+                notificationPermissionActions = notificationPermissionActions,
                 supportState = supportState,
                 modifier = modifier,
             )
@@ -267,11 +301,18 @@ private fun appContent(
 private fun onboardingRoute(
     state: com.kevpierce.catholicfasting.core.data.DashboardState,
     repository: com.kevpierce.catholicfasting.core.data.AppRepository,
+    notificationPermissionActions: NotificationPermissionActions,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
     val supportState = buildAppSupportState(context, state)
     val onboardingState = supportState.onboardingState
+    val completionState =
+        SetupCompletionState.from(
+            setupProgressState = supportState.setupProgressState,
+            notificationPermissionGranted = notificationPermissionActions.granted,
+            notificationPermissionSupported = notificationPermissionSupported(),
+        )
 
     Column(
         modifier =
@@ -302,6 +343,8 @@ private fun onboardingRoute(
         onboardingReminderCard(
             onboardingState = onboardingState,
             reminderCenterState = supportState.reminderCenterState,
+            notificationPermissionGranted = notificationPermissionActions.granted,
+            onRequestNotificationPermission = notificationPermissionActions.requestPermission,
             onReminderTierChange = repository::setReminderTier,
             onDailyQuoteReminderEnabledChange = repository::setDailyQuoteReminderEnabled,
             onDailyQuoteReminderTimeChange = repository::setDailyQuoteReminderTime,
@@ -313,7 +356,11 @@ private fun onboardingRoute(
         outlinedActionButton(
             label = stringResource(R.string.onboarding_finish),
             onClick = repository::completeOnboarding,
+            enabled = completionState.canCompleteOnboarding,
         )
+        if (!completionState.canCompleteOnboarding) {
+            Text(stringResource(R.string.onboarding_finish_blocked))
+        }
     }
 }
 
@@ -400,6 +447,8 @@ private fun onboardingProfileCard(
 private fun onboardingReminderCard(
     onboardingState: OnboardingState,
     reminderCenterState: ReminderCenterState,
+    notificationPermissionGranted: Boolean,
+    onRequestNotificationPermission: () -> Unit,
     onReminderTierChange: (ReminderTier) -> Unit,
     onDailyQuoteReminderEnabledChange: (Boolean) -> Unit,
     onDailyQuoteReminderTimeChange: (Int, Int) -> Unit,
@@ -417,6 +466,19 @@ private fun onboardingReminderCard(
             onDailyQuoteReminderEnabledChange = onDailyQuoteReminderEnabledChange,
             onDailyQuoteReminderTimeChange = onDailyQuoteReminderTimeChange,
         )
+        Text(
+            if (notificationPermissionGranted || !notificationPermissionSupported()) {
+                stringResource(R.string.more_notification_permission_granted)
+            } else {
+                stringResource(R.string.onboarding_notification_permission_needed)
+            },
+        )
+        if (notificationPermissionSupported() && !notificationPermissionGranted) {
+            outlinedActionButton(
+                label = stringResource(R.string.onboarding_request_notification_permission),
+                onClick = onRequestNotificationPermission,
+            )
+        }
     }
 }
 
@@ -524,12 +586,15 @@ private fun moreDestination(
     repository: com.kevpierce.catholicfasting.core.data.AppRepository,
     onSettingsChange: (com.kevpierce.catholicfasting.core.model.RuleSettings) -> Unit,
     billingState: com.kevpierce.catholicfasting.core.billing.BillingState,
-    onBillingRefresh: () -> Unit,
-    onBillingPurchase: (String) -> Unit,
+    billingActions: BillingActions,
+    notificationPermissionActions: NotificationPermissionActions,
     supportState: AppSupportState,
     modifier: Modifier = Modifier,
 ) {
     var section by rememberSaveable(initialSection) { mutableStateOf(initialSection) }
+    LaunchedEffect(initialSection) {
+        section = initialSection
+    }
 
     Column(modifier = modifier) {
         moreSectionTabs(
@@ -548,8 +613,8 @@ private fun moreDestination(
                 repository = repository,
                 onSettingsChange = onSettingsChange,
                 billingState = billingState,
-                onBillingRefresh = onBillingRefresh,
-                onBillingPurchase = onBillingPurchase,
+                billingActions = billingActions,
+                notificationPermissionActions = notificationPermissionActions,
                 supportState = supportState,
             )
         }
@@ -585,15 +650,11 @@ private fun moreSectionTabs(
 @Composable
 private fun setupAndRemindersSection(
     state: com.kevpierce.catholicfasting.core.data.DashboardState,
-    onReminderTierChange: (ReminderTier) -> Unit,
-    onDailyQuoteReminderEnabledChange: (Boolean) -> Unit,
-    onDailyQuoteReminderTimeChange: (Int, Int) -> Unit,
-    onNoticeAcknowledgedChange: (Boolean) -> Unit,
-    onCompleteOnboarding: () -> Unit,
+    actions: SetupReminderActions,
+    notificationPermissionActions: NotificationPermissionActions,
     supportState: AppSupportState,
     modifier: Modifier = Modifier,
 ) {
-    val context = LocalContext.current
     Column(
         modifier =
             modifier
@@ -604,16 +665,17 @@ private fun setupAndRemindersSection(
         quickSetupCard(
             state = state,
             setupProgressSummary = supportState.setupProgressSummary,
-            onNoticeAcknowledgedChange = onNoticeAcknowledgedChange,
-            onCompleteOnboarding = onCompleteOnboarding,
+            onNoticeAcknowledgedChange = actions.onNoticeAcknowledgedChange,
+            onCompleteOnboarding = actions.onCompleteOnboarding,
         )
         reminderCenterCard(
             reminderCenterState = supportState.reminderCenterState,
             summaryLine = supportState.premiumSnapshot.reminderRecommendation.summaryLine,
-            notificationPermissionGranted = notificationsEnabled(context),
-            onReminderTierChange = onReminderTierChange,
-            onDailyQuoteReminderEnabledChange = onDailyQuoteReminderEnabledChange,
-            onDailyQuoteReminderTimeChange = onDailyQuoteReminderTimeChange,
+            notificationPermissionGranted = notificationPermissionActions.granted,
+            onRequestNotificationPermission = notificationPermissionActions.requestPermission,
+            onReminderTierChange = actions.onReminderTierChange,
+            onDailyQuoteReminderEnabledChange = actions.onDailyQuoteReminderEnabledChange,
+            onDailyQuoteReminderTimeChange = actions.onDailyQuoteReminderTimeChange,
         )
         sectionCard(title = stringResource(R.string.more_setup_progress_title)) {
             Text(supportState.setupProgressSummary)
@@ -689,6 +751,7 @@ private fun reminderCenterCard(
     reminderCenterState: ReminderCenterState,
     summaryLine: String,
     notificationPermissionGranted: Boolean,
+    onRequestNotificationPermission: () -> Unit,
     onReminderTierChange: (ReminderTier) -> Unit,
     onDailyQuoteReminderEnabledChange: (Boolean) -> Unit,
     onDailyQuoteReminderTimeChange: (Int, Int) -> Unit,
@@ -723,6 +786,12 @@ private fun reminderCenterCard(
                 stringResource(R.string.more_notification_permission_needed)
             },
         )
+        if (notificationPermissionSupported() && !notificationPermissionGranted) {
+            outlinedActionButton(
+                label = stringResource(R.string.more_request_notification_permission),
+                onClick = onRequestNotificationPermission,
+            )
+        }
         Text(stringResource(R.string.more_required_day_local))
         Text(stringResource(R.string.more_active_fast_sync))
     }
@@ -928,8 +997,9 @@ private fun rowWithScroll(content: @Composable () -> Unit) {
 private fun outlinedActionButton(
     label: String,
     onClick: () -> Unit,
+    enabled: Boolean = true,
 ) {
-    androidx.compose.material3.OutlinedButton(onClick = onClick) {
+    androidx.compose.material3.OutlinedButton(onClick = onClick, enabled = enabled) {
         Text(label)
     }
 }
@@ -952,27 +1022,40 @@ private fun MoreSection.labelRes(): Int =
     }
 
 private fun notificationsEnabled(context: Context): Boolean =
-    ContextCompat.checkSelfPermission(
-        context,
-        Manifest.permission.POST_NOTIFICATIONS,
-    ) == PackageManager.PERMISSION_GRANTED
+    !notificationPermissionSupported() ||
+        ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.POST_NOTIFICATIONS,
+        ) == PackageManager.PERMISSION_GRANTED
 
-private fun resolveTopLevelDestination(deepLink: String?): TopLevelDestination =
-    when {
-        deepLink?.contains("calendar", ignoreCase = true) == true -> TopLevelDestination.FASTING_DAYS
-        deepLink?.contains("tracker", ignoreCase = true) == true -> TopLevelDestination.TRACK_FAST
-        deepLink?.contains("more", ignoreCase = true) == true -> TopLevelDestination.MORE
-        else -> TopLevelDestination.TODAY
+private fun notificationPermissionSupported(): Boolean = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+
+@Composable
+private fun rememberNotificationPermissionActions(
+    context: Context,
+    refreshKey: List<Any?>,
+): NotificationPermissionActions {
+    var notificationPermissionGranted by rememberSaveable {
+        mutableStateOf(notificationsEnabled(context))
+    }
+    val notificationPermissionLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            notificationPermissionGranted = granted
+        }
+
+    LaunchedEffect(refreshKey) {
+        notificationPermissionGranted = notificationsEnabled(context)
     }
 
-private fun resolveMoreSection(deepLink: String?): MoreSection =
-    when {
-        deepLink?.contains("setup", ignoreCase = true) == true -> MoreSection.SETUP_REMINDERS
-        deepLink?.contains("profile", ignoreCase = true) == true -> MoreSection.PROFILE_NORMS
-        deepLink?.contains("guidance", ignoreCase = true) == true -> MoreSection.GUIDANCE_RULES
-        deepLink?.contains("privacy", ignoreCase = true) == true -> MoreSection.PRIVACY_DATA
-        else -> MoreSection.SUPPORT_PREMIUM
-    }
+    return NotificationPermissionActions(
+        granted = notificationPermissionGranted,
+        requestPermission = {
+            if (notificationPermissionSupported() && !notificationPermissionGranted) {
+                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        },
+    )
+}
 
 @Composable
 private fun moreSectionContent(
@@ -981,8 +1064,8 @@ private fun moreSectionContent(
     repository: com.kevpierce.catholicfasting.core.data.AppRepository,
     onSettingsChange: (com.kevpierce.catholicfasting.core.model.RuleSettings) -> Unit,
     billingState: com.kevpierce.catholicfasting.core.billing.BillingState,
-    onBillingRefresh: () -> Unit,
-    onBillingPurchase: (String) -> Unit,
+    billingActions: BillingActions,
+    notificationPermissionActions: NotificationPermissionActions,
     supportState: AppSupportState,
 ) {
     when (section) {
@@ -991,18 +1074,21 @@ private fun moreSectionContent(
                 state = state,
                 repository = repository,
                 billingState = billingState,
-                onBillingRefresh = onBillingRefresh,
-                onBillingPurchase = onBillingPurchase,
+                billingActions = billingActions,
                 supportState = supportState,
             )
         MoreSection.SETUP_REMINDERS ->
             setupAndRemindersSection(
                 state = state,
-                onReminderTierChange = repository::setReminderTier,
-                onDailyQuoteReminderEnabledChange = repository::setDailyQuoteReminderEnabled,
-                onDailyQuoteReminderTimeChange = repository::setDailyQuoteReminderTime,
-                onNoticeAcknowledgedChange = repository::setIndependentAppNoticeAcknowledged,
-                onCompleteOnboarding = repository::completeOnboarding,
+                actions =
+                    SetupReminderActions(
+                        onReminderTierChange = repository::setReminderTier,
+                        onDailyQuoteReminderEnabledChange = repository::setDailyQuoteReminderEnabled,
+                        onDailyQuoteReminderTimeChange = repository::setDailyQuoteReminderTime,
+                        onNoticeAcknowledgedChange = repository::setIndependentAppNoticeAcknowledged,
+                        onCompleteOnboarding = repository::completeOnboarding,
+                    ),
+                notificationPermissionActions = notificationPermissionActions,
                 supportState = supportState,
                 modifier = Modifier.fillMaxSize(),
             )
@@ -1032,8 +1118,7 @@ private fun supportAndPremiumSection(
     state: com.kevpierce.catholicfasting.core.data.DashboardState,
     repository: com.kevpierce.catholicfasting.core.data.AppRepository,
     billingState: com.kevpierce.catholicfasting.core.billing.BillingState,
-    onBillingRefresh: () -> Unit,
-    onBillingPurchase: (String) -> Unit,
+    billingActions: BillingActions,
     supportState: AppSupportState,
 ) {
     val context = LocalContext.current
@@ -1049,8 +1134,9 @@ private fun supportAndPremiumSection(
             ),
         actions =
             PremiumWorkspaceActions(
-                onRefresh = onBillingRefresh,
-                onPurchase = onBillingPurchase,
+                onRefresh = billingActions.onRefresh,
+                onManageSubscription = billingActions.onManageSubscription,
+                onPurchase = billingActions.onPurchase,
                 onSaveReflection = { title, body ->
                     repository.addReflectionEntry(title, body)
                         .fold(

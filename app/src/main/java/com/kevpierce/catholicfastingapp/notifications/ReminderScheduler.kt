@@ -13,6 +13,7 @@ import androidx.work.WorkManager
 import com.kevpierce.catholicfasting.core.data.DashboardState
 import com.kevpierce.catholicfasting.core.model.Observance
 import com.kevpierce.catholicfasting.core.rules.RequiredDayReminderPlanner
+import com.kevpierce.catholicfastingapp.R
 import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -35,18 +36,21 @@ object ReminderScheduler {
         val reminderTier = state.launchFunnelSnapshot.selectedReminderTier
         scheduleRequiredDayReminders(workManager, state.observances)
         scheduleDailySupport(
+            context = context,
             workManager = workManager,
             uniqueName = SUPPORT_WORK,
             enabled = reminderTier.supportEnabled,
             hourOfDay = 12,
         )
         scheduleDailySupport(
+            context = context,
             workManager = workManager,
             uniqueName = MORNING_WORK,
             enabled = reminderTier.morningEnabled,
             hourOfDay = 8,
         )
         scheduleDailySupport(
+            context = context,
             workManager = workManager,
             uniqueName = EVENING_WORK,
             enabled = reminderTier.eveningEnabled,
@@ -86,6 +90,7 @@ object ReminderScheduler {
     }
 
     private fun scheduleDailySupport(
+        context: Context,
         workManager: WorkManager,
         uniqueName: String,
         enabled: Boolean,
@@ -103,8 +108,12 @@ object ReminderScheduler {
                 .setConstraints(reminderConstraints())
                 .setInputData(
                     Data.Builder()
-                        .putString(ReminderWorker.KEY_TITLE, supportTitle(uniqueName))
-                        .putString(ReminderWorker.KEY_BODY, supportBody(uniqueName))
+                        .putString(ReminderWorker.KEY_TITLE, supportTitle(context, uniqueName))
+                        .putString(ReminderWorker.KEY_BODY, supportBody(context, uniqueName))
+                        .putString(
+                            ReminderWorker.KEY_DEEP_LINK,
+                            ReminderNotificationRoutes.deepLinkForKind(reminderKind(uniqueName)),
+                        )
                         .build(),
                 ).build()
 
@@ -121,6 +130,9 @@ object ReminderScheduler {
             .putString(
                 ReminderWorker.KEY_BODY,
                 observance.detail ?: observance.rationale,
+            ).putString(
+                ReminderWorker.KEY_DEEP_LINK,
+                ReminderNotificationRoutes.deepLinkForKind(ReminderNotificationRoutes.KIND_REQUIRED_DAY),
             ).build()
 
     private fun reminderConstraints(): Constraints =
@@ -146,19 +158,33 @@ object ReminderScheduler {
         return Duration.between(now, nextTarget.atZone(ZoneId.systemDefault()).toLocalDateTime())
     }
 
-    private fun supportTitle(uniqueName: String): String =
+    private fun supportTitle(
+        context: Context,
+        uniqueName: String,
+    ): String =
         when (uniqueName) {
-            SUPPORT_WORK -> "Catholic fasting support"
-            MORNING_WORK -> "Morning fast reminder"
-            EVENING_WORK -> "Evening examen reminder"
-            else -> "Catholic fasting reminder"
+            SUPPORT_WORK -> context.getString(R.string.notification_support_title)
+            MORNING_WORK -> context.getString(R.string.notification_morning_title)
+            EVENING_WORK -> context.getString(R.string.notification_evening_title)
+            else -> context.getString(R.string.notification_support_generic_title)
         }
 
-    private fun supportBody(uniqueName: String): String =
+    private fun supportBody(
+        context: Context,
+        uniqueName: String,
+    ): String =
         when (uniqueName) {
-            SUPPORT_WORK -> "Take a quiet moment to prepare today’s fasting discipline."
-            MORNING_WORK -> "Begin the day with intention for prayer, abstinence, and charity."
-            EVENING_WORK -> "Review the day with gratitude and note any penance still to complete."
-            else -> "Open Catholic Fasting for today’s plan."
+            SUPPORT_WORK -> context.getString(R.string.notification_support_body)
+            MORNING_WORK -> context.getString(R.string.notification_morning_body)
+            EVENING_WORK -> context.getString(R.string.notification_evening_body)
+            else -> context.getString(R.string.notification_support_generic_body)
+        }
+
+    private fun reminderKind(uniqueName: String): String =
+        when (uniqueName) {
+            SUPPORT_WORK -> ReminderNotificationRoutes.KIND_SUPPORT
+            MORNING_WORK -> ReminderNotificationRoutes.KIND_MORNING
+            EVENING_WORK -> ReminderNotificationRoutes.KIND_EVENING
+            else -> ReminderNotificationRoutes.KIND_SUPPORT
         }
 }

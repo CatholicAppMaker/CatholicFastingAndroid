@@ -42,6 +42,7 @@ data class PremiumWorkspaceUiState(
 
 data class PremiumWorkspaceActions(
     val onRefresh: () -> Unit,
+    val onManageSubscription: () -> Unit,
     val onPurchase: (String) -> Unit,
     val onSaveReflection: (String, String) -> String,
     val onExportEncryptedBackup: (String) -> Result<String>,
@@ -67,17 +68,22 @@ fun premiumScreen(
         billingHeaderItems(
             billingState = billingState,
             onRefresh = actions.onRefresh,
+            onManageSubscription = actions.onManageSubscription,
         )
         offerItems(
             titleRes = R.string.premium_subscriptions_title,
             offers = billingState.premiumOffers,
             actionLabelRes = R.string.premium_subscribe,
+            emptyStateRes = R.string.premium_no_subscription_offers,
+            actionsDisabled = billingState.isLoading || billingState.isPurchasing,
             onPurchase = actions.onPurchase,
         )
         offerItems(
             titleRes = R.string.premium_support_tips_title,
             offers = billingState.tipOffers,
             actionLabelRes = R.string.premium_support,
+            emptyStateRes = R.string.premium_no_tip_offers,
+            actionsDisabled = billingState.isLoading || billingState.isPurchasing,
             onPurchase = actions.onPurchase,
         )
         item {
@@ -137,6 +143,7 @@ fun premiumScreen(
 private fun androidx.compose.foundation.lazy.LazyListScope.billingHeaderItems(
     billingState: BillingState,
     onRefresh: () -> Unit,
+    onManageSubscription: () -> Unit,
 ) {
     item {
         Text(
@@ -167,9 +174,21 @@ private fun androidx.compose.foundation.lazy.LazyListScope.billingHeaderItems(
                 if (billingState.isLoading) {
                     stringResource(R.string.premium_refreshing)
                 } else {
-                    stringResource(R.string.premium_refresh_purchases)
+                    stringResource(R.string.premium_restore_refresh_purchases)
                 },
             )
+        }
+    }
+    if (billingState.canManageSubscription) {
+        item {
+            OutlinedButton(onClick = onManageSubscription) {
+                Text(stringResource(R.string.premium_manage_subscription))
+            }
+        }
+    }
+    if (billingState.hasPendingPurchases) {
+        item {
+            Text(stringResource(R.string.premium_purchase_pending))
         }
     }
 }
@@ -178,15 +197,24 @@ private fun androidx.compose.foundation.lazy.LazyListScope.offerItems(
     @StringRes titleRes: Int,
     offers: List<BillingOfferUi>,
     @StringRes actionLabelRes: Int,
+    @StringRes emptyStateRes: Int,
+    actionsDisabled: Boolean,
     onPurchase: (String) -> Unit,
 ) {
     item {
         Text(stringResource(titleRes), style = MaterialTheme.typography.titleLarge)
     }
+    if (offers.isEmpty()) {
+        item {
+            Text(stringResource(emptyStateRes))
+        }
+        return
+    }
     items(offers, key = BillingOfferUi::productId) { offer ->
         offerCard(
             offer = offer,
             actionLabel = stringResource(actionLabelRes),
+            actionEnabled = !actionsDisabled,
             onAction = { onPurchase(offer.productId) },
         )
     }
@@ -243,7 +271,8 @@ private fun encryptedBackupCard(
     onStatus: (String) -> Unit,
 ) {
     var backupPassphrase by remember { mutableStateOf("") }
-    var backupCode by remember { mutableStateOf("") }
+    var generatedBackupCode by remember { mutableStateOf("") }
+    var importBackupCode by remember { mutableStateOf("") }
     val backupGenerated = stringResource(R.string.premium_backup_generated)
     val backupExportFailed = stringResource(R.string.premium_backup_export_failed)
 
@@ -258,7 +287,7 @@ private fun encryptedBackupCard(
             onClick = {
                 onExportEncryptedBackup(backupPassphrase)
                     .onSuccess {
-                        backupCode = it
+                        generatedBackupCode = it
                         onStatus(backupGenerated)
                     }.onFailure {
                         onStatus(it.message ?: backupExportFailed)
@@ -267,15 +296,28 @@ private fun encryptedBackupCard(
         ) {
             Text(stringResource(R.string.premium_generate_encrypted_backup))
         }
+        if (generatedBackupCode.isNotBlank()) {
+            OutlinedTextField(
+                value = generatedBackupCode,
+                onValueChange = {},
+                readOnly = true,
+                label = { Text(stringResource(R.string.premium_generated_backup_code_label)) },
+                modifier = Modifier.fillMaxWidth(),
+                minLines = 3,
+                maxLines = 4,
+            )
+        }
         OutlinedTextField(
-            value = backupCode,
-            onValueChange = { backupCode = it },
-            label = { Text(stringResource(R.string.premium_encrypted_backup_code_label)) },
+            value = importBackupCode,
+            onValueChange = { importBackupCode = it },
+            label = { Text(stringResource(R.string.premium_paste_encrypted_backup_code_label)) },
             modifier = Modifier.fillMaxWidth(),
+            minLines = 3,
+            maxLines = 4,
         )
         Button(
             onClick = {
-                onStatus(onImportEncryptedBackup(backupCode, backupPassphrase))
+                onStatus(onImportEncryptedBackup(importBackupCode, backupPassphrase))
             },
         ) {
             Text(stringResource(R.string.premium_import_encrypted_backup))
@@ -289,7 +331,8 @@ private fun householdShareCard(
     onImportHouseholdShareCode: (String) -> String,
     onStatus: (String) -> Unit,
 ) {
-    var householdCode by remember { mutableStateOf("") }
+    var generatedHouseholdCode by remember { mutableStateOf("") }
+    var importHouseholdCode by remember { mutableStateOf("") }
     val householdCodeGenerated = stringResource(R.string.premium_household_code_generated)
     val householdCodeFailed = stringResource(R.string.premium_household_code_failed)
 
@@ -298,7 +341,7 @@ private fun householdShareCard(
             onClick = {
                 onGenerateHouseholdShareCode()
                     .onSuccess {
-                        householdCode = it
+                        generatedHouseholdCode = it
                         onStatus(householdCodeGenerated)
                     }.onFailure {
                         onStatus(it.message ?: householdCodeFailed)
@@ -307,15 +350,28 @@ private fun householdShareCard(
         ) {
             Text(stringResource(R.string.premium_generate_household_code))
         }
+        if (generatedHouseholdCode.isNotBlank()) {
+            OutlinedTextField(
+                value = generatedHouseholdCode,
+                onValueChange = {},
+                readOnly = true,
+                label = { Text(stringResource(R.string.premium_generated_household_code_label)) },
+                modifier = Modifier.fillMaxWidth(),
+                minLines = 3,
+                maxLines = 4,
+            )
+        }
         OutlinedTextField(
-            value = householdCode,
-            onValueChange = { householdCode = it },
-            label = { Text(stringResource(R.string.premium_household_share_code_label)) },
+            value = importHouseholdCode,
+            onValueChange = { importHouseholdCode = it },
+            label = { Text(stringResource(R.string.premium_paste_household_share_code_label)) },
             modifier = Modifier.fillMaxWidth(),
+            minLines = 3,
+            maxLines = 4,
         )
         Button(
             onClick = {
-                onStatus(onImportHouseholdShareCode(householdCode))
+                onStatus(onImportHouseholdShareCode(importHouseholdCode))
             },
         ) {
             Text(stringResource(R.string.premium_import_household_code))
@@ -439,12 +495,13 @@ private fun workspaceCard(
 private fun offerCard(
     offer: BillingOfferUi,
     actionLabel: String,
+    actionEnabled: Boolean,
     onAction: () -> Unit,
 ) {
     workspaceCard(title = offer.displayTitle) {
         Text(offer.priceLabel)
         Text(offer.billingLabel)
-        Button(onClick = onAction) {
+        Button(onClick = onAction, enabled = actionEnabled) {
             Text(actionLabel)
         }
     }

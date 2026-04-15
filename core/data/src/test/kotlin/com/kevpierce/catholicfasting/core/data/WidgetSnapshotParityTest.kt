@@ -34,4 +34,22 @@ class WidgetSnapshotParityTest {
         assertThat(snapshot.activeIntermittentFastStartIso).isEqualTo("2026-03-13T08:00:00Z")
         assertThat(snapshot.activeIntermittentTargetHours).isEqualTo(16)
     }
+
+    @Test
+    fun widgetSnapshotIncludesUpcomingRequiredObservanceAndInactiveTrackerState() {
+        val settings = RuleSettings()
+        val observances = observancesFor(2026, settings)
+        val snapshot =
+            DashboardState(
+                settings = settings,
+                year = 2026,
+                observances = observances,
+            ).buildWidgetSnapshot(now = Instant.parse("2026-03-13T12:00:00Z"))
+
+        assertThat(snapshot.nextRequiredTitle).isNotEmpty()
+        assertThat(snapshot.nextRequiredDateIso).isNotNull()
+        assertThat(snapshot.hasActiveIntermittentFast).isFalse()
+        assertThat(snapshot.activeIntermittentFastStartIso).isNull()
+        assertThat(snapshot.activeIntermittentTargetHours).isEqualTo(16)
+    }
 }

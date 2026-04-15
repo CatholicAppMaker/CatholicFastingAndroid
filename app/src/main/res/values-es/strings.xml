@@ -32,6 +32,7 @@
     <string name="more_reminder_strategy_body">La siguiente estrategia de recordatorios sigue la proxima observancia obligatoria y tu tasa reciente de cumplimiento.</string>
     <string name="more_notification_permission_granted">El permiso de notificaciones esta concedido.</string>
     <string name="more_notification_permission_needed">Todavia se necesita el permiso de notificaciones para enviar recordatorios.</string>
+    <string name="more_request_notification_permission">Solicitar permiso de notificaciones</string>
     <string name="more_required_day_local">Los recordatorios de dias obligatorios se programan localmente en el dispositivo.</string>
     <string name="more_active_fast_sync">Las notificaciones de ayuno activo se mantienen sincronizadas mientras el ayuno intermitente esta en curso.</string>
     <string name="more_privacy_title">Privacidad y datos</string>
@@ -83,6 +84,9 @@
     <string name="onboarding_premium_body">Premium agrega planificacion de temporada, guia de recuperacion, recomendaciones de recordatorios y herramientas privadas de reflexion sin cambiar el modelo local-first.</string>
     <string name="onboarding_quote_card_value">"%1$s" — %2$s</string>
     <string name="onboarding_finish">Terminar configuracion</string>
+    <string name="onboarding_finish_blocked">La configuracion final se activa cuando confianza, region y ritmo de recordatorios ya estan definidos.</string>
+    <string name="onboarding_notification_permission_needed">Todavia se necesita el permiso de notificaciones si quieres recibir recordatorios en este telefono.</string>
+    <string name="onboarding_request_notification_permission">Permitir notificaciones de recordatorio</string>
     <string name="status_schedule_saved">Se guardo %1$s localmente.</string>
     <string name="status_schedule_save_failed">No se pudo guardar el horario.</string>
     <string name="status_schedule_deleted">Horario eliminado.</string>
@@ -113,5 +117,16 @@
     <string name="notification_fast_body">Tu ayuno intermitente esta activo. Manten la intencion de forma orante y sostenible.</string>
     <string name="notification_fast_action_end">Terminar ayuno</string>
     <string name="notification_fast_action_open">Abrir rastreador</string>
-    <string name="notification_reminder_action_open">Abrir Hoy</string>
+    <string name="notification_support_title">Apoyo para el ayuno catolico</string>
+    <string name="notification_support_body">Toma un momento de silencio para preparar la disciplina de ayuno de hoy.</string>
+    <string name="notification_morning_title">Recordatorio matutino de ayuno</string>
+    <string name="notification_morning_body">Comienza el dia con intencion para la oracion, la abstinencia y la caridad.</string>
+    <string name="notification_evening_title">Recordatorio vespertino de examen</string>
+    <string name="notification_evening_body">Repasa el dia con gratitud y anota cualquier penitencia que aun falte completar.</string>
+    <string name="notification_support_generic_title">Recordatorio de ayuno catolico</string>
+    <string name="notification_support_generic_body">Abre Catholic Fasting para el plan de hoy.</string>
+    <string name="notification_reminder_fallback_title">Recordatorio de ayuno catolico</string>
+    <string name="notification_reminder_fallback_body">Abre la app para el plan de observancia de hoy.</string>
+    <string name="notification_reminder_action_open_today">Abrir Hoy</string>
+    <string name="notification_reminder_action_open_calendar">Abrir Dias de Ayuno</string>
 </resources>

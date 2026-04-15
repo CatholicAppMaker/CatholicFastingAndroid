@@ -32,6 +32,7 @@
     <string name="more_reminder_strategy_body">Next reminder strategy follows the next required observance and your recent completion rate.</string>
     <string name="more_notification_permission_granted">Notification permission is currently granted.</string>
     <string name="more_notification_permission_needed">Notification permission is still needed for reminder delivery.</string>
+    <string name="more_request_notification_permission">Request notification permission</string>
     <string name="more_required_day_local">Required-day reminders are scheduled locally on-device.</string>
     <string name="more_active_fast_sync">Active fast notifications stay in sync while an intermittent fast is running.</string>
     <string name="more_privacy_title">Privacy &amp; data</string>
@@ -83,6 +84,9 @@
     <string name="onboarding_premium_body">Premium adds season planning, recovery guidance, reminders recommendations, and private reflection tools without changing the local-first trust model.</string>
     <string name="onboarding_quote_card_value">“%1$s” — %2$s</string>
     <string name="onboarding_finish">Finish setup</string>
+    <string name="onboarding_finish_blocked">Finish setup unlocks after trust, region, and reminder rhythm are set.</string>
+    <string name="onboarding_notification_permission_needed">Notification permission is still needed if you want reminder delivery on this phone.</string>
+    <string name="onboarding_request_notification_permission">Allow reminder notifications</string>
     <string name="status_schedule_saved">Saved %1$s locally.</string>
     <string name="status_schedule_save_failed">Could not save schedule.</string>
     <string name="status_schedule_deleted">Schedule deleted.</string>
@@ -113,5 +117,16 @@
     <string name="notification_fast_body">Your intermittent fast is active. Keep the intention prayerful and sustainable.</string>
     <string name="notification_fast_action_end">End Fast</string>
     <string name="notification_fast_action_open">Open Tracker</string>
-    <string name="notification_reminder_action_open">Open Today</string>
+    <string name="notification_support_title">Catholic fasting support</string>
+    <string name="notification_support_body">Take a quiet moment to prepare today’s fasting discipline.</string>
+    <string name="notification_morning_title">Morning fast reminder</string>
+    <string name="notification_morning_body">Begin the day with intention for prayer, abstinence, and charity.</string>
+    <string name="notification_evening_title">Evening examen reminder</string>
+    <string name="notification_evening_body">Review the day with gratitude and note any penance still to complete.</string>
+    <string name="notification_support_generic_title">Catholic fasting reminder</string>
+    <string name="notification_support_generic_body">Open Catholic Fasting for today’s plan.</string>
+    <string name="notification_reminder_fallback_title">Catholic fasting reminder</string>
+    <string name="notification_reminder_fallback_body">Open the app for today’s observance plan.</string>
+    <string name="notification_reminder_action_open_today">Open Today</string>
+    <string name="notification_reminder_action_open_calendar">Open Fasting Days</string>
 </resources>

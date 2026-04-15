@@ -43,7 +43,7 @@ object IntermittentFastNotificationManager {
         targetHours: Int,
     ) {
         if (startIso == null) {
-            NotificationManagerCompat.from(context).cancel(NOTIFICATION_ID)
+            cancelActiveFast(context)
             return
         }
         if (!canPostNotifications(context)) {
@@ -61,47 +61,68 @@ object IntermittentFastNotificationManager {
                 )
             } ?: context.getString(R.string.notification_fast_in_progress)
 
-        val notification =
-            NotificationCompat.Builder(context, CHANNEL_ID)
-                .setSmallIcon(android.R.drawable.ic_dialog_info)
-                .setContentTitle(context.getString(R.string.notification_fast_title))
-                .setContentText(
-                    context.getString(
-                        R.string.notification_fast_target_value,
-                        elapsed,
-                        targetHours,
-                    ),
-                )
-                .setStyle(
-                    NotificationCompat.BigTextStyle().bigText(
-                        context.getString(R.string.notification_fast_body),
-                    ),
-                ).setOngoing(true)
-                .setOnlyAlertOnce(true)
-                .setContentIntent(
-                    AppNavigationIntents.activityPendingIntent(
-                        context = context,
-                        deepLink = AppDeepLinks.TRACKER,
-                        requestCode = 2001,
-                    ),
-                ).addAction(
-                    0,
-                    context.getString(R.string.notification_fast_action_end),
-                    AppNavigationIntents.endFastPendingIntent(context),
-                ).addAction(
-                    0,
-                    context.getString(R.string.notification_fast_action_open),
-                    AppNavigationIntents.activityPendingIntent(
-                        context = context,
-                        deepLink = AppDeepLinks.TRACKER,
-                        requestCode = 2002,
-                    ),
-                )
-                .setPriority(NotificationCompat.PRIORITY_LOW)
-                .setSilent(true)
-                .build()
+        notifySafely(
+            context = context,
+            notification =
+                activeFastNotification(
+                    context = context,
+                    startIso = startIso,
+                    elapsed = elapsed,
+                    targetHours = targetHours,
+                ),
+        )
+    }
 
-        notifySafely(context, notification)
+    private fun activeFastNotification(
+        context: Context,
+        startIso: String,
+        elapsed: String,
+        targetHours: Int,
+    ): android.app.Notification =
+        NotificationCompat.Builder(context, CHANNEL_ID)
+            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .setContentTitle(context.getString(R.string.notification_fast_title))
+            .setContentText(
+                context.getString(
+                    R.string.notification_fast_target_value,
+                    elapsed,
+                    targetHours,
+                ),
+            ).setStyle(
+                NotificationCompat.BigTextStyle().bigText(
+                    context.getString(R.string.notification_fast_body),
+                ),
+            ).setOngoing(true)
+            .setOnlyAlertOnce(true)
+            .setContentIntent(
+                AppNavigationIntents.activityPendingIntent(
+                    context = context,
+                    deepLink = AppDeepLinks.TRACKER,
+                    requestCode = 2001,
+                ),
+            ).addAction(
+                0,
+                context.getString(R.string.notification_fast_action_end),
+                AppNavigationIntents.endFastPendingIntent(
+                    context = context,
+                    startIso = startIso,
+                    targetHours = targetHours,
+                ),
+            ).addAction(
+                0,
+                context.getString(R.string.notification_fast_action_open),
+                AppNavigationIntents.activityPendingIntent(
+                    context = context,
+                    deepLink = AppDeepLinks.TRACKER,
+                    requestCode = 2002,
+                ),
+            )
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setSilent(true)
+            .build()
+
+    fun cancelActiveFast(context: Context) {
+        NotificationManagerCompat.from(context).cancel(NOTIFICATION_ID)
     }
 
     private fun canPostNotifications(context: Context): Boolean {

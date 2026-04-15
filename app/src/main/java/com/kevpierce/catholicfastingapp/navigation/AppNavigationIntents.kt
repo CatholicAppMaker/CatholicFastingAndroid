@@ -28,12 +28,18 @@ object AppNavigationIntents {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
 
-    fun endFastPendingIntent(context: Context): PendingIntent =
+    fun endFastPendingIntent(
+        context: Context,
+        startIso: String,
+        targetHours: Int,
+    ): PendingIntent =
         PendingIntent.getBroadcast(
             context,
             4101,
             Intent(context, NotificationActionReceiver::class.java).apply {
                 action = NotificationActionReceiver.ACTION_END_FAST
+                putExtra(NotificationActionReceiver.EXTRA_START_ISO, startIso)
+                putExtra(NotificationActionReceiver.EXTRA_TARGET_HOURS, targetHours)
             },
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )

@@ -86,6 +86,27 @@ class ExportCodecTest {
         assertThat(failure).isNotNull()
     }
 
+    @Test
+    fun encryptedBackupRejectsMalformedCode() {
+        val failure =
+            runCatching {
+                ExportCodec.importEncryptedBackup("not-a-valid-backup-payload", passphrase = "fidelity-passphrase")
+            }.exceptionOrNull()
+
+        assertThat(failure).isNotNull()
+    }
+
+    @Test
+    fun householdShareRejectsBlankCode() {
+        val failure =
+            runCatching {
+                ExportCodec.importHouseholdShareCode("", sampleState())
+            }.exceptionOrNull()
+
+        assertThat(failure).isNotNull()
+        assertThat(failure!!.message).contains("Paste a household share code first.")
+    }
+
     private fun sampleState(): DashboardState {
         val settings = RuleSettings()
         val year = 2026

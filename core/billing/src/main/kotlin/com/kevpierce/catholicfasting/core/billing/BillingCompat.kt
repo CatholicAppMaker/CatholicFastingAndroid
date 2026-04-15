@@ -14,3 +14,5 @@ internal fun ProductDetails.productTypeCompat(): String = getProductType()
 internal fun Purchase.purchaseStateCompat(): Int = getPurchaseState()
 
 internal fun Purchase.isAcknowledgedCompat(): Boolean = isAcknowledged()
+
+internal fun Purchase.productsCompat(): List<String> = products

@@ -25,4 +25,6 @@ dependencies {
     api(project(":core:model"))
     api(libs.androidx.billing.ktx)
     implementation(libs.kotlinx.coroutines.core)
+    testImplementation(libs.junit4)
+    testImplementation(libs.truth)
 }

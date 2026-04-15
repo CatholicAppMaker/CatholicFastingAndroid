@@ -23,8 +23,19 @@ class ReminderWorker(
             return Result.success()
         }
 
-        val title = inputData.getString(KEY_TITLE) ?: "Catholic fasting reminder"
-        val body = inputData.getString(KEY_BODY) ?: "Open the app for today’s observance plan."
+        val title =
+            inputData.getString(KEY_TITLE)
+                ?: applicationContext.getString(R.string.notification_reminder_fallback_title)
+        val body =
+            inputData.getString(KEY_BODY)
+                ?: applicationContext.getString(R.string.notification_reminder_fallback_body)
+        val deepLink = inputData.getString(KEY_DEEP_LINK) ?: AppDeepLinks.TODAY
+        val actionLabel =
+            if (ReminderNotificationRoutes.opensCalendar(deepLink)) {
+                applicationContext.getString(R.string.notification_reminder_action_open_calendar)
+            } else {
+                applicationContext.getString(R.string.notification_reminder_action_open_today)
+            }
 
         notifyReminder(
             notificationId = title.hashCode(),
@@ -37,16 +48,16 @@ class ReminderWorker(
                     .setContentIntent(
                         AppNavigationIntents.activityPendingIntent(
                             context = applicationContext,
-                            deepLink = AppDeepLinks.TODAY,
+                            deepLink = deepLink,
                             requestCode = title.hashCode(),
                         ),
                     )
                     .addAction(
                         0,
-                        applicationContext.getString(R.string.notification_reminder_action_open),
+                        actionLabel,
                         AppNavigationIntents.activityPendingIntent(
                             context = applicationContext,
-                            deepLink = AppDeepLinks.TODAY,
+                            deepLink = deepLink,
                             requestCode = title.hashCode() + 1,
                         ),
                     )
@@ -70,6 +81,7 @@ class ReminderWorker(
     companion object {
         const val KEY_TITLE = "title"
         const val KEY_BODY = "body"
+        const val KEY_DEEP_LINK = "deep_link"
     }
 
     @SuppressLint("MissingPermission")

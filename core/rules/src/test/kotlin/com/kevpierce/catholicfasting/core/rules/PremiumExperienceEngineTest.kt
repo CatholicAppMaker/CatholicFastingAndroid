@@ -10,8 +10,10 @@ import com.kevpierce.catholicfasting.core.model.Observance
 import com.kevpierce.catholicfasting.core.model.ObservanceKind
 import com.kevpierce.catholicfasting.core.model.ObservanceObligation
 import com.kevpierce.catholicfasting.core.model.PremiumAnalyticsSummary
+import com.kevpierce.catholicfasting.core.model.PremiumCompanionState
 import com.kevpierce.catholicfasting.core.model.PremiumReflection
 import com.kevpierce.catholicfasting.core.model.PremiumReminderRecommendation
+import com.kevpierce.catholicfasting.core.model.PremiumRuleTemplate
 import com.kevpierce.catholicfasting.core.model.PremiumSeasonPlan
 import com.kevpierce.catholicfasting.core.model.PremiumSubscriptionState
 import com.kevpierce.catholicfasting.core.model.RuleSettings
@@ -59,6 +61,48 @@ class PremiumExperienceEngineTest {
         assertThat(recommendation.shouldEnableMorning).isTrue()
         assertThat(recommendation.shouldEnableEvening).isTrue()
         assertThat(recommendation.summaryLine.lowercase()).contains("recovery")
+    }
+
+    @Test
+    fun reminderPlannerUsesPreparationModeWhenRequiredDaysAreUpcoming() {
+        val recommendation =
+            PremiumReminderPlanner.recommendation(
+                observances =
+                    listOf(
+                        testObservance("done", "Done", "2026-03-03", ObservanceObligation.MANDATORY),
+                        testObservance("upcoming", "Upcoming", "2026-03-15", ObservanceObligation.MANDATORY),
+                    ),
+                statusesById = mapOf("done" to CompletionStatus.COMPLETED),
+                now = LocalDate.of(2026, 3, 10),
+            )
+
+        assertThat(recommendation.shouldEnableDailySupport).isTrue()
+        assertThat(recommendation.shouldEnableMorning).isTrue()
+        assertThat(recommendation.shouldEnableEvening).isFalse()
+        assertThat(recommendation.summaryLine.lowercase()).contains("preparation")
+    }
+
+    @Test
+    fun reminderPlannerUsesMaintenanceModeWhenRhythmIsStable() {
+        val recommendation =
+            PremiumReminderPlanner.recommendation(
+                observances =
+                    listOf(
+                        testObservance("a", "A", "2026-03-02", ObservanceObligation.MANDATORY),
+                        testObservance("b", "B", "2026-03-06", ObservanceObligation.OPTIONAL),
+                    ),
+                statusesById =
+                    mapOf(
+                        "a" to CompletionStatus.COMPLETED,
+                        "b" to CompletionStatus.COMPLETED,
+                    ),
+                now = LocalDate.of(2026, 3, 20),
+            )
+
+        assertThat(recommendation.shouldEnableDailySupport).isTrue()
+        assertThat(recommendation.shouldEnableMorning).isFalse()
+        assertThat(recommendation.shouldEnableEvening).isTrue()
+        assertThat(recommendation.summaryLine.lowercase()).contains("maintenance")
     }
 
     @Test
@@ -153,6 +197,44 @@ class PremiumExperienceEngineTest {
         assertThat(summary).contains("Discipline Metrics")
         assertThat(summary).contains("Reminder Strategy")
         assertThat(summary).contains("Reflection")
+    }
+
+    @Test
+    fun snapshotBuildCarriesRecoveryGuidanceAndStreakMotivation() {
+        val snapshot =
+            PremiumSnapshotEngine.build(
+                observances =
+                    listOf(
+                        testObservance("missed", "Ash Wednesday", "2026-03-05", ObservanceObligation.MANDATORY),
+                        testObservance("steady", "Friday Penance", "2026-03-07", ObservanceObligation.OPTIONAL),
+                        testObservance("required", "Lenten Friday", "2026-03-09", ObservanceObligation.MANDATORY),
+                    ),
+                statusesById =
+                    mapOf(
+                        "missed" to CompletionStatus.MISSED,
+                        "steady" to CompletionStatus.COMPLETED,
+                        "required" to CompletionStatus.COMPLETED,
+                    ),
+                sessions = emptyList(),
+                settings = defaultSettings,
+                companionState =
+                    PremiumCompanionState(
+                        template = PremiumRuleTemplate.TRADITIONAL,
+                        optionalDisciplinesPerWeek = 3,
+                        fixedFastWeekday = 6,
+                        protectFeastDays = true,
+                        seasonProgramStartIso = "2026-03-01T00:00:00Z",
+                    ),
+                today = LocalDate.of(2026, 3, 10),
+            )
+
+        assertThat(snapshot.season).isEqualTo(LiturgicalSeason.LENT)
+        assertThat(snapshot.recoveryCoachPlan.title).contains("Ash Wednesday")
+        assertThat(snapshot.recoveryCoachPlan.summary.lowercase()).contains("almsgiving")
+        assertThat(snapshot.adaptiveRulePlan.title).isEqualTo("Traditional Rule Plan")
+        assertThat(snapshot.adaptiveRulePlan.caution.lowercase()).contains("celebration mode")
+        assertThat(snapshot.motivationLine).contains("Traditional rule")
+        assertThat(snapshot.motivationLine).contains("Streak 2d")
     }
 
     @Test
