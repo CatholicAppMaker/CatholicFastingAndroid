@@ -1,8 +1,23 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
 }
+
+val releaseKeystoreProperties =
+    Properties().apply {
+        val propertiesFile = rootProject.file("keystore.properties")
+        if (propertiesFile.exists()) {
+            propertiesFile.inputStream().use(::load)
+        }
+    }
+
+val hasReleaseSigning =
+    listOf("storeFile", "storePassword", "keyAlias", "keyPassword").all { key ->
+        !releaseKeystoreProperties.getProperty(key).isNullOrBlank()
+    }
 
 android {
     namespace = "com.kevpierce.catholicfastingapp"
@@ -19,9 +34,23 @@ android {
         vectorDrawables.useSupportLibrary = true
     }
 
+    signingConfigs {
+        if (hasReleaseSigning) {
+            create("release") {
+                storeFile = rootProject.file(checkNotNull(releaseKeystoreProperties.getProperty("storeFile")))
+                storePassword = checkNotNull(releaseKeystoreProperties.getProperty("storePassword"))
+                keyAlias = checkNotNull(releaseKeystoreProperties.getProperty("keyAlias"))
+                keyPassword = checkNotNull(releaseKeystoreProperties.getProperty("keyPassword"))
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
+            if (hasReleaseSigning) {
+                signingConfig = signingConfigs.getByName("release")
+            }
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
@@ -80,4 +109,10 @@ dependencies {
     debugImplementation(libs.compose.ui.test.manifest)
     testImplementation(libs.junit4)
     testImplementation(libs.truth)
+    androidTestImplementation(platform(libs.compose.bom))
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
+    androidTestImplementation("androidx.test:core-ktx:1.6.1")
+    androidTestImplementation("androidx.test.ext:junit:1.2.1")
+    androidTestImplementation("androidx.test.uiautomator:uiautomator:2.3.0")
+    androidTestImplementation(libs.truth)
 }

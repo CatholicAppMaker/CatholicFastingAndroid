@@ -1,6 +1,11 @@
 <resources>
     <string name="guidance_title">Guia y Reglas</string>
     <string name="guidance_food_title">Guia de alimentos</string>
+    <string name="guidance_label_normal_day">Dia normal</string>
+    <string name="guidance_label_heavy_labor">Trabajo pesado</string>
+    <string name="guidance_label_travel">Viaje</string>
+    <string name="guidance_label_social_meal">Comida social</string>
+    <string name="guidance_label_medical_recovery">Recuperacion medica</string>
     <string name="guidance_avoid_value">Evitar: %1$s</string>
     <string name="guidance_permitted_value">Permitido: %1$s</string>
     <string name="guidance_meal_pattern_value">Patron de comida: %1$s</string>
@@ -14,4 +19,7 @@
     <string name="guidance_needs_review">El paquete de reglas necesita revision.</string>
     <string name="guidance_no_warnings">No se detectaron advertencias.</string>
     <string name="guidance_warning_value">Advertencia: %1$s</string>
+    <string name="guidance_region_us">Usa las normas de Estados Unidos segun la configuracion y luego sigue a tu parroco y a la guia diocesana.</string>
+    <string name="guidance_region_canada">La practica del viernes en Canada puede variar; mantén presente la guia episcopal local.</string>
+    <string name="guidance_region_other">Fuera de Estados Unidos y Canada, la ley episcopal local y la guia pastoral tienen prioridad.</string>
 </resources>

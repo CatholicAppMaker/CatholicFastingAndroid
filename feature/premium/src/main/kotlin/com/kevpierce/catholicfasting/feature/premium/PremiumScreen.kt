@@ -45,10 +45,6 @@ data class PremiumWorkspaceActions(
     val onManageSubscription: () -> Unit,
     val onPurchase: (String) -> Unit,
     val onSaveReflection: (String, String) -> String,
-    val onExportEncryptedBackup: (String) -> Result<String>,
-    val onImportEncryptedBackup: (String, String) -> String,
-    val onGenerateHouseholdShareCode: () -> Result<String>,
-    val onImportHouseholdShareCode: (String) -> String,
 )
 
 @Suppress("LongMethod")
@@ -60,6 +56,7 @@ fun premiumScreen(
     modifier: Modifier = Modifier,
 ) {
     var workspaceStatus by remember { mutableStateOf("") }
+    val billingStatusMessage = billingState.statusMessage?.localizedText()
 
     LazyColumn(
         modifier = modifier.padding(16.dp),
@@ -113,23 +110,9 @@ fun premiumScreen(
                 onStatus = { workspaceStatus = it },
             )
         }
-        item {
-            encryptedBackupCard(
-                onExportEncryptedBackup = actions.onExportEncryptedBackup,
-                onImportEncryptedBackup = actions.onImportEncryptedBackup,
-                onStatus = { workspaceStatus = it },
-            )
-        }
-        item {
-            householdShareCard(
-                onGenerateHouseholdShareCode = actions.onGenerateHouseholdShareCode,
-                onImportHouseholdShareCode = actions.onImportHouseholdShareCode,
-                onStatus = { workspaceStatus = it },
-            )
-        }
-        if (billingState.statusMessage.isNotBlank()) {
+        if (billingStatusMessage != null) {
             item {
-                Text(billingState.statusMessage)
+                Text(billingStatusMessage)
             }
         }
         if (workspaceStatus.isNotBlank()) {
@@ -145,6 +128,8 @@ private fun androidx.compose.foundation.lazy.LazyListScope.billingHeaderItems(
     onRefresh: () -> Unit,
     onManageSubscription: () -> Unit,
 ) {
+    val subscriptionHealthMessage = billingState.subscriptionHealthMessage
+
     item {
         Text(
             stringResource(R.string.premium_title),
@@ -153,7 +138,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.billingHeaderItems(
         )
     }
     item {
-        Text(billingState.catalog.subtitle)
+        Text(stringResource(R.string.premium_catalog_subtitle))
     }
     item {
         Text(
@@ -165,8 +150,8 @@ private fun androidx.compose.foundation.lazy.LazyListScope.billingHeaderItems(
             style = MaterialTheme.typography.titleMedium,
         )
     }
-    if (billingState.subscriptionHealthMessage.isNotBlank()) {
-        item { Text(billingState.subscriptionHealthMessage) }
+    if (subscriptionHealthMessage != null) {
+        item { Text(subscriptionHealthMessage.localizedText()) }
     }
     item {
         OutlinedButton(onClick = onRefresh) {
@@ -265,128 +250,13 @@ private fun reflectionJournalCard(
 }
 
 @Composable
-private fun encryptedBackupCard(
-    onExportEncryptedBackup: (String) -> Result<String>,
-    onImportEncryptedBackup: (String, String) -> String,
-    onStatus: (String) -> Unit,
-) {
-    var backupPassphrase by remember { mutableStateOf("") }
-    var generatedBackupCode by remember { mutableStateOf("") }
-    var importBackupCode by remember { mutableStateOf("") }
-    val backupGenerated = stringResource(R.string.premium_backup_generated)
-    val backupExportFailed = stringResource(R.string.premium_backup_export_failed)
-
-    workspaceCard(title = stringResource(R.string.premium_encrypted_backup_title)) {
-        OutlinedTextField(
-            value = backupPassphrase,
-            onValueChange = { backupPassphrase = it },
-            label = { Text(stringResource(R.string.premium_backup_passphrase_label)) },
-            modifier = Modifier.fillMaxWidth(),
-        )
-        OutlinedButton(
-            onClick = {
-                onExportEncryptedBackup(backupPassphrase)
-                    .onSuccess {
-                        generatedBackupCode = it
-                        onStatus(backupGenerated)
-                    }.onFailure {
-                        onStatus(it.message ?: backupExportFailed)
-                    }
-            },
-        ) {
-            Text(stringResource(R.string.premium_generate_encrypted_backup))
-        }
-        if (generatedBackupCode.isNotBlank()) {
-            OutlinedTextField(
-                value = generatedBackupCode,
-                onValueChange = {},
-                readOnly = true,
-                label = { Text(stringResource(R.string.premium_generated_backup_code_label)) },
-                modifier = Modifier.fillMaxWidth(),
-                minLines = 3,
-                maxLines = 4,
-            )
-        }
-        OutlinedTextField(
-            value = importBackupCode,
-            onValueChange = { importBackupCode = it },
-            label = { Text(stringResource(R.string.premium_paste_encrypted_backup_code_label)) },
-            modifier = Modifier.fillMaxWidth(),
-            minLines = 3,
-            maxLines = 4,
-        )
-        Button(
-            onClick = {
-                onStatus(onImportEncryptedBackup(importBackupCode, backupPassphrase))
-            },
-        ) {
-            Text(stringResource(R.string.premium_import_encrypted_backup))
-        }
-    }
-}
-
-@Composable
-private fun householdShareCard(
-    onGenerateHouseholdShareCode: () -> Result<String>,
-    onImportHouseholdShareCode: (String) -> String,
-    onStatus: (String) -> Unit,
-) {
-    var generatedHouseholdCode by remember { mutableStateOf("") }
-    var importHouseholdCode by remember { mutableStateOf("") }
-    val householdCodeGenerated = stringResource(R.string.premium_household_code_generated)
-    val householdCodeFailed = stringResource(R.string.premium_household_code_failed)
-
-    workspaceCard(title = stringResource(R.string.premium_household_share_title)) {
-        OutlinedButton(
-            onClick = {
-                onGenerateHouseholdShareCode()
-                    .onSuccess {
-                        generatedHouseholdCode = it
-                        onStatus(householdCodeGenerated)
-                    }.onFailure {
-                        onStatus(it.message ?: householdCodeFailed)
-                    }
-            },
-        ) {
-            Text(stringResource(R.string.premium_generate_household_code))
-        }
-        if (generatedHouseholdCode.isNotBlank()) {
-            OutlinedTextField(
-                value = generatedHouseholdCode,
-                onValueChange = {},
-                readOnly = true,
-                label = { Text(stringResource(R.string.premium_generated_household_code_label)) },
-                modifier = Modifier.fillMaxWidth(),
-                minLines = 3,
-                maxLines = 4,
-            )
-        }
-        OutlinedTextField(
-            value = importHouseholdCode,
-            onValueChange = { importHouseholdCode = it },
-            label = { Text(stringResource(R.string.premium_paste_household_share_code_label)) },
-            modifier = Modifier.fillMaxWidth(),
-            minLines = 3,
-            maxLines = 4,
-        )
-        Button(
-            onClick = {
-                onStatus(onImportHouseholdShareCode(importHouseholdCode))
-            },
-        ) {
-            Text(stringResource(R.string.premium_import_household_code))
-        }
-    }
-}
-
-@Composable
 private fun workspaceSummaryCard(
     planningData: FastingPlanningData,
     reflectionCount: Int,
     premiumSnapshot: PremiumSnapshot,
 ) {
     workspaceCard(title = stringResource(R.string.premium_planning_export_title)) {
-        Text(stringResource(R.string.premium_season_value, premiumSnapshot.season.label))
+        Text(stringResource(R.string.premium_season_value, premiumSnapshot.season.localizedLabel()))
         Text(stringResource(R.string.premium_required_goal_value, planningData.requiredGoal))
         Text(stringResource(R.string.premium_optional_goal_value, planningData.optionalGoal))
         Text(stringResource(R.string.premium_weekly_intentions_value, planningData.weeklyIntentions.size))

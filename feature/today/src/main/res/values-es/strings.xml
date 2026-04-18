@@ -4,6 +4,11 @@
     <string name="today_no_observance">No hay observancia hoy</string>
     <string name="today_quote_value">"%1$s"</string>
     <string name="today_quote_author_value">%1$s • %2$s</string>
+    <string name="today_label_season_advent">Adviento</string>
+    <string name="today_label_season_christmas">Navidad</string>
+    <string name="today_label_season_lent">Cuaresma</string>
+    <string name="today_label_season_easter">Pascua</string>
+    <string name="today_label_season_ordinary">Tiempo ordinario</string>
     <string name="today_year_plan_title">Resumen del plan anual</string>
     <string name="today_personal_insights_title">Perspectivas personales</string>
     <string name="today_action_value">Accion: %1$s</string>

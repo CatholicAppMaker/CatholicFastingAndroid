@@ -1,6 +1,11 @@
 <resources>
     <string name="guidance_title">Guidance &amp; Rules</string>
     <string name="guidance_food_title">Food guidance</string>
+    <string name="guidance_label_normal_day">Normal day</string>
+    <string name="guidance_label_heavy_labor">Heavy labor</string>
+    <string name="guidance_label_travel">Travel</string>
+    <string name="guidance_label_social_meal">Social meal</string>
+    <string name="guidance_label_medical_recovery">Medical recovery</string>
     <string name="guidance_avoid_value">Avoid: %1$s</string>
     <string name="guidance_permitted_value">Permitted: %1$s</string>
     <string name="guidance_meal_pattern_value">Meal pattern: %1$s</string>
@@ -14,4 +19,7 @@
     <string name="guidance_needs_review">Rule bundle needs review.</string>
     <string name="guidance_no_warnings">No warnings detected.</string>
     <string name="guidance_warning_value">Warning: %1$s</string>
+    <string name="guidance_region_us">Use U.S. norms as configured, then defer to your pastor and diocesan guidance.</string>
+    <string name="guidance_region_canada">Canadian Friday practice can vary; keep local episcopal guidance in view.</string>
+    <string name="guidance_region_other">Outside the U.S. and Canada, local episcopal law and pastoral guidance take priority.</string>
 </resources>

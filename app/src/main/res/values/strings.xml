@@ -37,7 +37,7 @@
     <string name="more_active_fast_sync">Active fast notifications stay in sync while an intermittent fast is running.</string>
     <string name="more_privacy_title">Privacy &amp; data</string>
     <string name="more_privacy_local_first">This Android app is local-first. Your observance history, notes, schedules, and reflections stay on-device.</string>
-    <string name="more_privacy_backup_tools">Encrypted backup and household share tools are available from Support &amp; Premium.</string>
+    <string name="more_privacy_backup_tools">All observance history, notes, reminders, and reflections stay on this device. This release does not offer backup or export flows, and Android system backup is disabled.</string>
     <string name="more_privacy_last_sync">Last local sync-style write: %1$s</string>
     <string name="more_not_yet_saved">Not yet saved</string>
     <string name="more_notice_not_acknowledged">Independent app notice has not been acknowledged yet.</string>
@@ -73,8 +73,21 @@
     <string name="onboarding_profile_body">Choose the region and Friday practice that best match your normal discipline. You can refine your birth-date profile later from More.</string>
     <string name="onboarding_profile_follow_up">Birth-date profile still needs follow-up in Profile &amp; Norms.</string>
     <string name="onboarding_region_title">Region profile</string>
+    <string name="label_region_us">United States</string>
+    <string name="label_region_canada">Canada</string>
+    <string name="label_region_other">Other</string>
     <string name="onboarding_friday_title">Friday outside Lent</string>
+    <string name="label_friday_abstain">Abstain from meat</string>
+    <string name="label_friday_substitute">Substitute penance</string>
     <string name="onboarding_reminders_title">Reminder rhythm</string>
+    <string name="label_calendar_usccb">USCCB</string>
+    <string name="label_calendar_traditional">Traditional 1962</string>
+    <string name="label_reminder_minimal">Minimal</string>
+    <string name="label_reminder_balanced">Balanced</string>
+    <string name="label_reminder_guided">Guided</string>
+    <string name="label_reminder_minimal_summary">Required days only</string>
+    <string name="label_reminder_balanced_summary">Required days plus a morning check-in</string>
+    <string name="label_reminder_guided_summary">Required days with morning and evening support</string>
     <string name="onboarding_reminders_body">Pick a reminder tier first, then decide whether you also want a daily quote touchpoint.</string>
     <string name="onboarding_quote_reminder_value">Daily quote reminder time: %1$s</string>
     <string name="onboarding_quote_reminder_on">Quote reminder on</string>
@@ -95,10 +108,6 @@
     <string name="status_schedule_apply_failed">Could not apply schedule.</string>
     <string name="status_reflection_saved">Reflection saved locally.</string>
     <string name="status_reflection_save_failed">Could not save reflection.</string>
-    <string name="status_backup_imported">Encrypted backup imported.</string>
-    <string name="status_backup_import_failed">Could not import encrypted backup.</string>
-    <string name="status_household_imported">Household packet imported locally.</string>
-    <string name="status_household_import_failed">Could not import household code.</string>
     <string name="shortcut_disabled">Shortcut is temporarily unavailable.</string>
     <string name="shortcut_today_short">Open Today</string>
     <string name="shortcut_today_long">Open Today dashboard</string>
@@ -129,4 +138,8 @@
     <string name="notification_reminder_fallback_body">Open the app for today’s observance plan.</string>
     <string name="notification_reminder_action_open_today">Open Today</string>
     <string name="notification_reminder_action_open_calendar">Open Fasting Days</string>
+    <string name="notification_channel_reminder_name">Fasting reminders</string>
+    <string name="notification_channel_reminder_description">Required-day and support reminders</string>
+    <string name="accessibility_selected">Selected</string>
+    <string name="accessibility_not_selected">Not selected</string>
 </resources>

@@ -11,3 +11,7 @@ local.properties
 
 # Local tooling
 .local-tools/
+keystore.properties
+*.jks
+*.keystore
+signing/

@@ -172,7 +172,7 @@ private fun seasonPlanCard(uiState: TodayUiState) {
             text =
                 stringResource(
                     R.string.today_season_motivation_value,
-                    uiState.premiumSnapshot.season.label,
+                    uiState.premiumSnapshot.season.localizedLabel(),
                     uiState.premiumSnapshot.motivationLine,
                 ),
             style = MaterialTheme.typography.titleMedium,

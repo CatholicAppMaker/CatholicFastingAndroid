@@ -48,6 +48,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import java.time.Instant
 import java.time.LocalDate
+import java.time.ZoneId
 import java.util.Locale
 import java.util.UUID
 
@@ -406,31 +407,6 @@ class AppRepository(private val context: Context) {
         return Result.success(Unit)
     }
 
-    fun exportEncryptedBackup(passphrase: String): Result<String> =
-        runCatching {
-            ExportCodec.createEncryptedBackup(state.value, passphrase)
-        }
-
-    fun importEncryptedBackup(
-        code: String,
-        passphrase: String,
-    ): Result<Unit> =
-        runCatching {
-            val importedState = ExportCodec.importEncryptedBackup(code, passphrase)
-            persist(importedState)
-        }
-
-    fun generateHouseholdShareCode(): Result<String> =
-        runCatching {
-            ExportCodec.createHouseholdShareCode(state.value)
-        }
-
-    fun importHouseholdShareCode(code: String): Result<Unit> =
-        runCatching {
-            val importedState = ExportCodec.importHouseholdShareCode(code, state.value)
-            persist(importedState)
-        }
-
     private fun persist(nextState: DashboardState) {
         val syncedState = nextState.copy(lastSyncDateIso = Instant.now().toString())
         state.value = syncedState
@@ -780,11 +756,12 @@ internal fun resolveEndedFastState(
         ?: fallbackActiveFast?.let { liveState.copy(activeIntermittentFast = it).endIntermittentFast(now) }
 
 fun DashboardState.buildWidgetSnapshot(now: Instant = Instant.now()): WidgetSnapshot {
-    val todayKey = LocalDate.now().toString()
+    val today = now.atZone(ZoneId.systemDefault()).toLocalDate()
+    val todayKey = today.toString()
     val todayObservance = observances.firstOrNull { it.date == todayKey }
     val nextRequired =
         observances.firstOrNull {
-            it.obligation == ObservanceObligation.MANDATORY && LocalDate.parse(it.date) >= LocalDate.now()
+            it.obligation == ObservanceObligation.MANDATORY && LocalDate.parse(it.date) >= today
         }
     val actionable = observances.filter { it.obligation != ObservanceObligation.NOT_APPLICABLE }
     val completed = actionable.count { statusesById[it.id]?.countsTowardProgress == true }

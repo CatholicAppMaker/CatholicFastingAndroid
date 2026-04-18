@@ -52,4 +52,20 @@ class WidgetSnapshotParityTest {
         assertThat(snapshot.activeIntermittentFastStartIso).isNull()
         assertThat(snapshot.activeIntermittentTargetHours).isEqualTo(16)
     }
+
+    @Test
+    fun widgetSnapshotUsesProvidedInstantForTodaySelection() {
+        val settings = RuleSettings()
+        val observances = observancesFor(2026, settings)
+        val expectedToday = observances.first()
+
+        val snapshot =
+            DashboardState(
+                settings = settings,
+                year = 2026,
+                observances = observances,
+            ).buildWidgetSnapshot(now = Instant.parse("${expectedToday.date}T12:00:00Z"))
+
+        assertThat(snapshot.todayTitle).isEqualTo(expectedToday.title)
+    }
 }

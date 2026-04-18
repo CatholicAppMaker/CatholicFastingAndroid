@@ -7,75 +7,68 @@ import java.nio.charset.StandardCharsets
 internal fun billingResponseMessage(
     responseCode: Int,
     debugMessage: String,
-): String =
+): BillingMessage =
     when (responseCode) {
-        BillingClient.BillingResponseCode.OK -> "Google Play purchase completed."
-        BillingClient.BillingResponseCode.USER_CANCELED -> "Purchase cancelled."
+        BillingClient.BillingResponseCode.OK -> BillingMessage.PurchaseCompleted
+        BillingClient.BillingResponseCode.USER_CANCELED -> BillingMessage.PurchaseCancelled
         BillingClient.BillingResponseCode.SERVICE_DISCONNECTED ->
-            "Google Play disconnected. Refresh purchases and try again."
+            BillingMessage.Failure(BillingFailureKind.SERVICE_DISCONNECTED)
         BillingClient.BillingResponseCode.SERVICE_UNAVAILABLE,
         BillingClient.BillingResponseCode.NETWORK_ERROR,
         ->
-            "Google Play is temporarily unavailable. Check your connection and try again."
+            BillingMessage.Failure(BillingFailureKind.PLAY_UNAVAILABLE)
         BillingClient.BillingResponseCode.BILLING_UNAVAILABLE ->
-            "Google Play Billing is unavailable on this device or account."
+            BillingMessage.Failure(BillingFailureKind.BILLING_UNAVAILABLE)
         BillingClient.BillingResponseCode.ITEM_UNAVAILABLE ->
-            "This purchase option is not available for this Play account yet."
+            BillingMessage.Failure(BillingFailureKind.ITEM_UNAVAILABLE)
         BillingClient.BillingResponseCode.ITEM_ALREADY_OWNED ->
-            "You already own this purchase. Refresh purchases or manage it in Google Play."
+            BillingMessage.Failure(BillingFailureKind.ITEM_ALREADY_OWNED)
         BillingClient.BillingResponseCode.ITEM_NOT_OWNED ->
-            "Google Play could not find an existing purchase to restore."
+            BillingMessage.Failure(BillingFailureKind.ITEM_NOT_OWNED)
         BillingClient.BillingResponseCode.DEVELOPER_ERROR ->
-            "Billing configuration error. Verify the Play Console products and test account."
+            BillingMessage.Failure(BillingFailureKind.DEVELOPER_ERROR)
         BillingClient.BillingResponseCode.FEATURE_NOT_SUPPORTED ->
-            "This device does not support the requested billing feature."
-        else ->
-            if (debugMessage.isBlank()) {
-                "Google Play purchase failed."
-            } else {
-                "Google Play purchase failed. $debugMessage"
-            }
+            BillingMessage.Failure(BillingFailureKind.FEATURE_NOT_SUPPORTED)
+        else -> BillingMessage.Failure(BillingFailureKind.GENERIC, debugMessage = debugMessage)
     }
 
 internal fun purchaseUpdateMessage(
     hasPurchased: Boolean,
     hasPending: Boolean,
-): String =
+): BillingMessage =
     when {
-        hasPending -> "Purchase pending. Google Play will unlock Premium after payment clears."
-        hasPurchased -> "Purchase completed."
-        else -> "Google Play purchase updated."
+        hasPending -> BillingMessage.PurchasePending
+        hasPurchased -> BillingMessage.PurchaseCompleted
+        else -> BillingMessage.PurchaseUpdated
     }
 
-internal fun productsReadyMessage(hasCatalogProducts: Boolean): String =
+internal fun productsReadyMessage(hasCatalogProducts: Boolean): BillingMessage =
     if (hasCatalogProducts) {
-        "Google Play purchases ready."
+        BillingMessage.PurchasesReady
     } else {
-        "Google Play connected, but no products were returned. Verify Play Console setup and test tracks."
+        BillingMessage.ProductsMissing
     }
 
 internal fun purchaseRefreshMessage(
     premiumUnlocked: Boolean,
     hasPendingPurchases: Boolean,
     hasCatalogProducts: Boolean,
-): String =
+): BillingMessage =
     when {
-        hasPendingPurchases ->
-            "A purchase is still pending. Premium will unlock after Google Play clears payment."
-        premiumUnlocked -> "Premium purchases refreshed."
-        hasCatalogProducts -> "No active premium purchase was found for this Play account."
+        hasPendingPurchases -> BillingMessage.PurchasePending
+        premiumUnlocked -> BillingMessage.PremiumPurchasesRefreshed
+        hasCatalogProducts -> BillingMessage.NoActivePremiumPurchase
         else -> productsReadyMessage(hasCatalogProducts = false)
     }
 
 internal fun subscriptionHealthMessage(
     premiumUnlocked: Boolean,
     hasPendingPurchases: Boolean,
-): String =
+): BillingMessage =
     when {
-        hasPendingPurchases ->
-            "Google Play shows a pending purchase. Premium remains locked until payment clears."
-        premiumUnlocked -> "Premium subscription is active."
-        else -> "No active premium purchase was found for this Play account."
+        hasPendingPurchases -> BillingMessage.PendingPurchaseLocked
+        premiumUnlocked -> BillingMessage.PremiumSubscriptionActive
+        else -> BillingMessage.NoActivePremiumPurchase
     }
 
 internal fun manageSubscriptionsUrl(

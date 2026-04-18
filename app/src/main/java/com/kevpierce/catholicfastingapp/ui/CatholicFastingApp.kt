@@ -34,8 +34,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.kevpierce.catholicfasting.core.billing.BillingContainer
@@ -221,11 +224,16 @@ private fun bottomNavigation(
             TopLevelDestination.TRACK_FAST to "TF",
             TopLevelDestination.MORE to "M",
         ).forEach { (item, shortLabel) ->
+            val itemLabel = stringResource(item.labelRes())
             NavigationBarItem(
                 selected = item == destination,
                 onClick = { onDestinationChange(item) },
-                icon = { Text(shortLabel) },
-                label = { Text(stringResource(item.labelRes())) },
+                icon = { Text(shortLabel, modifier = Modifier.clearAndSetSemantics { }) },
+                label = { Text(itemLabel) },
+                modifier =
+                    Modifier.semantics {
+                        contentDescription = itemLabel
+                    },
             )
         }
     }
@@ -423,20 +431,35 @@ private fun onboardingProfileCard(
         Text(stringResource(R.string.onboarding_region_title))
         rowWithScroll {
             RegionProfile.entries.forEach { region ->
+                val regionLabel = region.localizedLabel()
+                val regionStateDescription = selectedStateDescription(state.settings.regionProfile == region)
                 FilterChip(
                     selected = state.settings.regionProfile == region,
                     onClick = { onRegionSelected(region) },
-                    label = { Text(region.label) },
+                    label = { Text(regionLabel) },
+                    modifier =
+                        Modifier.semantics {
+                            contentDescription = regionLabel
+                            stateDescription = regionStateDescription
+                        },
                 )
             }
         }
         Text(stringResource(R.string.onboarding_friday_title))
         rowWithScroll {
             FridayOutsideLentMode.entries.forEach { mode ->
+                val modeLabel = mode.localizedLabel()
+                val modeStateDescription =
+                    selectedStateDescription(state.settings.fridayOutsideLentMode == mode)
                 FilterChip(
                     selected = state.settings.fridayOutsideLentMode == mode,
                     onClick = { onFridayModeSelected(mode) },
-                    label = { Text(mode.label) },
+                    label = { Text(modeLabel) },
+                    modifier =
+                        Modifier.semantics {
+                            contentDescription = modeLabel
+                            stateDescription = modeStateDescription
+                        },
                 )
             }
         }
@@ -679,12 +702,12 @@ private fun setupAndRemindersSection(
         )
         sectionCard(title = stringResource(R.string.more_setup_progress_title)) {
             Text(supportState.setupProgressSummary)
-            Text(stringResource(R.string.more_region_value, state.settings.regionProfile.label))
-            Text(stringResource(R.string.more_calendar_value, state.settings.calendarMode.label))
+            Text(stringResource(R.string.more_region_value, state.settings.regionProfile.localizedLabel()))
+            Text(stringResource(R.string.more_calendar_value, state.settings.calendarMode.localizedLabel()))
             Text(
                 stringResource(
                     R.string.more_reminder_strategy_value,
-                    state.launchFunnelSnapshot.selectedReminderTier.label,
+                    state.launchFunnelSnapshot.selectedReminderTier.localizedLabel(),
                 ),
             )
             Text(
@@ -761,10 +784,10 @@ private fun reminderCenterCard(
         Text(
             stringResource(
                 R.string.more_reminder_tier_value,
-                reminderCenterState.selectedTier.label,
+                reminderCenterState.selectedTier.localizedLabel(),
             ),
         )
-        Text(reminderCenterState.selectedTier.summary)
+        Text(reminderCenterState.selectedTier.localizedSummary())
         reminderTierChipRow(
             selectedTier = reminderCenterState.selectedTier,
             onReminderTierChange = onReminderTierChange,
@@ -804,10 +827,17 @@ private fun reminderTierChipRow(
 ) {
     rowWithScroll {
         ReminderTier.entries.forEach { tier ->
+            val tierLabel = tier.localizedLabel()
+            val tierStateDescription = selectedStateDescription(selectedTier == tier)
             FilterChip(
                 selected = selectedTier == tier,
                 onClick = { onReminderTierChange(tier) },
-                label = { Text(tier.label) },
+                label = { Text(tierLabel) },
+                modifier =
+                    Modifier.semantics {
+                        contentDescription = tierLabel
+                        stateDescription = tierStateDescription
+                    },
             )
         }
     }
@@ -836,6 +866,9 @@ private fun quoteReminderControls(
     if (reminderCenterState.dailyQuoteReminderEnabled) {
         rowWithScroll {
             listOf(6, 7, 8, 9).forEach { hour ->
+                val hourLabel = stringResource(R.string.onboarding_hour_value, hour)
+                val hourStateDescription =
+                    selectedStateDescription(reminderCenterState.dailyQuoteReminderHour == hour)
                 FilterChip(
                     selected = reminderCenterState.dailyQuoteReminderHour == hour,
                     onClick = {
@@ -844,7 +877,12 @@ private fun quoteReminderControls(
                             reminderCenterState.dailyQuoteReminderMinute,
                         )
                     },
-                    label = { Text(stringResource(R.string.onboarding_hour_value, hour)) },
+                    label = { Text(hourLabel) },
+                    modifier =
+                        Modifier.semantics {
+                            contentDescription = hourLabel
+                            stateDescription = hourStateDescription
+                        },
                 )
             }
         }
@@ -860,10 +898,16 @@ private fun booleanChoiceRow(
 ) {
     rowWithScroll {
         listOf(true to trueLabel, false to falseLabel).forEach { (value, label) ->
+            val optionStateDescription = selectedStateDescription(selected == value)
             FilterChip(
                 selected = selected == value,
                 onClick = { onSelectionChange(value) },
                 label = { Text(label) },
+                modifier =
+                    Modifier.semantics {
+                        contentDescription = label
+                        stateDescription = optionStateDescription
+                    },
             )
         }
     }
@@ -953,7 +997,7 @@ private fun currentLocalStateCard(
         Text(
             stringResource(
                 R.string.more_selected_reminder_tier,
-                supportState.reminderCenterState.selectedTier.label,
+                supportState.reminderCenterState.selectedTier.localizedLabel(),
             ),
         )
         if (supportState.storageDiagnosticsState.warnings.isNotEmpty()) {
@@ -1143,26 +1187,6 @@ private fun supportAndPremiumSection(
                             onSuccess = { context.getString(R.string.status_reflection_saved) },
                             onFailure = {
                                 it.message ?: context.getString(R.string.status_reflection_save_failed)
-                            },
-                        )
-                },
-                onExportEncryptedBackup = repository::exportEncryptedBackup,
-                onImportEncryptedBackup = { code, passphrase ->
-                    repository.importEncryptedBackup(code, passphrase)
-                        .fold(
-                            onSuccess = { context.getString(R.string.status_backup_imported) },
-                            onFailure = {
-                                it.message ?: context.getString(R.string.status_backup_import_failed)
-                            },
-                        )
-                },
-                onGenerateHouseholdShareCode = repository::generateHouseholdShareCode,
-                onImportHouseholdShareCode = { code ->
-                    repository.importHouseholdShareCode(code)
-                        .fold(
-                            onSuccess = { context.getString(R.string.status_household_imported) },
-                            onFailure = {
-                                it.message ?: context.getString(R.string.status_household_import_failed)
                             },
                         )
                 },

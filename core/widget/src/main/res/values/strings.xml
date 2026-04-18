@@ -1,4 +1,7 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Catholic Fasting Widget</string>
+    <string name="widget_default_today_title">Catholic Fasting</string>
+    <string name="widget_default_today_obligation">Open the app for today’s plan</string>
+    <string name="widget_default_next_required_title">Widget ready</string>
+    <string name="widget_progress_value">Progress %1$d%%</string>
+    <string name="widget_active_fast_value">Active fast: %1$dh target</string>
 </resources>

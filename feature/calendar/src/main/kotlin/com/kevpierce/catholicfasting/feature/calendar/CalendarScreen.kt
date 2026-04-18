@@ -22,8 +22,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.dp
 import com.kevpierce.catholicfasting.core.model.CalendarWindow
 import com.kevpierce.catholicfasting.core.model.CompletionStatus
@@ -129,7 +131,13 @@ private fun analyticsSummaryCard(premiumSnapshot: PremiumSnapshot) {
             )
             Text(premiumSnapshot.reminderRecommendation.summaryLine)
             premiumSnapshot.analyticsSummary.seasonRows.take(3).forEach { row ->
-                Text(stringResource(R.string.calendar_season_percent_value, row.season.label, row.completionPercent))
+                Text(
+                    stringResource(
+                        R.string.calendar_season_percent_value,
+                        row.season.localizedLabel(),
+                        row.completionPercent,
+                    ),
+                )
             }
         }
     }
@@ -150,24 +158,24 @@ private fun calendarFilters(
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         ObservanceFilter.entries.forEach { entry ->
-            FilterChip(
+            calendarSelectableChip(
+                label = entry.localizedLabel(),
                 selected = filter == entry,
                 onClick = { onFilterChange(entry) },
-                label = { Text(entry.label) },
             )
         }
         CalendarWindow.entries.forEach { entry ->
-            FilterChip(
+            calendarSelectableChip(
+                label = entry.localizedLabel(),
                 selected = window == entry,
                 onClick = { onWindowChange(entry) },
-                label = { Text(entry.label) },
             )
         }
         ObservanceSortOrder.entries.forEach { entry ->
-            FilterChip(
+            calendarSelectableChip(
+                label = entry.localizedLabel(),
                 selected = sortOrder == entry,
                 onClick = { onSortOrderChange(entry) },
-                label = { Text(entry.label) },
             )
         }
     }
@@ -187,40 +195,13 @@ private fun observanceCard(
             modifier = Modifier.padding(12.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            Text(observance.title, style = MaterialTheme.typography.titleMedium)
-            Text(observance.date)
-            Text(
-                stringResource(
-                    R.string.calendar_kind_obligation_value,
-                    observance.kind.label,
-                    observance.obligation.label,
-                ),
+            observanceHeader(observance)
+            observanceCitations(observance)
+            completionStatusChips(
+                observanceId = observance.id,
+                selectedStatus = selectedStatus,
+                onStatusChange = onStatusChange,
             )
-            observance.detail?.let { Text(it, style = MaterialTheme.typography.bodyMedium) }
-            Text(observance.rationale, style = MaterialTheme.typography.bodySmall)
-            observance.citations.forEach { citation ->
-                Text(
-                    stringResource(
-                        R.string.calendar_citation_value,
-                        citation.authority.label,
-                        citation.title,
-                        citation.shortReference,
-                    ),
-                    style = MaterialTheme.typography.bodySmall,
-                )
-            }
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                CompletionStatus.entries.forEach { status ->
-                    FilterChip(
-                        selected = selectedStatus == status,
-                        onClick = { onStatusChange(observance.id, status) },
-                        label = { Text(status.label) },
-                    )
-                }
-            }
             if (observance.kind == ObservanceKind.FRIDAY_PENANCE) {
                 fridayNoteField(
                     observanceId = observance.id,
@@ -230,6 +211,83 @@ private fun observanceCard(
             }
         }
     }
+}
+
+@Composable
+private fun observanceHeader(observance: Observance) {
+    Text(observance.title, style = MaterialTheme.typography.titleMedium)
+    Text(observance.date)
+    Text(
+        stringResource(
+            R.string.calendar_kind_obligation_value,
+            observance.kind.localizedLabel(),
+            observance.obligation.localizedLabel(),
+        ),
+    )
+    observance.detail?.let { Text(it, style = MaterialTheme.typography.bodyMedium) }
+    Text(observance.rationale, style = MaterialTheme.typography.bodySmall)
+}
+
+@Composable
+private fun observanceCitations(observance: Observance) {
+    observance.citations.forEach { citation ->
+        Text(
+            stringResource(
+                R.string.calendar_citation_value,
+                citation.authority.localizedLabel(),
+                citation.title,
+                citation.shortReference,
+            ),
+            style = MaterialTheme.typography.bodySmall,
+        )
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun completionStatusChips(
+    observanceId: String,
+    selectedStatus: CompletionStatus,
+    onStatusChange: (String, CompletionStatus) -> Unit,
+) {
+    FlowRow(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        CompletionStatus.entries.forEach { status ->
+            calendarSelectableChip(
+                label = status.localizedLabel(),
+                selected = selectedStatus == status,
+                onClick = { onStatusChange(observanceId, status) },
+            )
+        }
+    }
+}
+
+@Composable
+private fun calendarSelectableChip(
+    label: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+) {
+    val selectedState =
+        stringResource(
+            if (selected) {
+                R.string.calendar_accessibility_selected
+            } else {
+                R.string.calendar_accessibility_not_selected
+            },
+        )
+    FilterChip(
+        selected = selected,
+        onClick = onClick,
+        modifier =
+            Modifier.semantics {
+                contentDescription = label
+                stateDescription = selectedState
+            },
+        label = { Text(label) },
+    )
 }
 
 @Composable

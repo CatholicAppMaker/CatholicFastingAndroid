@@ -4,6 +4,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
+import com.kevpierce.catholicfastingapp.R
 
 object NotificationChannels {
     const val REMINDER_CHANNEL_ID = "fasting_reminders"
@@ -16,10 +17,10 @@ object NotificationChannels {
         val channel =
             NotificationChannel(
                 REMINDER_CHANNEL_ID,
-                "Fasting reminders",
+                context.getString(R.string.notification_channel_reminder_name),
                 NotificationManager.IMPORTANCE_DEFAULT,
             ).apply {
-                description = "Required-day and support reminders"
+                description = context.getString(R.string.notification_channel_reminder_description)
             }
         context.getSystemService(NotificationManager::class.java)?.createNotificationChannel(channel)
     }

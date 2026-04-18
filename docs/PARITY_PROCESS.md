@@ -11,7 +11,7 @@ The iOS app is the product and behavior reference for:
 - onboarding/setup intent
 - premium workflow depth
 - reminder behavior
-- export and local-data semantics
+- local-data semantics
 - seasonal and devotional content expectations
 
 Android is free to use Android-native UX and system integrations as long as user-visible outcomes stay aligned.
@@ -31,7 +31,7 @@ Match iOS behavior closely for:
 - observance status behavior
 - reminder scheduling intent
 - premium entitlement behavior
-- storage/export formats where cross-device expectations matter
+- local storage semantics where user-visible behavior matters
 
 ## When Android Should Diverge
 

@@ -16,6 +16,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.dp
 import com.kevpierce.catholicfasting.core.model.AscensionObservance
 import com.kevpierce.catholicfasting.core.model.CalendarMode
@@ -83,28 +86,28 @@ private fun settingsEnumSections(
         title = stringResource(R.string.settings_region),
         options = RegionProfile.entries,
         selected = settings.regionProfile,
-        labelFor = { it.label },
+        labelFor = { it.localizedLabel() },
         onSelect = { onSettingsChange(settings.copy(regionProfile = it)) },
     )
     settingsEnumSection(
         title = stringResource(R.string.settings_calendar),
         options = CalendarMode.entries,
         selected = settings.calendarMode,
-        labelFor = { it.label },
+        labelFor = { it.localizedLabel() },
         onSelect = { onSettingsChange(settings.copy(calendarMode = it)) },
     )
     settingsEnumSection(
         title = stringResource(R.string.settings_friday_mode),
         options = FridayOutsideLentMode.entries,
         selected = settings.fridayOutsideLentMode,
-        labelFor = { it.label },
+        labelFor = { it.localizedLabel() },
         onSelect = { onSettingsChange(settings.copy(fridayOutsideLentMode = it)) },
     )
     settingsEnumSection(
         title = stringResource(R.string.settings_ascension_observance),
         options = AscensionObservance.entries,
         selected = settings.ascensionObservance,
-        labelFor = { it.label },
+        labelFor = { it.localizedLabel() },
         onSelect = { onSettingsChange(settings.copy(ascensionObservance = it)) },
     )
 }
@@ -142,7 +145,7 @@ private fun <T> settingsEnumSection(
     title: String,
     options: List<T>,
     selected: T,
-    labelFor: (T) -> String,
+    labelFor: @Composable (T) -> String,
     onSelect: (T) -> Unit,
 ) {
     Text(title, style = MaterialTheme.typography.titleSmall)
@@ -192,7 +195,7 @@ private fun toggleRow(
 private fun <T> enumChips(
     options: List<T>,
     selected: T,
-    labelFor: (T) -> String,
+    labelFor: @Composable (T) -> String,
     onSelect: (T) -> Unit,
 ) {
     FlowRow(
@@ -200,10 +203,24 @@ private fun <T> enumChips(
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         options.forEach { option ->
+            val label = labelFor(option)
+            val selectedState =
+                stringResource(
+                    if (option == selected) {
+                        R.string.settings_accessibility_selected
+                    } else {
+                        R.string.settings_accessibility_not_selected
+                    },
+                )
             FilterChip(
                 selected = option == selected,
                 onClick = { onSelect(option) },
-                label = { Text(labelFor(option)) },
+                modifier =
+                    Modifier.semantics {
+                        contentDescription = label
+                        stateDescription = selectedState
+                    },
+                label = { Text(label) },
             )
         }
     }

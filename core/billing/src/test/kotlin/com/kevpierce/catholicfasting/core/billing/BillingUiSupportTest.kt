@@ -13,7 +13,7 @@ class BillingUiSupportTest {
                 debugMessage = "",
             )
 
-        assertThat(message).isEqualTo("Purchase cancelled.")
+        assertThat(message).isEqualTo(BillingMessage.PurchaseCancelled)
     }
 
     @Test
@@ -24,7 +24,13 @@ class BillingUiSupportTest {
                 debugMessage = "Play backend unavailable",
             )
 
-        assertThat(message).isEqualTo("Google Play purchase failed. Play backend unavailable")
+        assertThat(message)
+            .isEqualTo(
+                BillingMessage.Failure(
+                    kind = BillingFailureKind.GENERIC,
+                    debugMessage = "Play backend unavailable",
+                ),
+            )
     }
 
     @Test
@@ -36,14 +42,13 @@ class BillingUiSupportTest {
                 hasCatalogProducts = true,
             )
 
-        assertThat(message).contains("pending")
-        assertThat(message).contains("unlock")
+        assertThat(message).isEqualTo(BillingMessage.PurchasePending)
     }
 
     @Test
     fun productsReadyMessageExplainsMissingCatalog() {
         assertThat(productsReadyMessage(hasCatalogProducts = false))
-            .contains("no products were returned")
+            .isEqualTo(BillingMessage.ProductsMissing)
     }
 
     @Test
@@ -54,7 +59,7 @@ class BillingUiSupportTest {
                 hasPendingPurchases = false,
             )
 
-        assertThat(message).isEqualTo("Premium subscription is active.")
+        assertThat(message).isEqualTo(BillingMessage.PremiumSubscriptionActive)
     }
 
     @Test

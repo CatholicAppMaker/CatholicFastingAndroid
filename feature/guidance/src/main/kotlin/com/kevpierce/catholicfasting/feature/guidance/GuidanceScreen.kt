@@ -81,7 +81,7 @@ private fun foodGuidanceCard(
                     FilterChip(
                         selected = scenario == entry,
                         onClick = { onScenarioChange(entry) },
-                        label = { Text(entry.label) },
+                        label = { Text(entry.localizedLabel()) },
                     )
                 }
             }
@@ -147,19 +147,9 @@ private fun ruleAuditCard(
                 }
             }
             Text(
-                regionGuidanceText(settings),
+                settings.regionProfile.localizedRegionGuidance(),
                 style = MaterialTheme.typography.bodySmall,
             )
         }
     }
 }
-
-private fun regionGuidanceText(settings: RuleSettings): String =
-    when (settings.regionProfile) {
-        com.kevpierce.catholicfasting.core.model.RegionProfile.US ->
-            "Use U.S. norms as configured, then defer to your pastor and diocesan guidance."
-        com.kevpierce.catholicfasting.core.model.RegionProfile.CANADA ->
-            "Canadian Friday practice can vary; keep local episcopal guidance in view."
-        com.kevpierce.catholicfasting.core.model.RegionProfile.OTHER ->
-            "Outside the U.S. and Canada, local episcopal law and pastoral guidance take priority."
-    }

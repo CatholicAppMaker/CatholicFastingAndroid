@@ -1,6 +1,38 @@
 <resources>
     <string name="calendar_title">Dias de Ayuno</string>
     <string name="calendar_search_label">Buscar observancias</string>
+    <string name="calendar_label_filter_all">Todas</string>
+    <string name="calendar_label_filter_required">Obligatorias</string>
+    <string name="calendar_label_filter_tracked">Registradas</string>
+    <string name="calendar_label_window_all_year">Todo el ano</string>
+    <string name="calendar_label_window_this_month">Este mes</string>
+    <string name="calendar_label_window_next_30_days">Proximos 30 dias</string>
+    <string name="calendar_label_sort_date">Fecha</string>
+    <string name="calendar_label_sort_required_first">Obligatorias primero</string>
+    <string name="calendar_label_status_not_started">Sin iniciar</string>
+    <string name="calendar_label_status_completed">Completada</string>
+    <string name="calendar_label_status_substituted">Sustituida</string>
+    <string name="calendar_label_status_dispensed">Dispensada</string>
+    <string name="calendar_label_status_missed">Omitida</string>
+    <string name="calendar_label_kind_fast_abstinence">Ayuno y abstinencia</string>
+    <string name="calendar_label_kind_abstinence">Abstinencia</string>
+    <string name="calendar_label_kind_friday_penance">Penitencia del viernes</string>
+    <string name="calendar_label_kind_holy_day">Dia santo</string>
+    <string name="calendar_label_kind_feast_day">Fiesta</string>
+    <string name="calendar_label_kind_memorial">Memoria</string>
+    <string name="calendar_label_kind_ember">Tempora opcional</string>
+    <string name="calendar_label_obligation_required">Obligatoria</string>
+    <string name="calendar_label_obligation_optional">Opcional</string>
+    <string name="calendar_label_obligation_not_required">No obligatoria</string>
+    <string name="calendar_label_authority_universal">Ley universal</string>
+    <string name="calendar_label_authority_usccb">USCCB</string>
+    <string name="calendar_label_authority_cccb">CCCB</string>
+    <string name="calendar_label_authority_pastoral">Guia pastoral</string>
+    <string name="calendar_label_season_advent">Adviento</string>
+    <string name="calendar_label_season_christmas">Navidad</string>
+    <string name="calendar_label_season_lent">Cuaresma</string>
+    <string name="calendar_label_season_easter">Pascua</string>
+    <string name="calendar_label_season_ordinary">Tiempo ordinario</string>
     <string name="calendar_progress_overview">Resumen del progreso</string>
     <string name="calendar_required_overall_value">Cumplimiento obligatorio: %1$d%% • General: %2$d%%</string>
     <string name="calendar_missed_substituted_value">Omitidas: %1$d • Sustituidas: %2$d</string>
@@ -9,4 +41,6 @@
     <string name="calendar_citation_value">%1$s: %2$s (%3$s)</string>
     <string name="calendar_friday_note_label">Nota del viernes</string>
     <string name="calendar_friday_note_supporting">Registra el acto penitencial que elegiste para este viernes.</string>
+    <string name="calendar_accessibility_selected">Seleccionado</string>
+    <string name="calendar_accessibility_not_selected">No seleccionado</string>
 </resources>

@@ -14,7 +14,8 @@ The iOS app remains the behavioral reference for parity-sensitive logic, but And
 
 - Native Android only
 - Phone-first release target
-- Local-first storage and export flows
+- Local-first storage
+- No backup, export, import, or household-share flows in the current Android scope
 - Behavioral parity with iOS where it matters
 - Android-native delivery for widgets, shortcuts, notifications, deep links, and Play billing
 
@@ -40,3 +41,15 @@ The current implementation checklist lives in:
 
 - `/Users/kevpierce/Desktop/CFAAnrdoid/PROJECT_CHECKLIST.md`
 
+Phone validation status lives in:
+
+- `/Users/kevpierce/Desktop/CFAAnrdoid/docs/PHONE_RELEASE_VALIDATION.md`
+
+## Release Docs
+
+For release build and store-ops work, use:
+
+- [docs/ANDROID_RELEASE.md](/Users/kevpierce/Desktop/CFAAnrdoid/docs/ANDROID_RELEASE.md)
+- [docs/PLAY_CONSOLE_RELEASE_CHECKLIST.md](/Users/kevpierce/Desktop/CFAAnrdoid/docs/PLAY_CONSOLE_RELEASE_CHECKLIST.md)
+- [docs/PLAY_LISTING_COPY.md](/Users/kevpierce/Desktop/CFAAnrdoid/docs/PLAY_LISTING_COPY.md)
+- [docs/PRIVACY_POLICY.md](/Users/kevpierce/Desktop/CFAAnrdoid/docs/PRIVACY_POLICY.md)

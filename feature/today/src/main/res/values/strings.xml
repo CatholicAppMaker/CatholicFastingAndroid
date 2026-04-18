@@ -4,6 +4,11 @@
     <string name="today_no_observance">No observance today</string>
     <string name="today_quote_value">"%1$s"</string>
     <string name="today_quote_author_value">%1$s • %2$s</string>
+    <string name="today_label_season_advent">Advent</string>
+    <string name="today_label_season_christmas">Christmas</string>
+    <string name="today_label_season_lent">Lent</string>
+    <string name="today_label_season_easter">Easter</string>
+    <string name="today_label_season_ordinary">Ordinary Time</string>
     <string name="today_year_plan_title">Year Plan Snapshot</string>
     <string name="today_personal_insights_title">Personal Insights</string>
     <string name="today_action_value">Action: %1$s</string>

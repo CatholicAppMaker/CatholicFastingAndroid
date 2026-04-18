@@ -1,0 +1,7 @@
+<resources>
+    <string name="widget_default_today_title">Ayuno Catolico</string>
+    <string name="widget_default_today_obligation">Abre la app para el plan de hoy</string>
+    <string name="widget_default_next_required_title">Widget listo</string>
+    <string name="widget_progress_value">Progreso %1$d%%</string>
+    <string name="widget_active_fast_value">Ayuno activo: meta de %1$dh</string>
+</resources>

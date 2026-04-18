@@ -35,20 +35,20 @@ object WidgetSnapshotStore {
     }
 
     suspend fun read(context: Context): WidgetSnapshot {
-        val encoded = context.widgetDataStore.data.first()[snapshotKey] ?: return defaultSnapshot()
+        val encoded = context.widgetDataStore.data.first()[snapshotKey] ?: return defaultSnapshot(context)
         return runCatching {
             jsonCodec.decodeFromString(WidgetSnapshot.serializer(), encoded)
         }.getOrElse {
-            defaultSnapshot()
+            defaultSnapshot(context)
         }
     }
 
-    private fun defaultSnapshot(): WidgetSnapshot =
+    private fun defaultSnapshot(context: Context): WidgetSnapshot =
         WidgetSnapshot(
             generatedAtIso = "",
-            todayTitle = "Catholic Fasting",
-            todayObligation = "Open app for today's plan",
-            nextRequiredTitle = "Widget ready",
+            todayTitle = context.getString(R.string.widget_default_today_title),
+            todayObligation = context.getString(R.string.widget_default_today_obligation),
+            nextRequiredTitle = context.getString(R.string.widget_default_next_required_title),
             completionRate = 0.0,
             hasActiveIntermittentFast = false,
             activeIntermittentTargetHours = 16,

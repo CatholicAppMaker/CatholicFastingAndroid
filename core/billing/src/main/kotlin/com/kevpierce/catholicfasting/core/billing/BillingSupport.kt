@@ -37,8 +37,8 @@ data class BillingState(
     val premiumUnlocked: Boolean = false,
     val isLoading: Boolean = false,
     val isPurchasing: Boolean = false,
-    val statusMessage: String = "Loading Google Play purchases.",
-    val subscriptionHealthMessage: String = "",
+    val statusMessage: BillingMessage? = BillingMessage.LoadingPurchases,
+    val subscriptionHealthMessage: BillingMessage? = null,
     val canManageSubscription: Boolean = false,
     val hasPendingPurchases: Boolean = false,
     val activeSubscriptionProductId: String? = null,
@@ -55,7 +55,7 @@ class BillingRepository(
         val premiumUnlocked: Boolean,
         val hasPendingPurchases: Boolean,
         val activeSubscriptionProductId: String? = null,
-        val subscriptionHealthMessage: String,
+        val subscriptionHealthMessage: BillingMessage,
     )
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -92,14 +92,14 @@ class BillingRepository(
         if (!billingClient.isReady) {
             state.value =
                 state.value.copy(
-                    statusMessage = "Google Play is still connecting. Refresh purchases and try again.",
+                    statusMessage = BillingMessage.PlayStillConnecting,
                 )
             refresh()
             return
         }
         val productDetails = productDetailsById[productId]
         if (productDetails == null) {
-            state.value = state.value.copy(statusMessage = "That purchase option is not available yet.")
+            state.value = state.value.copy(statusMessage = BillingMessage.PurchaseOptionUnavailable)
             return
         }
 
@@ -113,7 +113,7 @@ class BillingRepository(
                         ?.let(::setOfferToken)
                 }.build()
 
-        state.value = state.value.copy(isPurchasing = true, statusMessage = "Opening Google Play checkout.")
+        state.value = state.value.copy(isPurchasing = true, statusMessage = BillingMessage.OpeningCheckout)
         val launchResult =
             billingClient.launchBillingFlow(
                 activity,
@@ -135,7 +135,7 @@ class BillingRepository(
         if (productId == null) {
             state.value =
                 state.value.copy(
-                    statusMessage = "Subscription management is not available until Play products are configured.",
+                    statusMessage = BillingMessage.SubscriptionManagementUnavailable,
                 )
             return
         }
@@ -162,12 +162,12 @@ class BillingRepository(
             .onSuccess {
                 state.value =
                     state.value.copy(
-                        statusMessage = "Opening Google Play subscription management.",
+                        statusMessage = BillingMessage.OpeningSubscriptionManagement,
                     )
             }.onFailure {
                 state.value =
                     state.value.copy(
-                        statusMessage = "Unable to open Google Play subscription management on this device.",
+                        statusMessage = BillingMessage.UnableToOpenSubscriptionManagement,
                     )
             }
     }
@@ -205,7 +205,7 @@ class BillingRepository(
                     state.value =
                         state.value.copy(
                             isPurchasing = false,
-                            statusMessage = "Purchase cancelled.",
+                            statusMessage = BillingMessage.PurchaseCancelled,
                         )
                 }
                 else -> {
@@ -229,7 +229,7 @@ class BillingRepository(
                 isLoading = true,
                 statusMessage =
                     if (userInitiated) {
-                        "Refreshing Google Play purchases."
+                        BillingMessage.RefreshingPurchases
                     } else {
                         state.value.statusMessage
                     },
@@ -239,7 +239,7 @@ class BillingRepository(
             state.value =
                 state.value.copy(
                     isLoading = false,
-                    statusMessage = "Unable to connect to Google Play Billing.",
+                    statusMessage = BillingMessage.UnableToConnect,
                 )
             return
         }

@@ -1,5 +1,6 @@
 package com.kevpierce.catholicfasting.core.widget
 
+import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceModifier
@@ -22,6 +23,7 @@ class CatholicFastingWidget : GlanceAppWidget() {
 
         provideContent {
             widgetContent(
+                context = context,
                 snapshot = snapshot,
                 openToday = actionStartActivity<TodayWidgetLaunchActivity>(),
                 openCalendar = actionStartActivity<CalendarWidgetLaunchActivity>(),
@@ -33,6 +35,7 @@ class CatholicFastingWidget : GlanceAppWidget() {
 
 @Composable
 private fun widgetContent(
+    context: Context,
     snapshot: WidgetSnapshot,
     openToday: androidx.glance.action.Action,
     openCalendar: androidx.glance.action.Action,
@@ -49,11 +52,11 @@ private fun widgetContent(
         }
         Column(modifier = GlanceModifier.padding(top = 8.dp).clickable(openCalendar)) {
             Text(snapshot.nextRequiredTitle)
-            Text("Progress ${(snapshot.completionRate * 100).toInt()}%")
+            Text(context.getString(R.string.widget_progress_value, (snapshot.completionRate * 100).toInt()))
         }
         if (snapshot.hasActiveIntermittentFast) {
             Column(modifier = GlanceModifier.padding(top = 8.dp).clickable(openTracker)) {
-                Text("Active fast: ${snapshot.activeIntermittentTargetHours}h target")
+                Text(context.getString(R.string.widget_active_fast_value, snapshot.activeIntermittentTargetHours))
             }
         }
     }
