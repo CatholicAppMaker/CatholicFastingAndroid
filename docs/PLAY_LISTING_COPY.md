@@ -30,6 +30,13 @@ The app is an independent devotional aid and is not an official app of the Churc
 - Website / support: https://x.com/CatholicFasting
 - Privacy policy: https://x.com/CatholicFasting/status/2026354531273945191
 
+## Console defaults
+
+- Suggested category: Lifestyle
+- Ads declaration: No
+- App access: No special access needed
+- Data safety summary: local-first app, no ad tracking, no backup/export/import, no household-share flows
+
 ## Screenshot checklist
 
 - Today dashboard

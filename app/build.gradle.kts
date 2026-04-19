@@ -27,8 +27,8 @@ android {
         applicationId = "com.kevpierce.catholicfastingapp"
         minSdk = 27
         targetSdk = 35
-        versionCode = 10000
-        versionName = "1.0.0-rc1"
+        versionCode = 10001
+        versionName = "1.0.0"
 
         testInstrumentationRunner = "com.kevpierce.catholicfastingapp.ReleaseAndroidJUnitRunner"
         testInstrumentationRunnerArguments["clearPackageData"] = "true"

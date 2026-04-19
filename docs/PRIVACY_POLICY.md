@@ -26,7 +26,7 @@ The app stores the following on your device:
 
 ## Billing
 
-- Google Play Billing is used for subscriptions and optional support purchases.
+- Google Play Billing is used for premium subscriptions.
 - Purchase state is handled through Google Play for the signed-in Play account.
 
 ## Public policy URL

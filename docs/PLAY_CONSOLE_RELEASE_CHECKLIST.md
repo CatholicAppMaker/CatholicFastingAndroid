@@ -1,8 +1,11 @@
 # Play Console Release Checklist
 
+Use this checklist in order for the first public Android release.
+
 ## Required console items
 
 - App category and contact details
+  - Suggested category: `Lifestyle`
   - Support website: `https://x.com/CatholicFasting`
 - Privacy policy URL
   - `https://x.com/CatholicFasting/status/2026354531273945191`
@@ -16,6 +19,8 @@
 
 ## Release checks
 
+- Confirm Play App Signing is enabled for `com.kevpierce.catholicfastingapp`
+- Confirm the upload key matches the locally configured release keystore
 - Upload `app-release.aab`
 - Verify release notes
 - Run pre-launch report
@@ -23,11 +28,8 @@
 - Confirm billing products resolve in the same listing
   - `com.kevpierce.catholicfasting.premium.yearly.v3`
   - `com.kevpierce.catholicfasting.premium.monthly.v3`
-  - optional tips if shipping:
-    - `com.kevpierce.catholicfasting.tip.small`
-    - `com.kevpierce.catholicfasting.tip.medium`
-    - `com.kevpierce.catholicfasting.tip.large`
 - Confirm testers can install the same package from Play
+- Publish from the production release only after all review warnings are cleared or consciously accepted
 
 ## Publish gate
 
