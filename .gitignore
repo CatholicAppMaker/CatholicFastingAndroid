@@ -15,3 +15,7 @@ keystore.properties
 *.jks
 *.keystore
 signing/
+
+# Python helper scripts
+__pycache__/
+*.pyc
