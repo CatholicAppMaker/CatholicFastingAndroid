@@ -6,7 +6,7 @@ Catholic Fasting
 
 ## Short description
 
-Track Catholic fasting, abstinence, reminders, and seasonal discipline with a local-first daily dashboard.
+Track Catholic fasting, abstinence, reminders, and local-first daily guidance.
 
 ## Full description
 
@@ -34,7 +34,7 @@ The app is an independent devotional aid and is not an official app of the Churc
 
 - Suggested category: Lifestyle
 - Ads declaration: No
-- App access: No special access needed
+- App access: restricted functionality because premium features are subscription-gated, but no login credentials are required for core use
 - Data safety summary: local-first app, no ad tracking, no backup/export/import, no household-share flows
 
 ## Screenshot checklist

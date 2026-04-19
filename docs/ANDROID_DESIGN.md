@@ -218,6 +218,22 @@ Do not create a large documentation tree unless the design workflow becomes mate
 
 Yes, we should keep an Android design doc.
 
+## Generated Art Policy
+
+Generated art is allowed for:
+
+- Google Play feature graphics
+- later in-app devotional art that is actually shipped in the Android app
+
+Generated art is not allowed to replace truthful Play screenshots.
+
+If generated Catholic art is used:
+
+- keep it sacred editorial rather than stock-photo or fantasy
+- avoid direct imitation of copyrighted devotional artworks
+- avoid implying official Church endorsement
+- keep liturgical color restraint and uncluttered composition
+
 But it should be a lightweight implementation doc, not a big product-spec rewrite.
 
 For this app, Figma should be treated as:

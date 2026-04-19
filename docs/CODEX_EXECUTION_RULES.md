@@ -16,6 +16,13 @@ This document is the standing operating agreement for work in the Android repo. 
 - Use short progress updates while working.
 - When a blocker is unavoidable, explain it plainly and briefly, with the smallest possible interruption.
 
+## Console Entry Rules
+
+- Always verify the visible character limit before entering text into Play Console or any other submission UI.
+- Never leave over-limit copy in a field and plan to trim it later.
+- Treat the live UI counter as the source of truth when a field limit conflicts with memory or older docs.
+- If a field limit or accepted answer changes, update the repo submission docs after the current step is resolved.
+
 ## Checklist Discipline
 
 - Keep [PROJECT_CHECKLIST.md](/Users/kevpierce/Desktop/CFAAnrdoid/PROJECT_CHECKLIST.md) updated as work progresses.

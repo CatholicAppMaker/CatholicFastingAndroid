@@ -1,0 +1,27 @@
+Create a Google Play feature graphic for an Android app called Catholic Fasting.
+
+Canvas: 1024x500 landscape.
+
+Direction:
+- sacred editorial
+- reverent, calm, painterly
+- warm parchment and stone neutrals
+- restrained liturgical reds and muted golds
+- modern Android-friendly polish
+- uncluttered composition with one clear focal point
+
+Subject:
+- a contemplative Catholic devotional atmosphere built from symbolic forms rather than a copied historical painting
+- suggested motifs: cross silhouette, candle glow, prayer-book texture, soft architectural stone, subtle season-aware red and gold accents
+
+Constraints:
+- no fake app screenshots
+- no review stars, awards, or rank claims
+- no health or medical framing
+- no implication of official Vatican, USCCB, diocesan, or parish endorsement
+- no kitsch, fantasy-game, or stock-photo collage look
+- no direct imitation of a copyrighted devotional artwork
+- no text required in the image
+
+Goal:
+- premium, reverent, modern, quiet, trustworthy marketing art suitable for a Google Play feature graphic

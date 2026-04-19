@@ -13,22 +13,24 @@ Use this flow if you already have the verified Google Play developer account but
 ## 2. Finish the Store Presence fields
 
 1. Use the copy from `docs/PLAY_LISTING_COPY.md`.
-2. Set the support website to `https://x.com/CatholicFasting`.
-3. Set the privacy policy URL to `https://x.com/CatholicFasting/status/2026354531273945191`.
-4. Choose `Lifestyle` unless Play presents a better-fitting religion/devotional category at submission time.
-5. Upload phone screenshots for:
+2. Use `docs/PLAY_ASSET_SPEC.md` as the source of truth for screenshots, icon export, and feature-graphic rules.
+3. Verify every Play Console field limit before pasting. If a field has a live character counter, it overrides memory and older notes.
+4. Set the support website to `https://x.com/CatholicFasting`.
+5. Set the privacy policy URL to `https://x.com/CatholicFasting/status/2026354531273945191`.
+6. Choose `Lifestyle` unless Play presents a better-fitting religion/devotional category at submission time.
+7. Upload phone screenshots for:
    - Today dashboard
    - Fasting Days calendar
    - Track Fast
    - Reminder center
    - Premium workspace
    - Privacy & Data
-6. Upload a feature graphic before the production release is finalized.
+8. Upload a feature graphic before the production release is finalized.
 
 ## 3. Finish Policy and App Content
 
 1. Ads: choose `No`.
-2. App access: choose `No special access needed` unless Play flags a specific flow.
+2. App access: declare restricted functionality because premium features are subscription-gated, while core app use does not require login credentials.
 3. Data safety: describe the app as local-first, with no ad tracking, no backup/export/import, and no household-share flows.
 4. Content rating: complete honestly as a devotional/religious utility app.
 

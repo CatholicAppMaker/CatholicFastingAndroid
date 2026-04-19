@@ -53,10 +53,14 @@
 - [x] Public privacy-policy URL selected for Play Console
 - [x] Release-candidate version set in Gradle
 - [x] Local release signing config present and gitignored
+- [x] Play asset spec and submission asset rules documented in-repo
+- [x] Play icon export and screenshot-capture workflow added to the repo
 - [ ] Play Console products created and activated in the production listing
 - [ ] Licensed testers and closed-test accounts verified in Play Console
 - [x] Final signed `app-release.aab` built successfully
 - [ ] Final Play-served billing validation completed from a test track
+- [ ] Real Play screenshots captured from the Android build
+- [ ] Generated feature graphic approved and exported for upload
 - [ ] Play listing screenshots and feature graphic uploaded
 - [ ] Production rollout started from a reviewed Play release
 
