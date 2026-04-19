@@ -27,11 +27,17 @@ android {
         applicationId = "com.kevpierce.catholicfastingapp"
         minSdk = 27
         targetSdk = 35
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = 10000
+        versionName = "1.0.0-rc1"
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "com.kevpierce.catholicfastingapp.ReleaseAndroidJUnitRunner"
+        testInstrumentationRunnerArguments["clearPackageData"] = "true"
         vectorDrawables.useSupportLibrary = true
+    }
+
+    testOptions {
+        animationsDisabled = true
+        execution = "ANDROIDX_TEST_ORCHESTRATOR"
     }
 
     signingConfigs {
@@ -83,6 +89,7 @@ dependencies {
     implementation(project(":core:rules"))
     implementation(project(":core:data"))
     implementation(project(":core:billing"))
+    implementation(project(":core:ui"))
     implementation(project(":core:widget"))
     implementation(project(":feature:today"))
     implementation(project(":feature:calendar"))
@@ -111,8 +118,11 @@ dependencies {
     testImplementation(libs.truth)
     androidTestImplementation(platform(libs.compose.bom))
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
-    androidTestImplementation("androidx.test:core-ktx:1.6.1")
-    androidTestImplementation("androidx.test.ext:junit:1.2.1")
+    androidTestImplementation(libs.androidx.test.core.ktx)
+    androidTestImplementation(libs.androidx.test.ext.junit)
+    androidTestImplementation(libs.androidx.test.espresso.core)
+    androidTestImplementation(libs.androidx.test.runner)
     androidTestImplementation("androidx.test.uiautomator:uiautomator:2.3.0")
     androidTestImplementation(libs.truth)
+    androidTestUtil(libs.androidx.test.orchestrator)
 }

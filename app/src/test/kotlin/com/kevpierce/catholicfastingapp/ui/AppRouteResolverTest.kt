@@ -71,4 +71,34 @@ class AppRouteResolverTest {
                 ),
             )
     }
+
+    @Test
+    fun resolveSupportsProfileAndGuidanceMoreRoutes() {
+        assertThat(AppRouteResolver.resolve("catholicfasting://open/more/profile").moreSection)
+            .isEqualTo(MoreSection.PROFILE_NORMS)
+        assertThat(AppRouteResolver.resolve("catholicfasting://open/more/guidance").moreSection)
+            .isEqualTo(MoreSection.GUIDANCE_RULES)
+    }
+
+    @Test
+    fun resolveNormalizesUppercasePathsAndIgnoresQueries() {
+        assertThat(AppRouteResolver.resolve("CATHOLICFASTING://open/MORE/PRIVACY?source=WIDGET"))
+            .isEqualTo(
+                AppLaunchDestination(
+                    topLevelDestination = TopLevelDestination.MORE,
+                    moreSection = MoreSection.PRIVACY_DATA,
+                ),
+            )
+    }
+
+    @Test
+    fun resolveFallsBackToTodayForMalformedUris() {
+        assertThat(AppRouteResolver.resolve("not a uri at all"))
+            .isEqualTo(
+                AppLaunchDestination(
+                    topLevelDestination = TopLevelDestination.TODAY,
+                    moreSection = MoreSection.SUPPORT_PREMIUM,
+                ),
+            )
+    }
 }

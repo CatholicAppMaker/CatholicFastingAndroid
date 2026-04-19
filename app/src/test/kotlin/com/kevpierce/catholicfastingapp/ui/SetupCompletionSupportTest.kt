@@ -70,4 +70,48 @@ class SetupCompletionSupportTest {
         assertThat(state.canCompleteOnboarding).isTrue()
         assertThat(state.shouldPromptForNotificationPermission).isFalse()
     }
+
+    @Test
+    fun buildSetupCompletionStateSkipsPermissionPromptWhenAlreadyGranted() {
+        val state =
+            SetupCompletionState.from(
+                setupProgressState =
+                    SetupProgressState(
+                        completedSteps = 4,
+                        totalSteps = 4,
+                        birthProfileComplete = true,
+                        independentNoticeAcknowledged = true,
+                        regionSelected = true,
+                        reminderTierSelected = true,
+                        onboardingCompleted = false,
+                    ),
+                notificationPermissionGranted = true,
+                notificationPermissionSupported = true,
+            )
+
+        assertThat(state.canCompleteOnboarding).isTrue()
+        assertThat(state.shouldPromptForNotificationPermission).isFalse()
+    }
+
+    @Test
+    fun buildSetupCompletionStateBlocksCompletionWhenRegionSetupIsIncomplete() {
+        val state =
+            SetupCompletionState.from(
+                setupProgressState =
+                    SetupProgressState(
+                        completedSteps = 1,
+                        totalSteps = 4,
+                        birthProfileComplete = false,
+                        independentNoticeAcknowledged = true,
+                        regionSelected = false,
+                        reminderTierSelected = true,
+                        onboardingCompleted = false,
+                    ),
+                notificationPermissionGranted = false,
+                notificationPermissionSupported = true,
+            )
+
+        assertThat(state.canCompleteOnboarding).isFalse()
+        assertThat(state.shouldPromptForNotificationPermission).isTrue()
+    }
 }

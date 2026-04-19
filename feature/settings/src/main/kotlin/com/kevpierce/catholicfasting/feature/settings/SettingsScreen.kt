@@ -7,9 +7,7 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Card
 import androidx.compose.material3.FilterChip
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -25,6 +23,9 @@ import com.kevpierce.catholicfasting.core.model.CalendarMode
 import com.kevpierce.catholicfasting.core.model.FridayOutsideLentMode
 import com.kevpierce.catholicfasting.core.model.RegionProfile
 import com.kevpierce.catholicfasting.core.model.RuleSettings
+import com.kevpierce.catholicfasting.core.ui.CatholicFastingThemeValues
+import com.kevpierce.catholicfasting.core.ui.catholicFastingScreenTitle
+import com.kevpierce.catholicfasting.core.ui.catholicFastingSectionCard
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -33,15 +34,16 @@ fun settingsScreen(
     onSettingsChange: (RuleSettings) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val spacing = CatholicFastingThemeValues.spacing
     Column(
         modifier =
             modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+                .padding(spacing.medium),
+        verticalArrangement = Arrangement.spacedBy(spacing.medium),
     ) {
-        Text(stringResource(R.string.settings_more_title), style = MaterialTheme.typography.headlineMedium)
-        Card {
+        catholicFastingScreenTitle(stringResource(R.string.settings_more_title))
+        catholicFastingSectionCard(title = stringResource(R.string.settings_profile_norms)) {
             settingsForm(
                 settings = settings,
                 onSettingsChange = onSettingsChange,
@@ -56,10 +58,8 @@ private fun settingsForm(
     onSettingsChange: (RuleSettings) -> Unit,
 ) {
     Column(
-        modifier = Modifier.padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Text(stringResource(R.string.settings_profile_norms))
         settingsEnumSections(
             settings = settings,
             onSettingsChange = onSettingsChange,
@@ -148,7 +148,7 @@ private fun <T> settingsEnumSection(
     labelFor: @Composable (T) -> String,
     onSelect: (T) -> Unit,
 ) {
-    Text(title, style = MaterialTheme.typography.titleSmall)
+    Text(title, style = CatholicFastingThemeValues.typography.supporting)
     enumChips(
         options = options,
         selected = selected,

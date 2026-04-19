@@ -118,6 +118,45 @@ class OnboardingAndSetupProgressTest {
         assertThat(progress.onboardingCompleted).isFalse()
     }
 
+    @Test
+    fun onboardingStateStaysOnCompletionStepAfterSetupChoicesAreDone() {
+        val onboardingState =
+            buildOnboardingState(
+                sampleState(
+                    launchFunnelSnapshot =
+                        LaunchFunnelSnapshot(
+                            startedAtIso = "2026-03-13T00:00:00Z",
+                            independentAppNoticeAcknowledged = true,
+                            selectedRegion = RegionProfile.US,
+                            selectedReminderTier = ReminderTier.GUIDED,
+                        ),
+                ),
+            )
+
+        assertThat(onboardingState.currentStep).isEqualTo(4)
+        assertThat(onboardingState.isCompleted).isFalse()
+    }
+
+    @Test
+    fun onboardingStateRemainsCompletedWhenStoredCompletionDateExists() {
+        val onboardingState =
+            buildOnboardingState(
+                sampleState(
+                    launchFunnelSnapshot =
+                        LaunchFunnelSnapshot(
+                            startedAtIso = "2026-03-13T00:00:00Z",
+                            completedOnboardingAtIso = "2026-03-13T00:10:00Z",
+                            independentAppNoticeAcknowledged = true,
+                            selectedRegion = RegionProfile.US,
+                            selectedReminderTier = ReminderTier.GUIDED,
+                        ),
+                ),
+            )
+
+        assertThat(onboardingState.currentStep).isEqualTo(4)
+        assertThat(onboardingState.isCompleted).isTrue()
+    }
+
     private fun sampleState(
         settings: RuleSettings = RuleSettings(),
         launchFunnelSnapshot: LaunchFunnelSnapshot =

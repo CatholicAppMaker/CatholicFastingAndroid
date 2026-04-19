@@ -29,6 +29,10 @@ The app stores the following on your device:
 - Google Play Billing is used for subscriptions and optional support purchases.
 - Purchase state is handled through Google Play for the signed-in Play account.
 
+## Public policy URL
+
+- Google Play privacy-policy URL: https://x.com/CatholicFasting/status/2026354531273945191
+
 ## Contact
 
-Replace this section with your public support email or website before linking this policy in Play Console.
+- Website: https://x.com/CatholicFasting

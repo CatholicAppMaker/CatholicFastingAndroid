@@ -52,6 +52,12 @@ class BillingUiSupportTest {
     }
 
     @Test
+    fun productsReadyMessageUsesReadyCopyWhenCatalogExists() {
+        assertThat(productsReadyMessage(hasCatalogProducts = true))
+            .isEqualTo(BillingMessage.PurchasesReady)
+    }
+
+    @Test
     fun subscriptionHealthMessageReflectsUnlockedState() {
         val message =
             subscriptionHealthMessage(
@@ -60,6 +66,52 @@ class BillingUiSupportTest {
             )
 
         assertThat(message).isEqualTo(BillingMessage.PremiumSubscriptionActive)
+    }
+
+    @Test
+    fun purchaseRefreshMessageReportsNoActivePurchaseWhenCatalogLoadsWithoutEntitlement() {
+        val message =
+            purchaseRefreshMessage(
+                premiumUnlocked = false,
+                hasPendingPurchases = false,
+                hasCatalogProducts = true,
+            )
+
+        assertThat(message).isEqualTo(BillingMessage.NoActivePremiumPurchase)
+    }
+
+    @Test
+    fun purchaseUpdateMessageReflectsCompletedAndPassiveRefreshStates() {
+        assertThat(
+            purchaseUpdateMessage(
+                hasPurchased = true,
+                hasPending = false,
+            ),
+        ).isEqualTo(BillingMessage.PurchaseCompleted)
+
+        assertThat(
+            purchaseUpdateMessage(
+                hasPurchased = false,
+                hasPending = false,
+            ),
+        ).isEqualTo(BillingMessage.PurchaseUpdated)
+    }
+
+    @Test
+    fun billingResponseMessageMapsDisconnectedServiceToSpecificFailureKind() {
+        val message =
+            billingResponseMessage(
+                responseCode = BillingClient.BillingResponseCode.SERVICE_DISCONNECTED,
+                debugMessage = "",
+            )
+
+        assertThat(message)
+            .isEqualTo(
+                BillingMessage.Failure(
+                    kind = BillingFailureKind.SERVICE_DISCONNECTED,
+                    debugMessage = "",
+                ),
+            )
     }
 
     @Test

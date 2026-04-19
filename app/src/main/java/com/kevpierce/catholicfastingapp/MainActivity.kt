@@ -9,6 +9,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.kevpierce.catholicfasting.core.ui.catholicFastingTheme
 import com.kevpierce.catholicfastingapp.ui.catholicFastingApp
 
 class MainActivity : ComponentActivity() {
@@ -18,8 +19,10 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         deepLink = intent?.dataString
         setContent {
-            Surface(color = MaterialTheme.colorScheme.background) {
-                catholicFastingApp(initialDeepLink = deepLink)
+            catholicFastingTheme {
+                Surface(color = MaterialTheme.colorScheme.background) {
+                    catholicFastingApp(initialDeepLink = deepLink)
+                }
             }
         }
     }

@@ -15,6 +15,7 @@ import com.kevpierce.catholicfasting.core.model.PremiumReflection
 import com.kevpierce.catholicfasting.core.model.PremiumReminderRecommendation
 import com.kevpierce.catholicfasting.core.model.PremiumRuleTemplate
 import com.kevpierce.catholicfasting.core.model.PremiumSeasonPlan
+import com.kevpierce.catholicfasting.core.model.PremiumSeasonProgram
 import com.kevpierce.catholicfasting.core.model.PremiumSubscriptionState
 import com.kevpierce.catholicfasting.core.model.RuleSettings
 import org.junit.Test
@@ -235,6 +236,13 @@ class PremiumExperienceEngineTest {
         assertThat(snapshot.adaptiveRulePlan.caution.lowercase()).contains("celebration mode")
         assertThat(snapshot.motivationLine).contains("Traditional rule")
         assertThat(snapshot.motivationLine).contains("Streak 2d")
+    }
+
+    @Test
+    fun seasonProgramActionsNormalizeWeekBeforeBuildingCopy() {
+        val actions = PremiumSeasonProgramEngine.actions(PremiumSeasonProgram.FRIDAY_FIDELITY, week = 0)
+
+        assertThat(actions).contains("End Friday with a gratitude examen checkpoint #1.")
     }
 
     @Test

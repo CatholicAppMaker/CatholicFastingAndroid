@@ -4,8 +4,14 @@ Use this checklist before validating premium purchase and restore behavior.
 
 ## Play Console
 
-- Create the subscription products used by the Android app.
+- Create the subscription products used by the Android app:
+  - `com.kevpierce.catholicfasting.premium.yearly.v3`
+  - `com.kevpierce.catholicfasting.premium.monthly.v3`
 - Create the support-tip in-app products if they will ship in v1.
+- Support-tip product ids:
+  - `com.kevpierce.catholicfasting.tip.small`
+  - `com.kevpierce.catholicfasting.tip.medium`
+  - `com.kevpierce.catholicfasting.tip.large`
 - Activate products in the same app listing that matches `com.kevpierce.catholicfastingapp`.
 - Enable Play App Signing and keep the upload key details stored locally.
 

@@ -4,7 +4,6 @@ package com.kevpierce.catholicfasting.feature.tracker
 
 import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
@@ -15,9 +14,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.FilterChip
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -38,6 +35,9 @@ import com.kevpierce.catholicfasting.core.model.ActiveIntermittentFast
 import com.kevpierce.catholicfasting.core.model.IntermittentFastSession
 import com.kevpierce.catholicfasting.core.model.IntermittentSchedulePlan
 import com.kevpierce.catholicfasting.core.rules.PremiumSnapshot
+import com.kevpierce.catholicfasting.core.ui.CatholicFastingThemeValues
+import com.kevpierce.catholicfasting.core.ui.catholicFastingScreenTitle
+import com.kevpierce.catholicfasting.core.ui.catholicFastingSectionCard
 import java.time.Duration
 import java.time.Instant
 import java.time.ZoneId
@@ -91,6 +91,7 @@ fun trackerScreen(
     actions: TrackerActions,
     modifier: Modifier = Modifier,
 ) {
+    val spacing = CatholicFastingThemeValues.spacing
     val context = LocalContext.current
     var presetInput by remember(uiState.presetHours) { mutableStateOf(uiState.presetHours.toString()) }
     var scheduleStatus by rememberSaveable { mutableStateOf("") }
@@ -103,13 +104,12 @@ fun trackerScreen(
         modifier =
             modifier
                 .fillMaxSize()
-                .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+                .padding(spacing.medium),
+        verticalArrangement = Arrangement.spacedBy(spacing.medium),
     ) {
         item {
-            Text(
-                stringResource(R.string.tracker_title),
-                style = MaterialTheme.typography.headlineMedium,
+            catholicFastingScreenTitle(
+                text = stringResource(R.string.tracker_title),
                 modifier = Modifier.semantics { heading() },
             )
         }
@@ -230,11 +230,18 @@ fun trackerScreen(
             )
         }
         item {
-            Text(stringResource(R.string.tracker_recent_sessions), style = MaterialTheme.typography.titleLarge)
+            Text(
+                stringResource(R.string.tracker_recent_sessions),
+                style = CatholicFastingThemeValues.typography.sectionTitle,
+                modifier = Modifier.semantics { heading() },
+            )
         }
         if (uiState.sessions.isEmpty()) {
             item {
-                Text(stringResource(R.string.tracker_no_sessions))
+                Text(
+                    text = stringResource(R.string.tracker_no_sessions),
+                    style = CatholicFastingThemeValues.typography.supporting,
+                )
             }
         } else {
             items(uiState.sessions.take(12), key = IntermittentFastSession::id) { session ->
@@ -250,23 +257,17 @@ private fun trackerSupportCard(
     prepGuidance: List<String>,
     seasonProgramActions: List<String>,
 ) {
-    Card {
-        Column(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            Text(stringResource(R.string.tracker_preparation_recovery), style = MaterialTheme.typography.titleMedium)
-            Text(premiumSnapshot.recoveryCoachPlan.summary)
-            prepGuidance.forEach { line ->
-                Text(stringResource(R.string.tracker_bullet_value, line))
-            }
-            Text(stringResource(R.string.tracker_current_program), style = MaterialTheme.typography.titleSmall)
-            seasonProgramActions.forEach { action ->
-                Text(stringResource(R.string.tracker_bullet_value, action))
-            }
+    catholicFastingSectionCard(title = stringResource(R.string.tracker_preparation_recovery)) {
+        Text(premiumSnapshot.recoveryCoachPlan.summary)
+        prepGuidance.forEach { line ->
+            Text(stringResource(R.string.tracker_bullet_value, line))
+        }
+        Text(
+            stringResource(R.string.tracker_current_program),
+            style = CatholicFastingThemeValues.typography.supporting,
+        )
+        seasonProgramActions.forEach { action ->
+            Text(stringResource(R.string.tracker_bullet_value, action))
         }
     }
 }
@@ -281,60 +282,57 @@ private fun activeFastCard(
     onEndFast: () -> Unit,
     onCancelFast: () -> Unit,
 ) {
-    Card {
-        Column(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            Text(stringResource(R.string.tracker_control_center), style = MaterialTheme.typography.titleLarge)
-            if (activeFast == null) {
-                Text(stringResource(R.string.tracker_no_active_fast))
-            } else {
-                val start = parseInstant(activeFast.startIso)
-                val elapsed = start?.let { Duration.between(it, Instant.now()) }
-                Text(stringResource(R.string.tracker_fast_in_progress), style = MaterialTheme.typography.titleMedium)
-                Text(
-                    stringResource(
-                        R.string.tracker_started_value,
-                        start?.let(::formatDateTime) ?: stringResource(R.string.tracker_unknown),
-                    ),
-                )
-                Text(
-                    stringResource(
-                        R.string.tracker_elapsed_value,
-                        elapsed?.let(::formatDuration) ?: stringResource(R.string.tracker_unavailable),
-                    ),
-                )
-                Text(stringResource(R.string.tracker_target_hours_value, activeFast.targetHours))
-            }
-
-            OutlinedTextField(
-                value = presetInput,
-                onValueChange = onPresetInputChange,
-                label = { Text(stringResource(R.string.tracker_target_hours_label)) },
-                supportingText = { Text(stringResource(R.string.tracker_target_hours_supporting)) },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                singleLine = true,
-                enabled = activeFast == null,
-                modifier = Modifier.fillMaxWidth(),
+    catholicFastingSectionCard(title = stringResource(R.string.tracker_control_center)) {
+        if (activeFast == null) {
+            Text(stringResource(R.string.tracker_no_active_fast))
+        } else {
+            val start = parseInstant(activeFast.startIso)
+            val elapsed = start?.let { Duration.between(it, Instant.now()) }
+            Text(
+                stringResource(R.string.tracker_fast_in_progress),
+                style = CatholicFastingThemeValues.typography.supporting,
             )
+            Text(
+                stringResource(
+                    R.string.tracker_started_value,
+                    start?.let(::formatDateTime) ?: stringResource(R.string.tracker_unknown),
+                ),
+            )
+            Text(
+                stringResource(
+                    R.string.tracker_elapsed_value,
+                    elapsed?.let(::formatDuration) ?: stringResource(R.string.tracker_unavailable),
+                ),
+            )
+            Text(stringResource(R.string.tracker_target_hours_value, activeFast.targetHours))
+        }
 
-            Text(stringResource(R.string.tracker_current_preset_value, presetHours))
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                if (activeFast == null) {
-                    Button(onClick = onStartFast) {
-                        Text(stringResource(R.string.tracker_start_fast))
-                    }
-                } else {
-                    Button(onClick = onEndFast) {
-                        Text(stringResource(R.string.tracker_end_fast))
-                    }
-                    OutlinedButton(onClick = onCancelFast) {
-                        Text(stringResource(R.string.tracker_cancel))
-                    }
+        OutlinedTextField(
+            value = presetInput,
+            onValueChange = onPresetInputChange,
+            label = { Text(stringResource(R.string.tracker_target_hours_label)) },
+            supportingText = { Text(stringResource(R.string.tracker_target_hours_supporting)) },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            singleLine = true,
+            enabled = activeFast == null,
+            modifier = Modifier.fillMaxWidth(),
+        )
+
+        Text(
+            text = stringResource(R.string.tracker_current_preset_value, presetHours),
+            style = CatholicFastingThemeValues.typography.supporting,
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            if (activeFast == null) {
+                Button(onClick = onStartFast) {
+                    Text(stringResource(R.string.tracker_start_fast))
+                }
+            } else {
+                Button(onClick = onEndFast) {
+                    Text(stringResource(R.string.tracker_end_fast))
+                }
+                OutlinedButton(onClick = onCancelFast) {
+                    Text(stringResource(R.string.tracker_cancel))
                 }
             }
         }
@@ -343,30 +341,20 @@ private fun activeFastCard(
 
 @Composable
 private fun schedulesCard(schedules: List<IntermittentSchedulePlan>) {
-    val context = LocalContext.current
-    Card {
-        Column(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            Text(stringResource(R.string.tracker_saved_schedules), style = MaterialTheme.typography.titleMedium)
-            if (schedules.isEmpty()) {
-                Text(stringResource(R.string.tracker_no_saved_schedules))
-            } else {
-                schedules.forEach { schedule ->
-                    Text(
-                        text =
-                            stringResource(
-                                R.string.tracker_saved_schedule_value,
-                                schedule.name,
-                                schedule.targetHours,
-                                "%02d:00".format(schedule.startHour),
-                            ),
-                    )
-                }
+    catholicFastingSectionCard(title = stringResource(R.string.tracker_saved_schedules)) {
+        if (schedules.isEmpty()) {
+            Text(stringResource(R.string.tracker_no_saved_schedules))
+        } else {
+            schedules.forEach { schedule ->
+                Text(
+                    text =
+                        stringResource(
+                            R.string.tracker_saved_schedule_value,
+                            schedule.name,
+                            schedule.targetHours,
+                            "%02d:00".format(schedule.startHour),
+                        ),
+                )
             }
         }
     }
@@ -381,60 +369,54 @@ private fun schedulePlannerCard(
     editorState: ScheduleEditorUiState,
     editorActions: ScheduleEditorActions,
 ) {
-    Card {
-        Column(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            Text(stringResource(R.string.tracker_custom_schedules), style = MaterialTheme.typography.titleMedium)
-            Text(stringResource(R.string.tracker_custom_schedules_body))
-            OutlinedTextField(
-                value = editorState.scheduleName,
-                onValueChange = editorActions.onScheduleNameChange,
-                label = { Text(stringResource(R.string.tracker_schedule_name_label)) },
-                supportingText = { Text(stringResource(R.string.tracker_schedule_name_supporting)) },
-                modifier = Modifier.fillMaxWidth(),
-            )
-            OutlinedTextField(
-                value = editorState.scheduleStartHourInput,
-                onValueChange = editorActions.onScheduleStartHourChange,
-                label = { Text(stringResource(R.string.tracker_start_hour_label)) },
-                supportingText = {
-                    Text(stringResource(R.string.tracker_start_hour_supporting, presetHours))
-                },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth(),
-            )
-            weekdaySelector(
-                selectedWeekdays = editorState.selectedWeekdays,
-                onToggleWeekday = editorActions.onToggleWeekday,
-            )
-            scheduleEditorActions(
-                editingScheduleId = editorState.editingScheduleId,
-                canSave = editorState.selectedWeekdays.isNotEmpty(),
-                onSaveSchedule = editorActions.onSaveSchedule,
-                onCancelEdit = editorActions.onCancelEdit,
-            )
-            if (schedules.isEmpty()) {
-                Text(stringResource(R.string.tracker_no_saved_schedules))
-            } else {
-                schedules.forEach { schedule ->
-                    scheduleRow(
-                        schedule = schedule,
-                        isActive = schedule.id == activeScheduleId,
-                        onApply = { editorActions.onApplySchedule(schedule.id) },
-                        onEdit = { editorActions.onEditSchedule(schedule) },
-                        onDelete = { editorActions.onDeleteSchedule(schedule.id) },
-                    )
-                }
+    catholicFastingSectionCard(title = stringResource(R.string.tracker_custom_schedules)) {
+        Text(stringResource(R.string.tracker_custom_schedules_body))
+        OutlinedTextField(
+            value = editorState.scheduleName,
+            onValueChange = editorActions.onScheduleNameChange,
+            label = { Text(stringResource(R.string.tracker_schedule_name_label)) },
+            supportingText = { Text(stringResource(R.string.tracker_schedule_name_supporting)) },
+            modifier = Modifier.fillMaxWidth(),
+        )
+        OutlinedTextField(
+            value = editorState.scheduleStartHourInput,
+            onValueChange = editorActions.onScheduleStartHourChange,
+            label = { Text(stringResource(R.string.tracker_start_hour_label)) },
+            supportingText = {
+                Text(stringResource(R.string.tracker_start_hour_supporting, presetHours))
+            },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth(),
+        )
+        weekdaySelector(
+            selectedWeekdays = editorState.selectedWeekdays,
+            onToggleWeekday = editorActions.onToggleWeekday,
+        )
+        scheduleEditorActions(
+            editingScheduleId = editorState.editingScheduleId,
+            canSave = editorState.selectedWeekdays.isNotEmpty(),
+            onSaveSchedule = editorActions.onSaveSchedule,
+            onCancelEdit = editorActions.onCancelEdit,
+        )
+        if (schedules.isEmpty()) {
+            Text(stringResource(R.string.tracker_no_saved_schedules))
+        } else {
+            schedules.forEach { schedule ->
+                scheduleRow(
+                    schedule = schedule,
+                    isActive = schedule.id == activeScheduleId,
+                    onApply = { editorActions.onApplySchedule(schedule.id) },
+                    onEdit = { editorActions.onEditSchedule(schedule) },
+                    onDelete = { editorActions.onDeleteSchedule(schedule.id) },
+                )
             }
-            if (editorState.statusMessage.isNotBlank()) {
-                Text(editorState.statusMessage, style = MaterialTheme.typography.bodySmall)
-            }
+        }
+        if (editorState.statusMessage.isNotBlank()) {
+            Text(
+                text = editorState.statusMessage,
+                style = CatholicFastingThemeValues.typography.utility,
+            )
         }
     }
 }
@@ -497,41 +479,31 @@ private fun scheduleRow(
     onDelete: () -> Unit,
 ) {
     val context = LocalContext.current
-    Card {
-        Column(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(12.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            Text(
-                text =
-                    if (isActive) {
-                        stringResource(R.string.tracker_applied_schedule_value, schedule.name)
-                    } else {
-                        schedule.name
-                    },
-                style = MaterialTheme.typography.titleSmall,
-            )
-            Text(
-                stringResource(
-                    R.string.tracker_schedule_row_value,
-                    schedule.targetHours,
-                    "%02d:00".format(schedule.startHour),
-                    weekdayListText(context, schedule.weekdays),
-                ),
-            )
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedButton(onClick = onApply) {
-                    Text(stringResource(R.string.tracker_use))
-                }
-                OutlinedButton(onClick = onEdit) {
-                    Text(stringResource(R.string.tracker_edit))
-                }
-                OutlinedButton(onClick = onDelete) {
-                    Text(stringResource(R.string.tracker_delete))
-                }
+    catholicFastingSectionCard(
+        title =
+            if (isActive) {
+                stringResource(R.string.tracker_applied_schedule_value, schedule.name)
+            } else {
+                schedule.name
+            },
+    ) {
+        Text(
+            stringResource(
+                R.string.tracker_schedule_row_value,
+                schedule.targetHours,
+                "%02d:00".format(schedule.startHour),
+                weekdayListText(context, schedule.weekdays),
+            ),
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            OutlinedButton(onClick = onApply) {
+                Text(stringResource(R.string.tracker_use))
+            }
+            OutlinedButton(onClick = onEdit) {
+                Text(stringResource(R.string.tracker_edit))
+            }
+            OutlinedButton(onClick = onDelete) {
+                Text(stringResource(R.string.tracker_delete))
             }
         }
     }
@@ -552,60 +524,42 @@ private fun sessionSummaryCard(
             (completedTargets.toDouble() / sessions.size.toDouble() * 100).toInt()
         }
 
-    Card {
-        Column(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            Text(stringResource(R.string.tracker_recent_summary), style = MaterialTheme.typography.titleMedium)
-            Text(stringResource(R.string.tracker_sessions_tracked_value, sessions.size))
-            Text(stringResource(R.string.tracker_target_hit_count_value, completedTargets))
-            Text(stringResource(R.string.tracker_longest_session_value, "%.1f".format(longestSession)))
-            Text(stringResource(R.string.tracker_recent_hit_rate_value, hitRate))
-            activeSchedule?.let { schedule ->
-                Text(
-                    stringResource(
-                        R.string.tracker_applied_schedule_days_value,
-                        schedule.name,
-                        weekdayListText(context, schedule.weekdays),
-                    ),
-                )
-            }
+    catholicFastingSectionCard(title = stringResource(R.string.tracker_recent_summary)) {
+        Text(stringResource(R.string.tracker_sessions_tracked_value, sessions.size))
+        Text(stringResource(R.string.tracker_target_hit_count_value, completedTargets))
+        Text(stringResource(R.string.tracker_longest_session_value, "%.1f".format(longestSession)))
+        Text(stringResource(R.string.tracker_recent_hit_rate_value, hitRate))
+        activeSchedule?.let { schedule ->
+            Text(
+                stringResource(
+                    R.string.tracker_applied_schedule_days_value,
+                    schedule.name,
+                    weekdayListText(context, schedule.weekdays),
+                ),
+            )
         }
     }
 }
 
 @Composable
 private fun sessionRow(session: IntermittentFastSession) {
-    Card {
-        Column(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(6.dp),
-        ) {
-            val start = parseInstant(session.startIso)
-            val end = parseInstant(session.endIso)
-            Text(
-                text =
-                    "${start?.let(::formatDateTime) ?: session.startIso} -> " +
-                        "${end?.let(::formatDateTime) ?: session.endIso}",
-                style = MaterialTheme.typography.titleSmall,
-            )
-            Text(stringResource(R.string.tracker_duration_value, "%.1f".format(sessionDurationHours(session))))
-            Text(stringResource(R.string.tracker_plan_value, session.targetHours))
-            Text(
-                if (session.completedTarget) {
-                    stringResource(R.string.tracker_target_met)
-                } else {
-                    stringResource(R.string.tracker_below_target)
-                },
-            )
-        }
+    val start = parseInstant(session.startIso)
+    val end = parseInstant(session.endIso)
+    catholicFastingSectionCard(
+        title =
+            "${start?.let(::formatDateTime) ?: session.startIso} -> " +
+                "${end?.let(::formatDateTime) ?: session.endIso}",
+    ) {
+        Text(stringResource(R.string.tracker_duration_value, "%.1f".format(sessionDurationHours(session))))
+        Text(stringResource(R.string.tracker_plan_value, session.targetHours))
+        Text(
+            if (session.completedTarget) {
+                stringResource(R.string.tracker_target_met)
+            } else {
+                stringResource(R.string.tracker_below_target)
+            },
+            style = CatholicFastingThemeValues.typography.supporting,
+        )
     }
 }
 

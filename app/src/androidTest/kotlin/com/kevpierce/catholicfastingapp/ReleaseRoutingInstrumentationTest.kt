@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.ShortcutManager
+import android.net.Uri
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -55,6 +56,41 @@ class ReleaseRoutingInstrumentationTest {
     @Test
     fun androidSystemBackupIsDisabled() {
         assertThat(context.applicationInfo.flags and ApplicationInfo.FLAG_ALLOW_BACKUP).isEqualTo(0)
+    }
+
+    @Test
+    fun mainActivityColdLaunchAndRecreateDoNotCrash() {
+        ActivityScenario.launch(MainActivity::class.java).use { scenario ->
+            scenario.onActivity { activity ->
+                assertThat(activity.intent?.dataString).isNull()
+            }
+
+            scenario.recreate()
+
+            scenario.onActivity { activity ->
+                assertThat(activity.intent?.dataString).isNull()
+            }
+        }
+    }
+
+    @Test
+    fun publicDeepLinksResolveAndLaunchMainActivity() {
+        publicDeepLinks().forEach { deepLink ->
+            val intent =
+                Intent(Intent.ACTION_VIEW, Uri.parse(deepLink))
+                    .setPackage(context.packageName)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            val resolvedActivity = intent.resolveActivity(context.packageManager)
+
+            assertThat(resolvedActivity).isNotNull()
+            assertThat(resolvedActivity!!.className).isEqualTo(MainActivity::class.java.name)
+
+            ActivityScenario.launch<MainActivity>(intent).use { scenario ->
+                scenario.onActivity { activity ->
+                    assertThat(activity.intent?.dataString).isEqualTo(deepLink)
+                }
+            }
+        }
     }
 
     @Test
@@ -119,6 +155,17 @@ class ReleaseRoutingInstrumentationTest {
             instrumentation.removeMonitor(monitor)
         }
     }
+
+    private fun publicDeepLinks(): List<String> =
+        listOf(
+            AppDeepLinks.TODAY,
+            AppDeepLinks.CALENDAR,
+            AppDeepLinks.TRACKER,
+            AppDeepLinks.MORE_PREMIUM,
+            AppDeepLinks.MORE_SETUP,
+            AppDeepLinks.MORE_PRIVACY,
+            AppDeepLinks.CALENDAR_FRIDAY_NOTE,
+        )
 
     private fun waitUntil(
         description: String,

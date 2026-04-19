@@ -22,6 +22,7 @@ include(
     ":core:rules",
     ":core:data",
     ":core:billing",
+    ":core:ui",
     ":core:widget",
     ":feature:today",
     ":feature:calendar",

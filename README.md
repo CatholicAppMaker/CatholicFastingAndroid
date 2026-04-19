@@ -50,6 +50,8 @@ Phone validation status lives in:
 For release build and store-ops work, use:
 
 - [docs/ANDROID_RELEASE.md](/Users/kevpierce/Desktop/CFAAnrdoid/docs/ANDROID_RELEASE.md)
+- [docs/ANDROID_DESIGN.md](/Users/kevpierce/Desktop/CFAAnrdoid/docs/ANDROID_DESIGN.md)
+- [docs/ANDROID_UI_TOKENS.md](/Users/kevpierce/Desktop/CFAAnrdoid/docs/ANDROID_UI_TOKENS.md)
 - [docs/PLAY_CONSOLE_RELEASE_CHECKLIST.md](/Users/kevpierce/Desktop/CFAAnrdoid/docs/PLAY_CONSOLE_RELEASE_CHECKLIST.md)
 - [docs/PLAY_LISTING_COPY.md](/Users/kevpierce/Desktop/CFAAnrdoid/docs/PLAY_LISTING_COPY.md)
 - [docs/PRIVACY_POLICY.md](/Users/kevpierce/Desktop/CFAAnrdoid/docs/PRIVACY_POLICY.md)

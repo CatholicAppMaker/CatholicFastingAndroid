@@ -25,6 +25,11 @@ Core features:
 
 The app is an independent devotional aid and is not an official app of the Church, the USCCB, the Vatican, or any diocese or parish.
 
+## Public links
+
+- Website / support: https://x.com/CatholicFasting
+- Privacy policy: https://x.com/CatholicFasting/status/2026354531273945191
+
 ## Screenshot checklist
 
 - Today dashboard

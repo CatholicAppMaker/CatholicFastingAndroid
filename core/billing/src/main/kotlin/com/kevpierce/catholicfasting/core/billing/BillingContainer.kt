@@ -6,11 +6,18 @@ object BillingContainer {
     @Volatile
     private var repositoryInstance: BillingRepository? = null
 
-    fun initialize(context: Context) {
+    fun initialize(
+        context: Context,
+        autoConnect: Boolean = true,
+    ) {
         if (repositoryInstance == null) {
             synchronized(this) {
                 if (repositoryInstance == null) {
-                    repositoryInstance = BillingRepository(context.applicationContext)
+                    repositoryInstance =
+                        BillingRepository(
+                            context = context.applicationContext,
+                            autoConnect = autoConnect,
+                        )
                 }
             }
         }

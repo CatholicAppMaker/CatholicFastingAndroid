@@ -30,4 +30,16 @@ class ReminderNotificationRoutesTest {
         assertThat(ReminderNotificationRoutes.opensCalendar(AppDeepLinks.CALENDAR)).isTrue()
         assertThat(ReminderNotificationRoutes.opensCalendar(AppDeepLinks.TODAY)).isFalse()
     }
+
+    @Test
+    fun unknownReminderKindsFallBackToToday() {
+        assertThat(ReminderNotificationRoutes.deepLinkForKind("weekly_summary"))
+            .isEqualTo(AppDeepLinks.TODAY)
+    }
+
+    @Test
+    fun onlyExactCalendarRouteUsesCalendarActionLabel() {
+        assertThat(ReminderNotificationRoutes.opensCalendar(AppDeepLinks.CALENDAR_FRIDAY_NOTE)).isFalse()
+        assertThat(ReminderNotificationRoutes.opensCalendar(AppDeepLinks.MORE_SETUP)).isFalse()
+    }
 }

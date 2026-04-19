@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Card
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -36,10 +35,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
-import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.kevpierce.catholicfasting.core.billing.BillingContainer
 import com.kevpierce.catholicfasting.core.data.AppContainer
@@ -72,6 +69,10 @@ import com.kevpierce.catholicfasting.core.rules.PremiumSnapshotEngine
 import com.kevpierce.catholicfasting.core.rules.SacredImageryCatalog
 import com.kevpierce.catholicfasting.core.rules.SeasonalContentPackCatalog
 import com.kevpierce.catholicfasting.core.rules.SeasonalContentSupport
+import com.kevpierce.catholicfasting.core.ui.CatholicFastingThemeValues
+import com.kevpierce.catholicfasting.core.ui.SeasonTone
+import com.kevpierce.catholicfasting.core.ui.catholicFastingSectionCard
+import com.kevpierce.catholicfasting.core.ui.rememberSeasonTone
 import com.kevpierce.catholicfasting.core.widget.WidgetSnapshotStore
 import com.kevpierce.catholicfasting.feature.calendar.calendarScreen
 import com.kevpierce.catholicfasting.feature.guidance.guidanceScreen
@@ -252,6 +253,7 @@ private fun appContent(
 ) {
     val context = LocalContext.current
     val supportState = buildAppSupportState(context, state)
+    val spacing = CatholicFastingThemeValues.spacing
 
     when (destination) {
         TopLevelDestination.TODAY ->
@@ -326,8 +328,8 @@ private fun onboardingRoute(
         modifier =
             modifier
                 .verticalScroll(rememberScrollState())
-                .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
+                .padding(CatholicFastingThemeValues.spacing.medium),
+        verticalArrangement = Arrangement.spacedBy(CatholicFastingThemeValues.spacing.small),
     ) {
         onboardingHeaderCard(
             onboardingState = onboardingState,
@@ -377,16 +379,20 @@ private fun onboardingHeaderCard(
     onboardingState: OnboardingState,
     setupProgressSummary: String,
 ) {
-    sectionCard(title = stringResource(R.string.onboarding_title)) {
-        Text(stringResource(R.string.onboarding_subtitle))
+    sectionCard(
+        title = stringResource(R.string.onboarding_title),
+        heroTitle = true,
+    ) {
+        Text(stringResource(R.string.onboarding_subtitle), style = CatholicFastingThemeValues.typography.body)
         Text(
             stringResource(
                 R.string.onboarding_step_value,
                 onboardingState.currentStep,
                 onboardingState.totalSteps,
             ),
+            style = CatholicFastingThemeValues.typography.supporting,
         )
-        Text(setupProgressSummary)
+        Text(setupProgressSummary, style = CatholicFastingThemeValues.typography.supporting)
     }
 }
 
@@ -396,13 +402,17 @@ private fun onboardingNoticeCard(
     onNoticeAcknowledgedChange: (Boolean) -> Unit,
 ) {
     sectionCard(title = stringResource(R.string.onboarding_notice_title)) {
-        Text(stringResource(R.string.notice_independent_app_summary))
+        Text(
+            stringResource(R.string.notice_independent_app_summary),
+            style = CatholicFastingThemeValues.typography.body,
+        )
         Text(
             if (noticeAcknowledged) {
                 stringResource(R.string.more_notice_acknowledged)
             } else {
                 stringResource(R.string.more_notice_pending)
             },
+            style = CatholicFastingThemeValues.typography.supporting,
         )
         booleanChoiceRow(
             selected = noticeAcknowledged,
@@ -420,15 +430,22 @@ private fun onboardingProfileCard(
     onFridayModeSelected: (FridayOutsideLentMode) -> Unit,
 ) {
     sectionCard(title = stringResource(R.string.onboarding_profile_title)) {
-        Text(stringResource(R.string.onboarding_profile_body))
+        Text(
+            stringResource(R.string.onboarding_profile_body),
+            style = CatholicFastingThemeValues.typography.body,
+        )
         Text(
             if (state.settings.hasFullBirthDate) {
                 stringResource(R.string.more_birth_profile_complete)
             } else {
                 stringResource(R.string.onboarding_profile_follow_up)
             },
+            style = CatholicFastingThemeValues.typography.supporting,
         )
-        Text(stringResource(R.string.onboarding_region_title))
+        Text(
+            stringResource(R.string.onboarding_region_title),
+            style = CatholicFastingThemeValues.typography.sectionTitle,
+        )
         rowWithScroll {
             RegionProfile.entries.forEach { region ->
                 val regionLabel = region.localizedLabel()
@@ -445,7 +462,10 @@ private fun onboardingProfileCard(
                 )
             }
         }
-        Text(stringResource(R.string.onboarding_friday_title))
+        Text(
+            stringResource(R.string.onboarding_friday_title),
+            style = CatholicFastingThemeValues.typography.sectionTitle,
+        )
         rowWithScroll {
             FridayOutsideLentMode.entries.forEach { mode ->
                 val modeLabel = mode.localizedLabel()
@@ -477,7 +497,7 @@ private fun onboardingReminderCard(
     onDailyQuoteReminderTimeChange: (Int, Int) -> Unit,
 ) {
     sectionCard(title = stringResource(R.string.onboarding_reminders_title)) {
-        Text(stringResource(R.string.onboarding_reminders_body))
+        Text(stringResource(R.string.onboarding_reminders_body), style = CatholicFastingThemeValues.typography.body)
         reminderTierChipRow(
             selectedTier = onboardingState.selectedReminderTier,
             onReminderTierChange = onReminderTierChange,
@@ -495,6 +515,7 @@ private fun onboardingReminderCard(
             } else {
                 stringResource(R.string.onboarding_notification_permission_needed)
             },
+            style = CatholicFastingThemeValues.typography.supporting,
         )
         if (notificationPermissionSupported() && !notificationPermissionGranted) {
             outlinedActionButton(
@@ -510,19 +531,25 @@ private fun onboardingPremiumCard(
     seasonalHeroState: SeasonalHeroState,
     premiumSnapshot: PremiumSnapshot,
 ) {
-    sectionCard(title = stringResource(R.string.onboarding_premium_title)) {
-        Text(stringResource(R.string.onboarding_premium_body))
-        Text(seasonalHeroState.campaignTitle)
-        Text(seasonalHeroState.campaignSubtitle)
-        Text(seasonalHeroState.formationLine)
+    val tone = rememberSeasonTone(premiumSnapshot.season)
+
+    sectionCard(
+        title = stringResource(R.string.onboarding_premium_title),
+        tone = tone,
+    ) {
+        Text(stringResource(R.string.onboarding_premium_body), style = CatholicFastingThemeValues.typography.body)
+        Text(seasonalHeroState.campaignTitle, style = CatholicFastingThemeValues.typography.heroTitle)
+        Text(seasonalHeroState.campaignSubtitle, style = CatholicFastingThemeValues.typography.sectionTitle)
+        Text(seasonalHeroState.formationLine, style = CatholicFastingThemeValues.typography.body)
         Text(
             stringResource(
                 R.string.onboarding_quote_card_value,
                 seasonalHeroState.quote.text,
                 seasonalHeroState.quote.author,
             ),
+            style = CatholicFastingThemeValues.typography.supporting,
         )
-        Text(premiumSnapshot.recoveryCoachPlan.summary)
+        Text(premiumSnapshot.recoveryCoachPlan.summary, style = CatholicFastingThemeValues.typography.supporting)
     }
 }
 
@@ -650,14 +677,19 @@ private fun moreSectionTabs(
     onSelected: (MoreSection) -> Unit,
 ) {
     val context = LocalContext.current
+    val spacing = CatholicFastingThemeValues.spacing
     Column(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+                .padding(horizontal = spacing.medium, vertical = spacing.small),
+        verticalArrangement = Arrangement.spacedBy(spacing.xSmall),
     ) {
-        Text(stringResource(R.string.more_title), modifier = Modifier.padding(horizontal = 4.dp))
+        Text(
+            stringResource(R.string.more_title),
+            style = CatholicFastingThemeValues.typography.screenTitle,
+            modifier = Modifier.padding(horizontal = spacing.xxSmall),
+        )
         rowWithScroll {
             MoreSection.entries.forEach { section ->
                 FilterChip(
@@ -682,8 +714,8 @@ private fun setupAndRemindersSection(
         modifier =
             modifier
                 .verticalScroll(rememberScrollState())
-                .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
+                .padding(CatholicFastingThemeValues.spacing.medium),
+        verticalArrangement = Arrangement.spacedBy(CatholicFastingThemeValues.spacing.small),
     ) {
         quickSetupCard(
             state = state,
@@ -730,13 +762,14 @@ private fun quickSetupCard(
     onCompleteOnboarding: () -> Unit,
 ) {
     sectionCard(title = stringResource(R.string.more_quick_setup_title)) {
-        Text(stringResource(R.string.more_quick_setup_body))
+        Text(stringResource(R.string.more_quick_setup_body), style = CatholicFastingThemeValues.typography.body)
         Text(
             if (state.launchFunnelSnapshot.independentAppNoticeAcknowledged) {
                 stringResource(R.string.more_notice_acknowledged)
             } else {
                 stringResource(R.string.more_notice_pending)
             },
+            style = CatholicFastingThemeValues.typography.supporting,
         )
         rowWithScroll {
             listOf(true, false).forEach { acknowledged ->
@@ -756,7 +789,7 @@ private fun quickSetupCard(
                 )
             }
         }
-        Text(setupProgressSummary)
+        Text(setupProgressSummary, style = CatholicFastingThemeValues.typography.supporting)
         outlinedActionButton(
             label =
                 if (state.launchFunnelSnapshot.completedOnboardingAtIso == null) {
@@ -780,14 +813,18 @@ private fun reminderCenterCard(
     onDailyQuoteReminderTimeChange: (Int, Int) -> Unit,
 ) {
     sectionCard(title = stringResource(R.string.more_reminder_center_title)) {
-        Text(summaryLine)
+        Text(summaryLine, style = CatholicFastingThemeValues.typography.body)
         Text(
             stringResource(
                 R.string.more_reminder_tier_value,
                 reminderCenterState.selectedTier.localizedLabel(),
             ),
+            style = CatholicFastingThemeValues.typography.supporting,
         )
-        Text(reminderCenterState.selectedTier.localizedSummary())
+        Text(
+            reminderCenterState.selectedTier.localizedSummary(),
+            style = CatholicFastingThemeValues.typography.supporting,
+        )
         reminderTierChipRow(
             selectedTier = reminderCenterState.selectedTier,
             onReminderTierChange = onReminderTierChange,
@@ -801,6 +838,7 @@ private fun reminderCenterCard(
         )
         Text(
             stringResource(R.string.more_reminder_strategy_body),
+            style = CatholicFastingThemeValues.typography.supporting,
         )
         Text(
             if (notificationPermissionGranted) {
@@ -808,6 +846,7 @@ private fun reminderCenterCard(
             } else {
                 stringResource(R.string.more_notification_permission_needed)
             },
+            style = CatholicFastingThemeValues.typography.supporting,
         )
         if (notificationPermissionSupported() && !notificationPermissionGranted) {
             outlinedActionButton(
@@ -815,8 +854,8 @@ private fun reminderCenterCard(
                 onClick = onRequestNotificationPermission,
             )
         }
-        Text(stringResource(R.string.more_required_day_local))
-        Text(stringResource(R.string.more_active_fast_sync))
+        Text(stringResource(R.string.more_required_day_local), style = CatholicFastingThemeValues.typography.utility)
+        Text(stringResource(R.string.more_active_fast_sync), style = CatholicFastingThemeValues.typography.utility)
     }
 }
 
@@ -856,6 +895,7 @@ private fun quoteReminderControls(
             labelRes,
             reminderCenterState.dailyQuoteTimeLabel,
         ),
+        style = CatholicFastingThemeValues.typography.supporting,
     )
     booleanChoiceRow(
         selected = selectedEnabled,
@@ -923,8 +963,8 @@ private fun privacyAndDataSection(
         modifier =
             modifier
                 .verticalScroll(rememberScrollState())
-                .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
+                .padding(CatholicFastingThemeValues.spacing.medium),
+        verticalArrangement = Arrangement.spacedBy(CatholicFastingThemeValues.spacing.small),
     ) {
         privacySummaryCard(state = state, supportState = supportState)
         dataStoredCard()
@@ -938,13 +978,20 @@ private fun privacySummaryCard(
     supportState: AppSupportState,
 ) {
     sectionCard(title = stringResource(R.string.more_privacy_title)) {
-        Text(stringResource(R.string.more_privacy_local_first))
-        Text(stringResource(R.string.more_privacy_backup_tools))
+        Text(
+            stringResource(R.string.more_privacy_local_first),
+            style = CatholicFastingThemeValues.typography.body,
+        )
+        Text(
+            stringResource(R.string.more_privacy_backup_tools),
+            style = CatholicFastingThemeValues.typography.supporting,
+        )
         Text(
             stringResource(
                 R.string.more_privacy_last_sync,
                 supportState.storageDiagnosticsState.lastLocalWriteIso ?: stringResource(R.string.more_not_yet_saved),
             ),
+            style = CatholicFastingThemeValues.typography.utility,
         )
         Text(
             if (state.launchFunnelSnapshot.independentAppNoticeAcknowledged) {
@@ -952,19 +999,38 @@ private fun privacySummaryCard(
             } else {
                 stringResource(R.string.more_notice_not_acknowledged)
             },
+            style = CatholicFastingThemeValues.typography.utility,
         )
-        Text(stringResource(R.string.more_stored_reflections, state.reflections.size))
-        Text(stringResource(R.string.more_household_profiles, state.profiles.size))
+        Text(
+            stringResource(R.string.more_stored_reflections, state.reflections.size),
+            style = CatholicFastingThemeValues.typography.utility,
+        )
+        Text(
+            stringResource(R.string.more_household_profiles, state.profiles.size),
+            style = CatholicFastingThemeValues.typography.utility,
+        )
     }
 }
 
 @Composable
 private fun dataStoredCard() {
     sectionCard(title = stringResource(R.string.more_data_stored_title)) {
-        Text(stringResource(R.string.more_data_profile_settings))
-        Text(stringResource(R.string.more_data_observances))
-        Text(stringResource(R.string.more_data_funnel))
-        Text(stringResource(R.string.more_data_no_tracking))
+        Text(
+            stringResource(R.string.more_data_profile_settings),
+            style = CatholicFastingThemeValues.typography.body,
+        )
+        Text(
+            stringResource(R.string.more_data_observances),
+            style = CatholicFastingThemeValues.typography.body,
+        )
+        Text(
+            stringResource(R.string.more_data_funnel),
+            style = CatholicFastingThemeValues.typography.body,
+        )
+        Text(
+            stringResource(R.string.more_data_no_tracking),
+            style = CatholicFastingThemeValues.typography.supporting,
+        )
     }
 }
 
@@ -974,35 +1040,51 @@ private fun currentLocalStateCard(
     supportState: AppSupportState,
 ) {
     sectionCard(title = stringResource(R.string.more_current_local_state_title)) {
-        Text(stringResource(R.string.more_observances_this_year, state.observances.size))
+        Text(
+            stringResource(R.string.more_observances_this_year, state.observances.size),
+            style = CatholicFastingThemeValues.typography.body,
+        )
         Text(
             stringResource(
                 R.string.more_completed_count,
                 supportState.storageDiagnosticsState.completedObservancesCount,
             ),
+            style = CatholicFastingThemeValues.typography.supporting,
         )
-        Text(stringResource(R.string.more_friday_notes_saved, supportState.storageDiagnosticsState.fridayNotesCount))
+        Text(
+            stringResource(
+                R.string.more_friday_notes_saved,
+                supportState.storageDiagnosticsState.fridayNotesCount,
+            ),
+            style = CatholicFastingThemeValues.typography.supporting,
+        )
         Text(
             stringResource(
                 R.string.more_intermittent_sessions_saved,
                 supportState.storageDiagnosticsState.intermittentSessionsCount,
             ),
+            style = CatholicFastingThemeValues.typography.supporting,
         )
         Text(
             stringResource(
                 R.string.more_stored_reflections,
                 supportState.storageDiagnosticsState.reflectionsCount,
             ),
+            style = CatholicFastingThemeValues.typography.supporting,
         )
         Text(
             stringResource(
                 R.string.more_selected_reminder_tier,
                 supportState.reminderCenterState.selectedTier.localizedLabel(),
             ),
+            style = CatholicFastingThemeValues.typography.supporting,
         )
         if (supportState.storageDiagnosticsState.warnings.isNotEmpty()) {
             supportState.storageDiagnosticsState.warnings.forEach { warning ->
-                Text(stringResource(R.string.more_warning_value, warning))
+                Text(
+                    stringResource(R.string.more_warning_value, warning),
+                    style = CatholicFastingThemeValues.typography.utility,
+                )
             }
         }
     }
@@ -1011,27 +1093,23 @@ private fun currentLocalStateCard(
 @Composable
 private fun sectionCard(
     title: String,
+    tone: SeasonTone? = null,
+    heroTitle: Boolean = false,
     content: @Composable androidx.compose.foundation.layout.ColumnScope.() -> Unit,
 ) {
-    Card {
-        Column(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            Text(title, modifier = Modifier.semantics { heading() })
-            content()
-        }
-    }
+    catholicFastingSectionCard(
+        title = title,
+        tone = tone,
+        heroTitle = heroTitle,
+        content = content,
+    )
 }
 
 @Composable
 private fun rowWithScroll(content: @Composable () -> Unit) {
     androidx.compose.foundation.layout.Row(
         modifier = Modifier.horizontalScroll(rememberScrollState()),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(CatholicFastingThemeValues.spacing.xSmall),
     ) {
         content()
     }

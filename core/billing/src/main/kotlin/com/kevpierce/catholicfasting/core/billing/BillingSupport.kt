@@ -50,6 +50,7 @@ data class BillingState(
 
 class BillingRepository(
     private val context: Context,
+    autoConnect: Boolean = true,
 ) : PurchasesUpdatedListener {
     private data class PurchaseSnapshot(
         val premiumUnlocked: Boolean,
@@ -74,8 +75,16 @@ class BillingRepository(
     val billingState: StateFlow<BillingState> = state.asStateFlow()
 
     init {
-        scope.launch {
-            connectAndRefresh()
+        if (autoConnect) {
+            scope.launch {
+                connectAndRefresh()
+            }
+        } else {
+            state.value =
+                state.value.copy(
+                    isLoading = false,
+                    statusMessage = productsReadyMessage(hasCatalogProducts = false),
+                )
         }
     }
 
