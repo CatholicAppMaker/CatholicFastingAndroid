@@ -21,6 +21,14 @@ Use this repo flow for a Play-ready signed Android bundle.
 
 - Bundle path:
   - `app/build/outputs/bundle/release/app-release.aab`
+- R8 deobfuscation mapping:
+  - `app/build/outputs/mapping/release/mapping.txt`
+- Native debug symbols:
+  - `app/build/outputs/native-debug-symbols/release/native-debug-symbols.zip`
+
+Upload the mapping and native-symbol files in Play Console when the release review
+page asks for deobfuscation or native debug symbols. They make crash and ANR
+reports more readable without changing user-facing behavior.
 
 ## Pre-upload checks
 

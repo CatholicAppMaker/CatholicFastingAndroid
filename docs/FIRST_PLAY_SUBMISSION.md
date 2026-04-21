@@ -48,17 +48,21 @@ Use this flow if you already have the verified Google Play developer account but
 
 1. Build the signed bundle locally:
    - `app/build/outputs/bundle/release/app-release.aab`
-2. Create a new production release.
-3. Upload the `.aab`.
-4. Add concise first-release notes.
-5. Wait for Play to process the artifact.
-6. Review:
+2. Keep the generated diagnostic artifacts available for Play warnings:
+   - `app/build/outputs/mapping/release/mapping.txt`
+   - `app/build/outputs/native-debug-symbols/release/native-debug-symbols.zip`
+3. Create a new production or required testing-track release.
+4. Upload the `.aab`.
+5. Upload `mapping.txt` and `native-debug-symbols.zip` if Play asks for them.
+6. Add concise first-release notes.
+7. Wait for Play to process the artifact.
+8. Review:
    - pre-launch report
    - crashes / ANRs
    - billing product resolution
    - accessibility warnings
    - large-screen warnings
-7. Publish only after the local validation gate and Play warnings are both in acceptable shape.
+9. Publish only after the local validation gate and Play warnings are both in acceptable shape.
 
 ## 6. Final local gate before publish
 

@@ -59,7 +59,7 @@
 - [ ] Licensed testers and closed-test accounts verified in Play Console
 - [x] Final signed `app-release.aab` built successfully
 - [ ] Final Play-served billing validation completed from a test track
-- [ ] Real Play screenshots captured from the Android build
+- [x] Real Play screenshots captured from the Android build
 - [ ] Generated feature graphic approved and exported for upload
 - [ ] Play listing screenshots and feature graphic uploaded
 - [ ] Production rollout started from a reviewed Play release
