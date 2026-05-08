@@ -1,4 +1,4 @@
-<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+<resources>
     <string name="app_name">Catholic Fasting</string>
     <string name="notice_independent_app_summary">This is an independent devotional app, not an official app of the Church, USCCB, Vatican, or any diocese/parish.</string>
     <string name="nav_today">Today</string>
@@ -64,11 +64,17 @@
     <string name="history_article_body">Article</string>
     <string name="history_article_sources">Source Notes</string>
     <string name="history_back_to_timeline">Back to timeline</string>
-    <string name="summary_completion_value">%1$d observances marked complete, substituted, or dispensed.</string>
+    <plurals name="summary_completion_value">
+        <item quantity="one">%1$d observance marked complete, substituted, or dispensed.</item>
+        <item quantity="other">%1$d observances marked complete, substituted, or dispensed.</item>
+    </plurals>
     <string name="summary_setup_progress_value">Setup progress: %1$d/%2$d</string>
     <string name="summary_year_plan_value">Required: %1$d/%2$d • Optional: %3$d/%4$d</string>
     <string name="summary_weekly_recap_empty">No fasting obligations logged this week yet. Keep your next required day visible.</string>
-    <string name="summary_weekly_recap_value">This week: %1$d of %2$d discipline days completed.</string>
+    <plurals name="summary_weekly_recap_value">
+        <item quantity="one">This week: %1$d of %2$d discipline day completed.</item>
+        <item quantity="other">This week: %1$d of %2$d discipline days completed.</item>
+    </plurals>
     <string name="summary_streak_stable">You are in a stable rhythm. Protect tomorrow with a simple plan tonight.</string>
     <string name="summary_streak_recovery">Missed days happen. Start a recovery substitute today and continue tomorrow.</string>
     <string name="summary_streak_momentum">Build momentum with one completed discipline day at a time.</string>

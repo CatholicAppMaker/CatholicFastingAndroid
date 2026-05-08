@@ -84,13 +84,17 @@ class ObservanceCalculatorTest {
     @Test
     fun ascensionDifferenceIsThreeDaysBetweenModes() {
         val sunday =
-            ObservanceCalculator.makeCalendar(2026, defaultSettings)
-                .first { it.title == "Ascension" }.date
+            ObservanceCalculator
+                .makeCalendar(2026, defaultSettings)
+                .first { it.title == "Ascension" }
+                .date
         val thursday =
-            ObservanceCalculator.makeCalendar(
-                2026,
-                defaultSettings.copy(ascensionObservance = AscensionObservance.THURSDAY),
-            ).first { it.title == "Ascension" }.date
+            ObservanceCalculator
+                .makeCalendar(
+                    2026,
+                    defaultSettings.copy(ascensionObservance = AscensionObservance.THURSDAY),
+                ).first { it.title == "Ascension" }
+                .date
 
         val days = ChronoUnit.DAYS.between(LocalDate.parse(thursday), LocalDate.parse(sunday))
         assertThat(days).isEqualTo(3)
@@ -111,10 +115,11 @@ class ObservanceCalculatorTest {
     @Test
     fun fridayModeAbstainFromMeatChangesDetail() {
         val firstFridayOutsideLent =
-            ObservanceCalculator.makeCalendar(
-                2026,
-                defaultSettings.copy(fridayOutsideLentMode = FridayOutsideLentMode.ABSTAIN_FROM_MEAT),
-            ).first { it.kind == ObservanceKind.FRIDAY_PENANCE }
+            ObservanceCalculator
+                .makeCalendar(
+                    2026,
+                    defaultSettings.copy(fridayOutsideLentMode = FridayOutsideLentMode.ABSTAIN_FROM_MEAT),
+                ).first { it.kind == ObservanceKind.FRIDAY_PENANCE }
 
         assertThat(firstFridayOutsideLent.detail).contains("abstain from meat")
     }
@@ -122,7 +127,8 @@ class ObservanceCalculatorTest {
     @Test
     fun outsideLentFridaysAreGenerated() {
         val outsideLentFridays =
-            ObservanceCalculator.makeCalendar(2026, defaultSettings)
+            ObservanceCalculator
+                .makeCalendar(2026, defaultSettings)
                 .filter { it.kind == ObservanceKind.FRIDAY_PENANCE }
 
         assertThat(outsideLentFridays.size).isGreaterThan(40)
@@ -141,7 +147,8 @@ class ObservanceCalculatorTest {
     @Test
     fun immaculateConceptionIsMandatoryWhenNotTransferred() {
         val immaculate =
-            ObservanceCalculator.makeCalendar(2026, defaultSettings)
+            ObservanceCalculator
+                .makeCalendar(2026, defaultSettings)
                 .first { it.title == "Immaculate Conception" }
 
         assertThat(immaculate.obligation).isEqualTo(ObservanceObligation.MANDATORY)
@@ -150,15 +157,17 @@ class ObservanceCalculatorTest {
     @Test
     fun fridayOutsideLentDetailReflectsSelectedMode() {
         val abstain =
-            ObservanceCalculator.makeCalendar(
-                2026,
-                defaultSettings.copy(fridayOutsideLentMode = FridayOutsideLentMode.ABSTAIN_FROM_MEAT),
-            ).first { it.kind == ObservanceKind.FRIDAY_PENANCE }
+            ObservanceCalculator
+                .makeCalendar(
+                    2026,
+                    defaultSettings.copy(fridayOutsideLentMode = FridayOutsideLentMode.ABSTAIN_FROM_MEAT),
+                ).first { it.kind == ObservanceKind.FRIDAY_PENANCE }
         val substitute =
-            ObservanceCalculator.makeCalendar(
-                2026,
-                defaultSettings.copy(fridayOutsideLentMode = FridayOutsideLentMode.SUBSTITUTE_PENANCE),
-            ).first { it.kind == ObservanceKind.FRIDAY_PENANCE }
+            ObservanceCalculator
+                .makeCalendar(
+                    2026,
+                    defaultSettings.copy(fridayOutsideLentMode = FridayOutsideLentMode.SUBSTITUTE_PENANCE),
+                ).first { it.kind == ObservanceKind.FRIDAY_PENANCE }
 
         assertThat(abstain.detail).contains("abstain from meat")
         assertThat(substitute.detail).contains("penitential act")
@@ -188,10 +197,11 @@ class ObservanceCalculatorTest {
     @Test
     fun canadaHolyDaysUseNationalBaselineObligations() {
         val christmas =
-            ObservanceCalculator.makeCalendar(
-                2026,
-                defaultSettings.copy(regionProfile = RegionProfile.CANADA),
-            ).first { it.title == "Christmas" }
+            ObservanceCalculator
+                .makeCalendar(
+                    2026,
+                    defaultSettings.copy(regionProfile = RegionProfile.CANADA),
+                ).first { it.title == "Christmas" }
 
         assertThat(christmas.obligation).isEqualTo(ObservanceObligation.OPTIONAL)
         assertThat(christmas.rationale).contains("Canada")
@@ -200,12 +210,13 @@ class ObservanceCalculatorTest {
     @Test
     fun canadaFridayPenanceUsesCccbGuidanceAndCitations() {
         val canadaFriday =
-            ObservanceCalculator.makeCalendar(
-                2026,
-                defaultSettings.copy(regionProfile = RegionProfile.CANADA),
-            ).first {
-                it.title == "Friday Penance (Outside Lent)" && it.date.startsWith("2026-05-01")
-            }
+            ObservanceCalculator
+                .makeCalendar(
+                    2026,
+                    defaultSettings.copy(regionProfile = RegionProfile.CANADA),
+                ).first {
+                    it.title == "Friday Penance (Outside Lent)" && it.date.startsWith("2026-05-01")
+                }
 
         assertThat(canadaFriday.obligation).isEqualTo(ObservanceObligation.MANDATORY)
         assertThat(canadaFriday.detail).contains("Canada")
@@ -217,7 +228,8 @@ class ObservanceCalculatorTest {
     @Test
     fun transferredImmaculateConceptionIsNotMandatoryInUs() {
         val transferred =
-            ObservanceCalculator.makeCalendar(2024, defaultSettings)
+            ObservanceCalculator
+                .makeCalendar(2024, defaultSettings)
                 .first { it.title == "Immaculate Conception (Transferred)" }
 
         assertThat(transferred.obligation).isEqualTo(ObservanceObligation.OPTIONAL)
@@ -227,15 +239,17 @@ class ObservanceCalculatorTest {
     @Test
     fun traditionalModeMarksEmberDetailDifferently() {
         val usccbEmber =
-            ObservanceCalculator.makeCalendar(2026, defaultSettings)
+            ObservanceCalculator
+                .makeCalendar(2026, defaultSettings)
                 .first { it.kind == ObservanceKind.OPTIONAL_EMBER }
         val traditionalEmber =
-            ObservanceCalculator.makeCalendar(
-                2026,
-                defaultSettings.copy(
-                    calendarMode = CalendarMode.TRADITIONAL_1962,
-                ),
-            ).first { it.kind == ObservanceKind.OPTIONAL_EMBER }
+            ObservanceCalculator
+                .makeCalendar(
+                    2026,
+                    defaultSettings.copy(
+                        calendarMode = CalendarMode.TRADITIONAL_1962,
+                    ),
+                ).first { it.kind == ObservanceKind.OPTIONAL_EMBER }
 
         assertThat(usccbEmber.detail).isNotEqualTo(traditionalEmber.detail)
         assertThat(traditionalEmber.detail).contains("Traditional")
@@ -244,7 +258,8 @@ class ObservanceCalculatorTest {
     @Test
     fun holyDayWeekdayAbrogationRuleForAllSaints() {
         val allSaints =
-            ObservanceCalculator.makeCalendar(2025, defaultSettings)
+            ObservanceCalculator
+                .makeCalendar(2025, defaultSettings)
                 .first { it.title == "All Saints" }
 
         assertThat(LocalDate.parse(allSaints.date).dayOfWeek.value).isEqualTo(6)

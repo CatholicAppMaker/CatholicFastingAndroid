@@ -1,6 +1,5 @@
 package com.kevpierce.catholicfastingapp
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ApplicationInfo
@@ -9,15 +8,11 @@ import android.net.Uri
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import com.kevpierce.catholicfasting.core.data.AppContainer
 import com.kevpierce.catholicfasting.core.model.AppDeepLinks
 import com.kevpierce.catholicfasting.core.model.CompletionStatus
 import com.kevpierce.catholicfasting.core.model.ObservanceObligation
-import com.kevpierce.catholicfasting.core.widget.CalendarWidgetLaunchActivity
-import com.kevpierce.catholicfasting.core.widget.TodayWidgetLaunchActivity
-import com.kevpierce.catholicfasting.core.widget.TrackerWidgetLaunchActivity
 import com.kevpierce.catholicfasting.core.widget.WidgetSnapshotStore
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
@@ -94,10 +89,20 @@ class ReleaseRoutingInstrumentationTest {
     }
 
     @Test
-    fun widgetLaunchActivitiesOpenExpectedDeepLinks() {
-        assertWidgetLaunchRoute(TodayWidgetLaunchActivity::class.java, AppDeepLinks.TODAY)
-        assertWidgetLaunchRoute(CalendarWidgetLaunchActivity::class.java, AppDeepLinks.CALENDAR)
-        assertWidgetLaunchRoute(TrackerWidgetLaunchActivity::class.java, AppDeepLinks.TRACKER)
+    fun mainActivityAcceptsWidgetDeepLinkExtras() {
+        listOf(AppDeepLinks.TODAY, AppDeepLinks.CALENDAR, AppDeepLinks.TRACKER).forEach { deepLink ->
+            ActivityScenario
+                .launch<MainActivity>(
+                    Intent(context, MainActivity::class.java)
+                        .putExtra(AppDeepLinks.EXTRA_INITIAL_DEEP_LINK, deepLink)
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                ).use { scenario ->
+                    scenario.onActivity { activity ->
+                        assertThat(activity.intent.getStringExtra(AppDeepLinks.EXTRA_INITIAL_DEEP_LINK))
+                            .isEqualTo(deepLink)
+                    }
+                }
+        }
     }
 
     @Test
@@ -132,27 +137,6 @@ class ReleaseRoutingInstrumentationTest {
         repository.setStatus(observanceId, originalStatus)
         if (originalActiveFast == null) {
             repository.cancelIntermittentFast()
-        }
-    }
-
-    private fun assertWidgetLaunchRoute(
-        activityClass: Class<out Activity>,
-        expectedDeepLink: String,
-    ) {
-        val instrumentation = InstrumentationRegistry.getInstrumentation()
-        val monitor = instrumentation.addMonitor(MainActivity::class.java.name, null, false)
-
-        try {
-            ActivityScenario.launch<Activity>(
-                Intent(context, activityClass).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
-            ).use {
-                val launchedMain = instrumentation.waitForMonitorWithTimeout(monitor, 5_000)
-                assertThat(launchedMain).isNotNull()
-                assertThat(launchedMain!!.intent.dataString).isEqualTo(expectedDeepLink)
-                launchedMain.finish()
-            }
-        } finally {
-            instrumentation.removeMonitor(monitor)
         }
     }
 

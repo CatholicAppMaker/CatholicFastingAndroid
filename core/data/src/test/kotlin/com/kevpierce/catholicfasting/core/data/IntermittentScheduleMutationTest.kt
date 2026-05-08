@@ -9,7 +9,8 @@ class IntermittentScheduleMutationTest {
     @Test
     fun saveIntermittentScheduleAddsNewPlanAndMarksItActive() {
         val updated =
-            sampleState().copy(intermittentPresetHours = 18)
+            sampleState()
+                .copy(intermittentPresetHours = 18)
                 .saveIntermittentSchedule(
                     scheduleId = null,
                     name = "",
@@ -31,7 +32,8 @@ class IntermittentScheduleMutationTest {
         val existing = sampleState().schedules.first()
 
         val updated =
-            sampleState().copy(intermittentPresetHours = 20)
+            sampleState()
+                .copy(intermittentPresetHours = 20)
                 .saveIntermittentSchedule(
                     scheduleId = existing.id,
                     name = "Friday Reset",
@@ -61,10 +63,11 @@ class IntermittentScheduleMutationTest {
             )
 
         val updated =
-            sampleState().copy(
-                schedules = sampleState().schedules + extraPlan,
-                activeIntermittentScheduleId = sampleState().schedules.first().id,
-            ).applyIntermittentSchedule(extraPlan.id)
+            sampleState()
+                .copy(
+                    schedules = sampleState().schedules + extraPlan,
+                    activeIntermittentScheduleId = sampleState().schedules.first().id,
+                ).applyIntermittentSchedule(extraPlan.id)
 
         assertThat(updated.intermittentPresetHours).isEqualTo(24)
         assertThat(updated.activeIntermittentScheduleId).isEqualTo(extraPlan.id)
@@ -83,10 +86,11 @@ class IntermittentScheduleMutationTest {
             )
 
         val updated =
-            sampleState().copy(
-                schedules = listOf(first, extraPlan),
-                activeIntermittentScheduleId = extraPlan.id,
-            ).deleteIntermittentSchedule(extraPlan.id)
+            sampleState()
+                .copy(
+                    schedules = listOf(first, extraPlan),
+                    activeIntermittentScheduleId = extraPlan.id,
+                ).deleteIntermittentSchedule(extraPlan.id)
 
         assertThat(updated.schedules).containsExactly(first)
         assertThat(updated.activeIntermittentScheduleId).isEqualTo(first.id)

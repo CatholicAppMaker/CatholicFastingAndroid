@@ -1,4 +1,5 @@
 <resources>
+    <string name="widget_app_name">Catholic Fasting</string>
     <string name="widget_default_today_title">Catholic Fasting</string>
     <string name="widget_default_today_obligation">Open the app for today’s plan</string>
     <string name="widget_default_next_required_title">Widget ready</string>

@@ -107,14 +107,14 @@ object ReminderScheduler {
                 .setBackoffCriteria(BackoffPolicy.LINEAR, 15, TimeUnit.MINUTES)
                 .setConstraints(reminderConstraints())
                 .setInputData(
-                    Data.Builder()
+                    Data
+                        .Builder()
                         .putString(ReminderWorker.KEY_TITLE, supportTitle(context, uniqueName))
                         .putString(ReminderWorker.KEY_BODY, supportBody(context, uniqueName))
                         .putString(
                             ReminderWorker.KEY_DEEP_LINK,
                             ReminderNotificationRoutes.deepLinkForKind(reminderKind(uniqueName)),
-                        )
-                        .build(),
+                        ).build(),
                 ).build()
 
         workManager.enqueueUniquePeriodicWork(
@@ -125,7 +125,8 @@ object ReminderScheduler {
     }
 
     private fun requiredReminderInput(observance: Observance): Data =
-        Data.Builder()
+        Data
+            .Builder()
             .putString(ReminderWorker.KEY_TITLE, observance.title)
             .putString(
                 ReminderWorker.KEY_BODY,
@@ -136,7 +137,8 @@ object ReminderScheduler {
             ).build()
 
     private fun reminderConstraints(): Constraints =
-        Constraints.Builder()
+        Constraints
+            .Builder()
             .setRequiredNetworkType(NetworkType.NOT_REQUIRED)
             .build()
 

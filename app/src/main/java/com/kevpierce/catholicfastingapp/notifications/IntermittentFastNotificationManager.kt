@@ -21,10 +21,6 @@ object IntermittentFastNotificationManager {
     private const val NOTIFICATION_ID = 2001
 
     fun ensureChannel(context: Context) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-            return
-        }
-
         val channel =
             NotificationChannel(
                 CHANNEL_ID,
@@ -79,7 +75,8 @@ object IntermittentFastNotificationManager {
         elapsed: String,
         targetHours: Int,
     ): android.app.Notification =
-        NotificationCompat.Builder(context, CHANNEL_ID)
+        NotificationCompat
+            .Builder(context, CHANNEL_ID)
             .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setContentTitle(context.getString(R.string.notification_fast_title))
             .setContentText(
@@ -116,8 +113,7 @@ object IntermittentFastNotificationManager {
                     deepLink = AppDeepLinks.TRACKER,
                     requestCode = 2002,
                 ),
-            )
-            .setPriority(NotificationCompat.PRIORITY_LOW)
+            ).setPriority(NotificationCompat.PRIORITY_LOW)
             .setSilent(true)
             .build()
 

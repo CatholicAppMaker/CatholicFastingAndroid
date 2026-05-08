@@ -32,6 +32,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
@@ -71,22 +72,22 @@ import com.kevpierce.catholicfasting.core.rules.PremiumSnapshotEngine
 import com.kevpierce.catholicfasting.core.rules.SacredImageryCatalog
 import com.kevpierce.catholicfasting.core.rules.SeasonalContentPackCatalog
 import com.kevpierce.catholicfasting.core.rules.SeasonalContentSupport
+import com.kevpierce.catholicfasting.core.ui.CatholicFastingSectionCard
 import com.kevpierce.catholicfasting.core.ui.CatholicFastingThemeValues
 import com.kevpierce.catholicfasting.core.ui.SeasonTone
-import com.kevpierce.catholicfasting.core.ui.catholicFastingSectionCard
 import com.kevpierce.catholicfasting.core.ui.rememberSeasonTone
 import com.kevpierce.catholicfasting.core.widget.WidgetSnapshotStore
-import com.kevpierce.catholicfasting.feature.calendar.calendarScreen
-import com.kevpierce.catholicfasting.feature.guidance.guidanceScreen
+import com.kevpierce.catholicfasting.feature.calendar.CalendarScreen
+import com.kevpierce.catholicfasting.feature.guidance.GuidanceScreen
+import com.kevpierce.catholicfasting.feature.premium.PremiumScreen
 import com.kevpierce.catholicfasting.feature.premium.PremiumWorkspaceActions
 import com.kevpierce.catholicfasting.feature.premium.PremiumWorkspaceUiState
-import com.kevpierce.catholicfasting.feature.premium.premiumScreen
-import com.kevpierce.catholicfasting.feature.settings.settingsScreen
+import com.kevpierce.catholicfasting.feature.settings.SettingsScreen
+import com.kevpierce.catholicfasting.feature.today.TodayScreen
 import com.kevpierce.catholicfasting.feature.today.TodayUiState
-import com.kevpierce.catholicfasting.feature.today.todayScreen
 import com.kevpierce.catholicfasting.feature.tracker.TrackerActions
+import com.kevpierce.catholicfasting.feature.tracker.TrackerScreen
 import com.kevpierce.catholicfasting.feature.tracker.TrackerUiState
-import com.kevpierce.catholicfasting.feature.tracker.trackerScreen
 import com.kevpierce.catholicfastingapp.R
 import com.kevpierce.catholicfastingapp.notifications.IntermittentFastNotificationManager
 import com.kevpierce.catholicfastingapp.notifications.ReminderScheduler
@@ -137,7 +138,7 @@ private data class SetupReminderActions(
 )
 
 @Composable
-fun catholicFastingApp(initialDeepLink: String? = null) {
+fun CatholicFastingApp(initialDeepLink: String? = null) {
     val repository = AppContainer.repository
     val billingRepository = BillingContainer.repository
     val state by repository.dashboardState.collectAsState()
@@ -160,10 +161,10 @@ fun catholicFastingApp(initialDeepLink: String? = null) {
                     state.launchFunnelSnapshot.completedOnboardingAtIso,
                 ),
         )
-    appRuntimeEffects(context = context, state = state)
+    AppRuntimeEffects(context = context, state = state)
 
     if (state.launchFunnelSnapshot.completedOnboardingAtIso == null) {
-        onboardingRoute(
+        OnboardingRoute(
             state = state,
             repository = repository,
             notificationPermissionActions = notificationPermissionActions,
@@ -173,9 +174,9 @@ fun catholicFastingApp(initialDeepLink: String? = null) {
     }
 
     Scaffold(
-        bottomBar = { bottomNavigation(destination = destination, onDestinationChange = { destination = it }) },
+        bottomBar = { BottomNavigation(destination = destination, onDestinationChange = { destination = it }) },
     ) { padding ->
-        appContent(
+        AppContent(
             destination = destination,
             initialMoreSection = initialMoreSection,
             state = state,
@@ -184,7 +185,7 @@ fun catholicFastingApp(initialDeepLink: String? = null) {
             billingActions =
                 BillingActions(
                     onRefresh = billingRepository::refresh,
-                    onManageSubscription = billingRepository::openManageSubscription,
+                    onManageSubscription = { billingRepository.openManageSubscription(context) },
                     onPurchase = { productId ->
                         (context as? ComponentActivity)?.let { activity ->
                             billingRepository.launchPurchase(activity, productId)
@@ -198,7 +199,7 @@ fun catholicFastingApp(initialDeepLink: String? = null) {
 }
 
 @Composable
-private fun appRuntimeEffects(
+private fun AppRuntimeEffects(
     context: Context,
     state: com.kevpierce.catholicfasting.core.data.DashboardState,
 ) {
@@ -217,7 +218,7 @@ private fun appRuntimeEffects(
 }
 
 @Composable
-private fun bottomNavigation(
+private fun BottomNavigation(
     destination: TopLevelDestination,
     onDestinationChange: (TopLevelDestination) -> Unit,
 ) {
@@ -244,7 +245,7 @@ private fun bottomNavigation(
 }
 
 @Composable
-private fun appContent(
+private fun AppContent(
     destination: TopLevelDestination,
     initialMoreSection: MoreSection,
     state: com.kevpierce.catholicfasting.core.data.DashboardState,
@@ -260,7 +261,7 @@ private fun appContent(
 
     when (destination) {
         TopLevelDestination.TODAY ->
-            todayScreen(
+            TodayScreen(
                 uiState =
                     TodayUiState(
                         todayObservance = state.observances.firstOrNull { it.date == LocalDate.now().toString() },
@@ -279,7 +280,7 @@ private fun appContent(
                 modifier = modifier,
             )
         TopLevelDestination.FASTING_DAYS ->
-            calendarScreen(
+            CalendarScreen(
                 observances = state.observances,
                 statusesById = state.statusesById,
                 fridayNotesById = state.fridayNotesById,
@@ -289,14 +290,14 @@ private fun appContent(
                 modifier = modifier,
             )
         TopLevelDestination.TRACK_FAST ->
-            trackFastDestination(
+            TrackFastDestination(
                 state = state,
                 repository = repository,
                 supportState = supportState,
                 modifier = modifier,
             )
         TopLevelDestination.MORE ->
-            moreDestination(
+            MoreDestination(
                 initialSection = initialMoreSection,
                 state = state,
                 repository = repository,
@@ -311,7 +312,7 @@ private fun appContent(
 }
 
 @Composable
-private fun onboardingRoute(
+private fun OnboardingRoute(
     state: com.kevpierce.catholicfasting.core.data.DashboardState,
     repository: com.kevpierce.catholicfasting.core.data.AppRepository,
     notificationPermissionActions: NotificationPermissionActions,
@@ -334,15 +335,15 @@ private fun onboardingRoute(
                 .padding(CatholicFastingThemeValues.spacing.medium),
         verticalArrangement = Arrangement.spacedBy(CatholicFastingThemeValues.spacing.small),
     ) {
-        onboardingHeaderCard(
+        OnboardingHeaderCard(
             onboardingState = onboardingState,
             setupProgressSummary = supportState.setupProgressSummary,
         )
-        onboardingNoticeCard(
+        OnboardingNoticeCard(
             noticeAcknowledged = onboardingState.noticeAcknowledged,
             onNoticeAcknowledgedChange = repository::setIndependentAppNoticeAcknowledged,
         )
-        onboardingProfileCard(
+        OnboardingProfileCard(
             state = state,
             onRegionSelected = repository::setSelectedRegion,
             onFridayModeSelected = { mode ->
@@ -353,7 +354,7 @@ private fun onboardingRoute(
                 )
             },
         )
-        onboardingReminderCard(
+        OnboardingReminderCard(
             onboardingState = onboardingState,
             reminderCenterState = supportState.reminderCenterState,
             notificationPermissionGranted = notificationPermissionActions.granted,
@@ -362,11 +363,11 @@ private fun onboardingRoute(
             onDailyQuoteReminderEnabledChange = repository::setDailyQuoteReminderEnabled,
             onDailyQuoteReminderTimeChange = repository::setDailyQuoteReminderTime,
         )
-        onboardingPremiumCard(
+        OnboardingPremiumCard(
             seasonalHeroState = supportState.seasonalHeroState,
             premiumSnapshot = supportState.premiumSnapshot,
         )
-        outlinedActionButton(
+        OutlinedActionButton(
             label = stringResource(R.string.onboarding_finish),
             onClick = repository::completeOnboarding,
             enabled = completionState.canCompleteOnboarding,
@@ -378,11 +379,11 @@ private fun onboardingRoute(
 }
 
 @Composable
-private fun onboardingHeaderCard(
+private fun OnboardingHeaderCard(
     onboardingState: OnboardingState,
     setupProgressSummary: String,
 ) {
-    sectionCard(
+    SectionCard(
         title = stringResource(R.string.onboarding_title),
         heroTitle = true,
     ) {
@@ -400,11 +401,11 @@ private fun onboardingHeaderCard(
 }
 
 @Composable
-private fun onboardingNoticeCard(
+private fun OnboardingNoticeCard(
     noticeAcknowledged: Boolean,
     onNoticeAcknowledgedChange: (Boolean) -> Unit,
 ) {
-    sectionCard(title = stringResource(R.string.onboarding_notice_title)) {
+    SectionCard(title = stringResource(R.string.onboarding_notice_title)) {
         Text(
             stringResource(R.string.notice_independent_app_summary),
             style = CatholicFastingThemeValues.typography.body,
@@ -417,7 +418,7 @@ private fun onboardingNoticeCard(
             },
             style = CatholicFastingThemeValues.typography.supporting,
         )
-        booleanChoiceRow(
+        BooleanChoiceRow(
             selected = noticeAcknowledged,
             onSelectionChange = onNoticeAcknowledgedChange,
             trueLabel = stringResource(R.string.onboarding_notice_accept),
@@ -427,12 +428,12 @@ private fun onboardingNoticeCard(
 }
 
 @Composable
-private fun onboardingProfileCard(
+private fun OnboardingProfileCard(
     state: com.kevpierce.catholicfasting.core.data.DashboardState,
     onRegionSelected: (RegionProfile) -> Unit,
     onFridayModeSelected: (FridayOutsideLentMode) -> Unit,
 ) {
-    sectionCard(title = stringResource(R.string.onboarding_profile_title)) {
+    SectionCard(title = stringResource(R.string.onboarding_profile_title)) {
         Text(
             stringResource(R.string.onboarding_profile_body),
             style = CatholicFastingThemeValues.typography.body,
@@ -449,7 +450,7 @@ private fun onboardingProfileCard(
             stringResource(R.string.onboarding_region_title),
             style = CatholicFastingThemeValues.typography.sectionTitle,
         )
-        rowWithScroll {
+        RowWithScroll {
             RegionProfile.entries.forEach { region ->
                 val regionLabel = region.localizedLabel()
                 val regionStateDescription = selectedStateDescription(state.settings.regionProfile == region)
@@ -469,7 +470,7 @@ private fun onboardingProfileCard(
             stringResource(R.string.onboarding_friday_title),
             style = CatholicFastingThemeValues.typography.sectionTitle,
         )
-        rowWithScroll {
+        RowWithScroll {
             FridayOutsideLentMode.entries.forEach { mode ->
                 val modeLabel = mode.localizedLabel()
                 val modeStateDescription =
@@ -490,7 +491,7 @@ private fun onboardingProfileCard(
 }
 
 @Composable
-private fun onboardingReminderCard(
+private fun OnboardingReminderCard(
     onboardingState: OnboardingState,
     reminderCenterState: ReminderCenterState,
     notificationPermissionGranted: Boolean,
@@ -499,13 +500,13 @@ private fun onboardingReminderCard(
     onDailyQuoteReminderEnabledChange: (Boolean) -> Unit,
     onDailyQuoteReminderTimeChange: (Int, Int) -> Unit,
 ) {
-    sectionCard(title = stringResource(R.string.onboarding_reminders_title)) {
+    SectionCard(title = stringResource(R.string.onboarding_reminders_title)) {
         Text(stringResource(R.string.onboarding_reminders_body), style = CatholicFastingThemeValues.typography.body)
-        reminderTierChipRow(
+        ReminderTierChipRow(
             selectedTier = onboardingState.selectedReminderTier,
             onReminderTierChange = onReminderTierChange,
         )
-        quoteReminderControls(
+        QuoteReminderControls(
             reminderCenterState = reminderCenterState,
             labelRes = R.string.onboarding_quote_reminder_value,
             selectedEnabled = onboardingState.dailyQuoteReminderEnabled,
@@ -521,7 +522,7 @@ private fun onboardingReminderCard(
             style = CatholicFastingThemeValues.typography.supporting,
         )
         if (notificationPermissionSupported() && !notificationPermissionGranted) {
-            outlinedActionButton(
+            OutlinedActionButton(
                 label = stringResource(R.string.onboarding_request_notification_permission),
                 onClick = onRequestNotificationPermission,
             )
@@ -530,13 +531,13 @@ private fun onboardingReminderCard(
 }
 
 @Composable
-private fun onboardingPremiumCard(
+private fun OnboardingPremiumCard(
     seasonalHeroState: SeasonalHeroState,
     premiumSnapshot: PremiumSnapshot,
 ) {
     val tone = rememberSeasonTone(premiumSnapshot.season)
 
-    sectionCard(
+    SectionCard(
         title = stringResource(R.string.onboarding_premium_title),
         tone = tone,
     ) {
@@ -561,19 +562,23 @@ private fun completionSummary(
     state: com.kevpierce.catholicfasting.core.data.DashboardState,
 ): String {
     val completedCount = state.statusesById.count { it.value.countsTowardProgress }
-    return context.getString(R.string.summary_completion_value, completedCount)
+    return context.resources.getQuantityString(
+        R.plurals.summary_completion_value,
+        completedCount,
+        completedCount,
+    )
 }
 
 @Composable
 @Suppress("LongMethod")
-private fun trackFastDestination(
+private fun TrackFastDestination(
     state: com.kevpierce.catholicfasting.core.data.DashboardState,
     repository: com.kevpierce.catholicfasting.core.data.AppRepository,
     supportState: AppSupportState,
     modifier: Modifier = Modifier,
 ) {
-    val context = LocalContext.current
-    trackerScreen(
+    val resources = LocalResources.current
+    TrackerScreen(
         uiState =
             TrackerUiState(
                 schedules = state.schedules,
@@ -600,30 +605,32 @@ private fun trackFastDestination(
                             weekdays = weekdays,
                         ).fold(
                             onSuccess = { plan ->
-                                context.getString(R.string.status_schedule_saved, plan.name)
+                                resources.getString(R.string.status_schedule_saved, plan.name)
                             },
                             onFailure = {
-                                it.message ?: context.getString(R.string.status_schedule_save_failed)
+                                it.message ?: resources.getString(R.string.status_schedule_save_failed)
                             },
                         )
                 },
                 onDeleteSchedule = { scheduleId ->
-                    repository.deleteIntermittentSchedule(scheduleId)
+                    repository
+                        .deleteIntermittentSchedule(scheduleId)
                         .fold(
-                            onSuccess = { context.getString(R.string.status_schedule_deleted) },
+                            onSuccess = { resources.getString(R.string.status_schedule_deleted) },
                             onFailure = {
-                                it.message ?: context.getString(R.string.status_schedule_delete_failed)
+                                it.message ?: resources.getString(R.string.status_schedule_delete_failed)
                             },
                         )
                 },
                 onApplySchedule = { scheduleId ->
-                    repository.applyIntermittentSchedule(scheduleId)
+                    repository
+                        .applyIntermittentSchedule(scheduleId)
                         .fold(
                             onSuccess = { plan ->
-                                context.getString(R.string.status_schedule_applied, plan.name)
+                                resources.getString(R.string.status_schedule_applied, plan.name)
                             },
                             onFailure = {
-                                it.message ?: context.getString(R.string.status_schedule_apply_failed)
+                                it.message ?: resources.getString(R.string.status_schedule_apply_failed)
                             },
                         )
                 },
@@ -633,7 +640,7 @@ private fun trackFastDestination(
 }
 
 @Composable
-private fun moreDestination(
+private fun MoreDestination(
     initialSection: MoreSection,
     state: com.kevpierce.catholicfasting.core.data.DashboardState,
     repository: com.kevpierce.catholicfasting.core.data.AppRepository,
@@ -650,7 +657,7 @@ private fun moreDestination(
     }
 
     Column(modifier = modifier) {
-        moreSectionTabs(
+        MoreSectionTabs(
             selected = section,
             onSelected = { section = it },
         )
@@ -660,7 +667,7 @@ private fun moreDestination(
                     .fillMaxWidth()
                     .weight(1f),
         ) {
-            moreSectionContent(
+            MoreSectionContent(
                 section = section,
                 state = state,
                 repository = repository,
@@ -675,7 +682,7 @@ private fun moreDestination(
 }
 
 @Composable
-private fun moreSectionTabs(
+private fun MoreSectionTabs(
     selected: MoreSection,
     onSelected: (MoreSection) -> Unit,
 ) {
@@ -693,7 +700,7 @@ private fun moreSectionTabs(
             style = CatholicFastingThemeValues.typography.screenTitle,
             modifier = Modifier.padding(horizontal = spacing.xxSmall),
         )
-        rowWithScroll {
+        RowWithScroll {
             MoreSection.entries.forEach { section ->
                 FilterChip(
                     selected = selected == section,
@@ -706,7 +713,7 @@ private fun moreSectionTabs(
 }
 
 @Composable
-private fun setupAndRemindersSection(
+private fun SetupAndRemindersSection(
     state: com.kevpierce.catholicfasting.core.data.DashboardState,
     actions: SetupReminderActions,
     notificationPermissionActions: NotificationPermissionActions,
@@ -720,13 +727,13 @@ private fun setupAndRemindersSection(
                 .padding(CatholicFastingThemeValues.spacing.medium),
         verticalArrangement = Arrangement.spacedBy(CatholicFastingThemeValues.spacing.small),
     ) {
-        quickSetupCard(
+        QuickSetupCard(
             state = state,
             setupProgressSummary = supportState.setupProgressSummary,
             onNoticeAcknowledgedChange = actions.onNoticeAcknowledgedChange,
             onCompleteOnboarding = actions.onCompleteOnboarding,
         )
-        reminderCenterCard(
+        ReminderCenterCard(
             reminderCenterState = supportState.reminderCenterState,
             summaryLine = supportState.premiumSnapshot.reminderRecommendation.summaryLine,
             notificationPermissionGranted = notificationPermissionActions.granted,
@@ -735,7 +742,7 @@ private fun setupAndRemindersSection(
             onDailyQuoteReminderEnabledChange = actions.onDailyQuoteReminderEnabledChange,
             onDailyQuoteReminderTimeChange = actions.onDailyQuoteReminderTimeChange,
         )
-        sectionCard(title = stringResource(R.string.more_setup_progress_title)) {
+        SectionCard(title = stringResource(R.string.more_setup_progress_title)) {
             Text(supportState.setupProgressSummary)
             Text(stringResource(R.string.more_region_value, state.settings.regionProfile.localizedLabel()))
             Text(stringResource(R.string.more_calendar_value, state.settings.calendarMode.localizedLabel()))
@@ -758,13 +765,13 @@ private fun setupAndRemindersSection(
 }
 
 @Composable
-private fun quickSetupCard(
+private fun QuickSetupCard(
     state: com.kevpierce.catholicfasting.core.data.DashboardState,
     setupProgressSummary: String,
     onNoticeAcknowledgedChange: (Boolean) -> Unit,
     onCompleteOnboarding: () -> Unit,
 ) {
-    sectionCard(title = stringResource(R.string.more_quick_setup_title)) {
+    SectionCard(title = stringResource(R.string.more_quick_setup_title)) {
         Text(stringResource(R.string.more_quick_setup_body), style = CatholicFastingThemeValues.typography.body)
         Text(
             if (state.launchFunnelSnapshot.independentAppNoticeAcknowledged) {
@@ -774,7 +781,7 @@ private fun quickSetupCard(
             },
             style = CatholicFastingThemeValues.typography.supporting,
         )
-        rowWithScroll {
+        RowWithScroll {
             listOf(true, false).forEach { acknowledged ->
                 FilterChip(
                     selected =
@@ -793,7 +800,7 @@ private fun quickSetupCard(
             }
         }
         Text(setupProgressSummary, style = CatholicFastingThemeValues.typography.supporting)
-        outlinedActionButton(
+        OutlinedActionButton(
             label =
                 if (state.launchFunnelSnapshot.completedOnboardingAtIso == null) {
                     stringResource(R.string.more_mark_setup_complete)
@@ -806,7 +813,7 @@ private fun quickSetupCard(
 }
 
 @Composable
-private fun reminderCenterCard(
+private fun ReminderCenterCard(
     reminderCenterState: ReminderCenterState,
     summaryLine: String,
     notificationPermissionGranted: Boolean,
@@ -815,7 +822,7 @@ private fun reminderCenterCard(
     onDailyQuoteReminderEnabledChange: (Boolean) -> Unit,
     onDailyQuoteReminderTimeChange: (Int, Int) -> Unit,
 ) {
-    sectionCard(title = stringResource(R.string.more_reminder_center_title)) {
+    SectionCard(title = stringResource(R.string.more_reminder_center_title)) {
         Text(summaryLine, style = CatholicFastingThemeValues.typography.body)
         Text(
             stringResource(
@@ -828,11 +835,11 @@ private fun reminderCenterCard(
             reminderCenterState.selectedTier.localizedSummary(),
             style = CatholicFastingThemeValues.typography.supporting,
         )
-        reminderTierChipRow(
+        ReminderTierChipRow(
             selectedTier = reminderCenterState.selectedTier,
             onReminderTierChange = onReminderTierChange,
         )
-        quoteReminderControls(
+        QuoteReminderControls(
             reminderCenterState = reminderCenterState,
             labelRes = R.string.more_quote_reminder_time_value,
             selectedEnabled = reminderCenterState.dailyQuoteReminderEnabled,
@@ -852,7 +859,7 @@ private fun reminderCenterCard(
             style = CatholicFastingThemeValues.typography.supporting,
         )
         if (notificationPermissionSupported() && !notificationPermissionGranted) {
-            outlinedActionButton(
+            OutlinedActionButton(
                 label = stringResource(R.string.more_request_notification_permission),
                 onClick = onRequestNotificationPermission,
             )
@@ -863,11 +870,11 @@ private fun reminderCenterCard(
 }
 
 @Composable
-private fun reminderTierChipRow(
+private fun ReminderTierChipRow(
     selectedTier: ReminderTier,
     onReminderTierChange: (ReminderTier) -> Unit,
 ) {
-    rowWithScroll {
+    RowWithScroll {
         ReminderTier.entries.forEach { tier ->
             val tierLabel = tier.localizedLabel()
             val tierStateDescription = selectedStateDescription(selectedTier == tier)
@@ -886,7 +893,7 @@ private fun reminderTierChipRow(
 }
 
 @Composable
-private fun quoteReminderControls(
+private fun QuoteReminderControls(
     reminderCenterState: ReminderCenterState,
     labelRes: Int,
     selectedEnabled: Boolean,
@@ -900,14 +907,14 @@ private fun quoteReminderControls(
         ),
         style = CatholicFastingThemeValues.typography.supporting,
     )
-    booleanChoiceRow(
+    BooleanChoiceRow(
         selected = selectedEnabled,
         onSelectionChange = onDailyQuoteReminderEnabledChange,
         trueLabel = stringResource(R.string.onboarding_quote_reminder_on),
         falseLabel = stringResource(R.string.onboarding_quote_reminder_off),
     )
     if (reminderCenterState.dailyQuoteReminderEnabled) {
-        rowWithScroll {
+        RowWithScroll {
             listOf(6, 7, 8, 9).forEach { hour ->
                 val hourLabel = stringResource(R.string.onboarding_hour_value, hour)
                 val hourStateDescription =
@@ -933,13 +940,13 @@ private fun quoteReminderControls(
 }
 
 @Composable
-private fun booleanChoiceRow(
+private fun BooleanChoiceRow(
     selected: Boolean,
     onSelectionChange: (Boolean) -> Unit,
     trueLabel: String,
     falseLabel: String,
 ) {
-    rowWithScroll {
+    RowWithScroll {
         listOf(true to trueLabel, false to falseLabel).forEach { (value, label) ->
             val optionStateDescription = selectedStateDescription(selected == value)
             FilterChip(
@@ -957,7 +964,7 @@ private fun booleanChoiceRow(
 }
 
 @Composable
-private fun historyOfFastingSection(
+private fun HistoryOfFastingSection(
     supportState: AppSupportState,
     modifier: Modifier = Modifier,
 ) {
@@ -973,13 +980,13 @@ private fun historyOfFastingSection(
         verticalArrangement = Arrangement.spacedBy(CatholicFastingThemeValues.spacing.small),
     ) {
         if (selectedArticle == null) {
-            historyOverviewCard()
-            historyTimelineCard(
+            HistoryOverviewCard()
+            HistoryTimelineCard(
                 articles = articles,
                 onArticleSelected = { selectedArticleId = it.id },
             )
         } else {
-            historyArticleDetail(
+            HistoryArticleDetail(
                 article = selectedArticle,
                 onBack = { selectedArticleId = null },
             )
@@ -988,8 +995,8 @@ private fun historyOfFastingSection(
 }
 
 @Composable
-private fun historyOverviewCard() {
-    sectionCard(title = stringResource(R.string.history_overview_title), heroTitle = true) {
+private fun HistoryOverviewCard() {
+    SectionCard(title = stringResource(R.string.history_overview_title), heroTitle = true) {
         Text(
             stringResource(R.string.history_overview_eyebrow),
             style = CatholicFastingThemeValues.typography.utility,
@@ -1002,11 +1009,11 @@ private fun historyOverviewCard() {
 }
 
 @Composable
-private fun historyTimelineCard(
+private fun HistoryTimelineCard(
     articles: List<FastingHistoryArticle>,
     onArticleSelected: (FastingHistoryArticle) -> Unit,
 ) {
-    sectionCard(title = stringResource(R.string.history_timeline_section)) {
+    SectionCard(title = stringResource(R.string.history_timeline_section)) {
         articles.forEach { article ->
             androidx.compose.material3.OutlinedButton(
                 onClick = { onArticleSelected(article) },
@@ -1030,24 +1037,24 @@ private fun historyTimelineCard(
 }
 
 @Composable
-private fun historyArticleDetail(
+private fun HistoryArticleDetail(
     article: FastingHistoryArticle,
     onBack: () -> Unit,
 ) {
-    outlinedActionButton(
+    OutlinedActionButton(
         label = stringResource(R.string.history_back_to_timeline),
         onClick = onBack,
     )
-    sectionCard(title = article.title, heroTitle = true) {
+    SectionCard(title = article.title, heroTitle = true) {
         Text(article.dateRange, style = CatholicFastingThemeValues.typography.utility)
         Text(article.summary, style = CatholicFastingThemeValues.typography.body)
     }
-    sectionCard(title = stringResource(R.string.history_article_body)) {
+    SectionCard(title = stringResource(R.string.history_article_body)) {
         article.body.split("\n\n").forEach { paragraph ->
             Text(paragraph, style = CatholicFastingThemeValues.typography.body)
         }
     }
-    sectionCard(title = stringResource(R.string.history_article_sources)) {
+    SectionCard(title = stringResource(R.string.history_article_sources)) {
         article.sourceNotes.forEach { sourceNote ->
             Text(sourceNote.title, style = CatholicFastingThemeValues.typography.sectionTitle)
             Text(sourceNote.detail, style = CatholicFastingThemeValues.typography.supporting)
@@ -1056,7 +1063,7 @@ private fun historyArticleDetail(
 }
 
 @Composable
-private fun privacyAndDataSection(
+private fun PrivacyAndDataSection(
     state: com.kevpierce.catholicfasting.core.data.DashboardState,
     supportState: AppSupportState,
     modifier: Modifier = Modifier,
@@ -1068,18 +1075,18 @@ private fun privacyAndDataSection(
                 .padding(CatholicFastingThemeValues.spacing.medium),
         verticalArrangement = Arrangement.spacedBy(CatholicFastingThemeValues.spacing.small),
     ) {
-        privacySummaryCard(state = state, supportState = supportState)
-        dataStoredCard()
-        currentLocalStateCard(state = state, supportState = supportState)
+        PrivacySummaryCard(state = state, supportState = supportState)
+        DataStoredCard()
+        CurrentLocalStateCard(state = state, supportState = supportState)
     }
 }
 
 @Composable
-private fun privacySummaryCard(
+private fun PrivacySummaryCard(
     state: com.kevpierce.catholicfasting.core.data.DashboardState,
     supportState: AppSupportState,
 ) {
-    sectionCard(title = stringResource(R.string.more_privacy_title)) {
+    SectionCard(title = stringResource(R.string.more_privacy_title)) {
         Text(
             stringResource(R.string.more_privacy_local_first),
             style = CatholicFastingThemeValues.typography.body,
@@ -1115,8 +1122,8 @@ private fun privacySummaryCard(
 }
 
 @Composable
-private fun dataStoredCard() {
-    sectionCard(title = stringResource(R.string.more_data_stored_title)) {
+private fun DataStoredCard() {
+    SectionCard(title = stringResource(R.string.more_data_stored_title)) {
         Text(
             stringResource(R.string.more_data_profile_settings),
             style = CatholicFastingThemeValues.typography.body,
@@ -1137,11 +1144,11 @@ private fun dataStoredCard() {
 }
 
 @Composable
-private fun currentLocalStateCard(
+private fun CurrentLocalStateCard(
     state: com.kevpierce.catholicfasting.core.data.DashboardState,
     supportState: AppSupportState,
 ) {
-    sectionCard(title = stringResource(R.string.more_current_local_state_title)) {
+    SectionCard(title = stringResource(R.string.more_current_local_state_title)) {
         Text(
             stringResource(R.string.more_observances_this_year, state.observances.size),
             style = CatholicFastingThemeValues.typography.body,
@@ -1193,13 +1200,13 @@ private fun currentLocalStateCard(
 }
 
 @Composable
-private fun sectionCard(
+private fun SectionCard(
     title: String,
     tone: SeasonTone? = null,
     heroTitle: Boolean = false,
     content: @Composable androidx.compose.foundation.layout.ColumnScope.() -> Unit,
 ) {
-    catholicFastingSectionCard(
+    CatholicFastingSectionCard(
         title = title,
         tone = tone,
         heroTitle = heroTitle,
@@ -1208,7 +1215,7 @@ private fun sectionCard(
 }
 
 @Composable
-private fun rowWithScroll(content: @Composable () -> Unit) {
+private fun RowWithScroll(content: @Composable () -> Unit) {
     androidx.compose.foundation.layout.Row(
         modifier = Modifier.horizontalScroll(rememberScrollState()),
         horizontalArrangement = Arrangement.spacedBy(CatholicFastingThemeValues.spacing.xSmall),
@@ -1218,7 +1225,7 @@ private fun rowWithScroll(content: @Composable () -> Unit) {
 }
 
 @Composable
-private fun outlinedActionButton(
+private fun OutlinedActionButton(
     label: String,
     onClick: () -> Unit,
     enabled: Boolean = true,
@@ -1283,7 +1290,7 @@ private fun rememberNotificationPermissionActions(
 }
 
 @Composable
-private fun moreSectionContent(
+private fun MoreSectionContent(
     section: MoreSection,
     state: com.kevpierce.catholicfasting.core.data.DashboardState,
     repository: com.kevpierce.catholicfasting.core.data.AppRepository,
@@ -1295,7 +1302,7 @@ private fun moreSectionContent(
 ) {
     when (section) {
         MoreSection.SUPPORT_PREMIUM ->
-            supportAndPremiumSection(
+            SupportAndPremiumSection(
                 state = state,
                 repository = repository,
                 billingState = billingState,
@@ -1303,7 +1310,7 @@ private fun moreSectionContent(
                 supportState = supportState,
             )
         MoreSection.SETUP_REMINDERS ->
-            setupAndRemindersSection(
+            SetupAndRemindersSection(
                 state = state,
                 actions =
                     SetupReminderActions(
@@ -1318,25 +1325,25 @@ private fun moreSectionContent(
                 modifier = Modifier.fillMaxSize(),
             )
         MoreSection.PROFILE_NORMS ->
-            settingsScreen(
+            SettingsScreen(
                 settings = state.settings,
                 onSettingsChange = onSettingsChange,
                 modifier = Modifier.fillMaxSize(),
             )
         MoreSection.GUIDANCE_RULES ->
-            guidanceScreen(
+            GuidanceScreen(
                 settings = state.settings,
                 ruleBundleAudit = supportState.ruleBundleAudit,
                 devotionalGallery = supportState.devotionalGallery,
                 modifier = Modifier.fillMaxSize(),
             )
         MoreSection.HISTORY_OF_FASTING ->
-            historyOfFastingSection(
+            HistoryOfFastingSection(
                 supportState = supportState,
                 modifier = Modifier.fillMaxSize(),
             )
         MoreSection.PRIVACY_DATA ->
-            privacyAndDataSection(
+            PrivacyAndDataSection(
                 state = state,
                 supportState = supportState,
                 modifier = Modifier.fillMaxSize(),
@@ -1345,15 +1352,15 @@ private fun moreSectionContent(
 }
 
 @Composable
-private fun supportAndPremiumSection(
+private fun SupportAndPremiumSection(
     state: com.kevpierce.catholicfasting.core.data.DashboardState,
     repository: com.kevpierce.catholicfasting.core.data.AppRepository,
     billingState: com.kevpierce.catholicfasting.core.billing.BillingState,
     billingActions: BillingActions,
     supportState: AppSupportState,
 ) {
-    val context = LocalContext.current
-    premiumScreen(
+    val resources = LocalResources.current
+    PremiumScreen(
         billingState = billingState,
         workspaceState =
             PremiumWorkspaceUiState(
@@ -1369,11 +1376,12 @@ private fun supportAndPremiumSection(
                 onManageSubscription = billingActions.onManageSubscription,
                 onPurchase = billingActions.onPurchase,
                 onSaveReflection = { title, body ->
-                    repository.addReflectionEntry(title, body)
+                    repository
+                        .addReflectionEntry(title, body)
                         .fold(
-                            onSuccess = { context.getString(R.string.status_reflection_saved) },
+                            onSuccess = { resources.getString(R.string.status_reflection_saved) },
                             onFailure = {
-                                it.message ?: context.getString(R.string.status_reflection_save_failed)
+                                it.message ?: resources.getString(R.string.status_reflection_save_failed)
                             },
                         )
                 },
@@ -1510,7 +1518,12 @@ private fun weeklyRecap(
     return if (weeklyActionable.isEmpty()) {
         context.getString(R.string.summary_weekly_recap_empty)
     } else {
-        context.getString(R.string.summary_weekly_recap_value, completed, weeklyActionable.size)
+        context.resources.getQuantityString(
+            R.plurals.summary_weekly_recap_value,
+            weeklyActionable.size,
+            completed,
+            weeklyActionable.size,
+        )
     }
 }
 

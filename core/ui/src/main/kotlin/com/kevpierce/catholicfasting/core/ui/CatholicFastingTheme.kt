@@ -81,7 +81,7 @@ object CatholicFastingThemeValues {
 }
 
 @Composable
-fun catholicFastingTheme(content: @Composable () -> Unit) {
+fun CatholicFastingTheme(content: @Composable () -> Unit) {
     val darkTheme = isSystemInDarkTheme()
     val colorScheme = appColorScheme(darkTheme)
     val materialTypography = materialTypography()

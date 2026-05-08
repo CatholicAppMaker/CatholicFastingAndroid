@@ -9,19 +9,20 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import com.kevpierce.catholicfasting.core.ui.catholicFastingTheme
-import com.kevpierce.catholicfastingapp.ui.catholicFastingApp
+import com.kevpierce.catholicfasting.core.model.AppDeepLinks
+import com.kevpierce.catholicfasting.core.ui.CatholicFastingTheme
+import com.kevpierce.catholicfastingapp.ui.CatholicFastingApp
 
 class MainActivity : ComponentActivity() {
     private var deepLink by mutableStateOf<String?>(null)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        deepLink = intent?.dataString
+        deepLink = intent?.initialDeepLink()
         setContent {
-            catholicFastingTheme {
+            CatholicFastingTheme {
                 Surface(color = MaterialTheme.colorScheme.background) {
-                    catholicFastingApp(initialDeepLink = deepLink)
+                    CatholicFastingApp(initialDeepLink = deepLink)
                 }
             }
         }
@@ -30,6 +31,8 @@ class MainActivity : ComponentActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
-        deepLink = intent.dataString
+        deepLink = intent.initialDeepLink()
     }
+
+    private fun Intent.initialDeepLink(): String? = dataString ?: getStringExtra(AppDeepLinks.EXTRA_INITIAL_DEEP_LINK)
 }

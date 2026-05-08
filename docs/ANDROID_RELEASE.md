@@ -11,11 +11,11 @@ Use this repo flow for a Play-ready signed Android bundle.
 ## Build commands
 
 - Cleanup gate:
-  - `JAVA_HOME='/Applications/Android Studio.app/Contents/jbr/Contents/Home' ANDROID_SDK_ROOT="$HOME/Library/Android/sdk" ./.local-tools/gradle-8.11.1/bin/gradle --no-daemon ktlintCheck detekt lint testDebugUnitTest`
+  - `JAVA_HOME='/Applications/Android Studio.app/Contents/jbr/Contents/Home' ANDROID_SDK_ROOT="$HOME/Library/Android/sdk" ./.local-tools/gradle-9.4.1/bin/gradle --no-daemon ktlintCheck detekt lint testDebugUnitTest`
 - Targeted phone validation gate:
-  - `JAVA_HOME='/Applications/Android Studio.app/Contents/jbr/Contents/Home' ANDROID_SDK_ROOT="$HOME/Library/Android/sdk" ./.local-tools/gradle-8.11.1/bin/gradle --no-daemon app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.kevpierce.catholicfastingapp.ReleaseRoutingInstrumentationTest,com.kevpierce.catholicfastingapp.PrivacyLocalizationInstrumentationTest`
+  - `JAVA_HOME='/Applications/Android Studio.app/Contents/jbr/Contents/Home' ANDROID_SDK_ROOT="$HOME/Library/Android/sdk" ./.local-tools/gradle-9.4.1/bin/gradle --no-daemon app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.kevpierce.catholicfastingapp.ReleaseRoutingInstrumentationTest,com.kevpierce.catholicfastingapp.PrivacyLocalizationInstrumentationTest`
 - Signed Play bundle:
-  - `JAVA_HOME='/Applications/Android Studio.app/Contents/jbr/Contents/Home' ANDROID_SDK_ROOT="$HOME/Library/Android/sdk" ./.local-tools/gradle-8.11.1/bin/gradle --no-daemon :app:bundleRelease`
+  - `JAVA_HOME='/Applications/Android Studio.app/Contents/jbr/Contents/Home' ANDROID_SDK_ROOT="$HOME/Library/Android/sdk" ./.local-tools/gradle-9.4.1/bin/gradle --no-daemon :app:bundleRelease`
 
 ## Release artifact
 

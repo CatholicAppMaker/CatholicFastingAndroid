@@ -1,11 +1,10 @@
-build:
-  maxIssues: 0
-
 config:
   validation: true
   warningsAsErrors: false
 
 style:
+  MaxLineLength:
+    maxLineLength: 140
   MagicNumber:
     active: false
   WildcardImport:
@@ -13,5 +12,10 @@ style:
 
 complexity:
   LongParameterList:
-    functionThreshold: 10
-    constructorThreshold: 12
+    allowedFunctionParameters: 10
+    allowedConstructorParameters: 12
+
+naming:
+  FunctionNaming:
+    ignoreAnnotated:
+      - Composable

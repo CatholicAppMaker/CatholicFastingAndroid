@@ -40,7 +40,8 @@ class ReminderWorker(
         notifyReminder(
             notificationId = title.hashCode(),
             notification =
-                NotificationCompat.Builder(applicationContext, NotificationChannels.REMINDER_CHANNEL_ID)
+                NotificationCompat
+                    .Builder(applicationContext, NotificationChannels.REMINDER_CHANNEL_ID)
                     .setSmallIcon(android.R.drawable.ic_dialog_info)
                     .setContentTitle(title)
                     .setContentText(body)
@@ -51,8 +52,7 @@ class ReminderWorker(
                             deepLink = deepLink,
                             requestCode = title.hashCode(),
                         ),
-                    )
-                    .addAction(
+                    ).addAction(
                         0,
                         actionLabel,
                         AppNavigationIntents.activityPendingIntent(
@@ -60,8 +60,7 @@ class ReminderWorker(
                             deepLink = deepLink,
                             requestCode = title.hashCode() + 1,
                         ),
-                    )
-                    .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                    ).setPriority(NotificationCompat.PRIORITY_DEFAULT)
                     .setAutoCancel(true)
                     .build(),
         )

@@ -24,17 +24,17 @@ import com.kevpierce.catholicfasting.core.model.RuleBundleAudit
 import com.kevpierce.catholicfasting.core.model.RuleSettings
 import com.kevpierce.catholicfasting.core.model.SacredImageryItem
 import com.kevpierce.catholicfasting.core.rules.FoodGuidanceEngine
+import com.kevpierce.catholicfasting.core.ui.CatholicFastingScreenTitle
+import com.kevpierce.catholicfasting.core.ui.CatholicFastingSectionCard
 import com.kevpierce.catholicfasting.core.ui.CatholicFastingThemeValues
-import com.kevpierce.catholicfasting.core.ui.catholicFastingScreenTitle
-import com.kevpierce.catholicfasting.core.ui.catholicFastingSectionCard
-import com.kevpierce.catholicfasting.core.ui.sacredImageryCard
+import com.kevpierce.catholicfasting.core.ui.SacredImageryCard
 
 @Composable
-fun guidanceScreen(
+fun GuidanceScreen(
     settings: RuleSettings,
     ruleBundleAudit: RuleBundleAudit,
-    devotionalGallery: List<SacredImageryItem> = emptyList(),
     modifier: Modifier = Modifier,
+    devotionalGallery: List<SacredImageryItem> = emptyList(),
 ) {
     val spacing = CatholicFastingThemeValues.spacing
     var scenario by remember { mutableStateOf(GuidanceScenario.NORMAL_DAY) }
@@ -53,23 +53,23 @@ fun guidanceScreen(
                 .padding(spacing.medium),
         verticalArrangement = Arrangement.spacedBy(spacing.medium),
     ) {
-        catholicFastingScreenTitle(stringResource(R.string.guidance_title))
-        foodGuidanceCard(
+        CatholicFastingScreenTitle(stringResource(R.string.guidance_title))
+        FoodGuidanceCard(
             scenario = scenario,
             onScenarioChange = { scenario = it },
             snapshot = snapshot,
             recommendations = recommendations,
         )
-        ruleAuditCard(
+        RuleAuditCard(
             settings = settings,
             ruleBundleAudit = ruleBundleAudit,
         )
-        sacredGalleryCard(devotionalGallery)
+        SacredGalleryCard(devotionalGallery)
     }
 }
 
 @Composable
-private fun foodGuidanceCard(
+private fun FoodGuidanceCard(
     scenario: GuidanceScenario,
     onScenarioChange: (GuidanceScenario) -> Unit,
     snapshot: com.kevpierce.catholicfasting.core.model.FoodGuidanceSnapshot,
@@ -77,9 +77,9 @@ private fun foodGuidanceCard(
 ) {
     val spacing = CatholicFastingThemeValues.spacing
 
-    catholicFastingSectionCard(title = stringResource(R.string.guidance_food_title)) {
+    CatholicFastingSectionCard(title = stringResource(R.string.guidance_food_title)) {
         Text(snapshot.summaryLine, style = CatholicFastingThemeValues.typography.body)
-        scenarioChipRow(
+        ScenarioChipRow(
             spacing = spacing.xSmall,
             scenario = scenario,
             onScenarioChange = onScenarioChange,
@@ -88,31 +88,31 @@ private fun foodGuidanceCard(
             snapshot.whatCountsAsMeat.summary,
             style = CatholicFastingThemeValues.typography.supporting,
         )
-        guidanceDetailItems(
+        GuidanceDetailItems(
             items = snapshot.whatCountsAsMeat.items.map { it.detail },
             labelFormatter = { detail -> stringResource(R.string.guidance_avoid_value, detail) },
             style = CatholicFastingThemeValues.typography.body,
         )
-        guidanceDetailItems(
+        GuidanceDetailItems(
             items = snapshot.generallyPermitted.items.map { it.detail },
             labelFormatter = { detail -> stringResource(R.string.guidance_permitted_value, detail) },
             style = CatholicFastingThemeValues.typography.body,
         )
-        guidanceSubsection(
+        GuidanceSubsection(
             title = snapshot.mealPattern.title,
             items = snapshot.mealPattern.items.map { it.detail },
             labelFormatter = { detail -> stringResource(R.string.guidance_meal_pattern_value, detail) },
         )
-        guidanceSubsection(
+        GuidanceSubsection(
             title = snapshot.extraGuidance.title,
             items = snapshot.extraGuidance.items.map { it.detail },
             labelFormatter = { detail -> stringResource(R.string.guidance_common_question_value, detail) },
         )
-        bulletSubsection(
+        BulletSubsection(
             title = stringResource(R.string.guidance_stricter_practice),
             items = snapshot.stricterTraditionalPractice,
         )
-        bulletSubsection(
+        BulletSubsection(
             title = stringResource(R.string.guidance_if_unsure),
             items = snapshot.ifUnsure,
         )
@@ -125,7 +125,7 @@ private fun foodGuidanceCard(
 }
 
 @Composable
-private fun scenarioChipRow(
+private fun ScenarioChipRow(
     spacing: androidx.compose.ui.unit.Dp,
     scenario: GuidanceScenario,
     onScenarioChange: (GuidanceScenario) -> Unit,
@@ -145,13 +145,13 @@ private fun scenarioChipRow(
 }
 
 @Composable
-private fun guidanceSubsection(
+private fun GuidanceSubsection(
     title: String,
     items: List<String>,
     labelFormatter: @Composable (String) -> String,
 ) {
     Text(title, style = CatholicFastingThemeValues.typography.sectionTitle)
-    guidanceDetailItems(
+    GuidanceDetailItems(
         items = items,
         labelFormatter = labelFormatter,
         style = CatholicFastingThemeValues.typography.supporting,
@@ -159,7 +159,7 @@ private fun guidanceSubsection(
 }
 
 @Composable
-private fun guidanceDetailItems(
+private fun GuidanceDetailItems(
     items: List<String>,
     labelFormatter: @Composable (String) -> String,
     style: androidx.compose.ui.text.TextStyle,
@@ -173,7 +173,7 @@ private fun guidanceDetailItems(
 }
 
 @Composable
-private fun bulletSubsection(
+private fun BulletSubsection(
     title: String,
     items: List<String>,
 ) {
@@ -187,11 +187,11 @@ private fun bulletSubsection(
 }
 
 @Composable
-private fun ruleAuditCard(
+private fun RuleAuditCard(
     settings: RuleSettings,
     ruleBundleAudit: RuleBundleAudit,
 ) {
-    catholicFastingSectionCard(title = stringResource(R.string.guidance_rule_audit_title)) {
+    CatholicFastingSectionCard(title = stringResource(R.string.guidance_rule_audit_title)) {
         Text(
             stringResource(R.string.guidance_source_value, ruleBundleAudit.source),
             style = CatholicFastingThemeValues.typography.body,
@@ -226,10 +226,10 @@ private fun ruleAuditCard(
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun sacredGalleryCard(devotionalGallery: List<SacredImageryItem>) {
+private fun SacredGalleryCard(devotionalGallery: List<SacredImageryItem>) {
     val spacing = CatholicFastingThemeValues.spacing
 
-    catholicFastingSectionCard(title = stringResource(R.string.guidance_symbol_gallery_title)) {
+    CatholicFastingSectionCard(title = stringResource(R.string.guidance_symbol_gallery_title)) {
         Text(
             stringResource(R.string.guidance_symbol_gallery_intro),
             style = CatholicFastingThemeValues.typography.body,
@@ -240,7 +240,7 @@ private fun sacredGalleryCard(devotionalGallery: List<SacredImageryItem>) {
             verticalArrangement = Arrangement.spacedBy(spacing.xSmall),
         ) {
             devotionalGallery.forEach { item ->
-                sacredImageryCard(item = item)
+                SacredImageryCard(item = item)
             }
         }
     }

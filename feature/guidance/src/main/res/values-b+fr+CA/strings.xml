@@ -1,4 +1,27 @@
 <resources>
+    <string name="guidance_title">Conseils et règles</string>
+    <string name="guidance_food_title">Conseils alimentaires</string>
+    <string name="guidance_label_normal_day">Journée normale</string>
+    <string name="guidance_label_heavy_labor">Travail exigeant</string>
+    <string name="guidance_label_travel">Voyage</string>
+    <string name="guidance_label_social_meal">Repas social</string>
+    <string name="guidance_label_medical_recovery">Récupération médicale</string>
+    <string name="guidance_avoid_value">Éviter : %1$s</string>
+    <string name="guidance_permitted_value">Permis : %1$s</string>
+    <string name="guidance_meal_pattern_value">Rythme des repas : %1$s</string>
+    <string name="guidance_common_question_value">Question fréquente : %1$s</string>
+    <string name="guidance_stricter_practice">Pratique plus stricte</string>
+    <string name="guidance_if_unsure">En cas de doute</string>
+    <string name="guidance_bullet_value">• %1$s</string>
+    <string name="guidance_rule_audit_title">Vérification du bloc de règles</string>
+    <string name="guidance_source_value">Source : %1$s</string>
+    <string name="guidance_verified">Vérifié avec le bloc de règles Android.</string>
+    <string name="guidance_needs_review">Le bloc de règles doit être revu.</string>
+    <string name="guidance_no_warnings">Aucun avertissement détecté.</string>
+    <string name="guidance_warning_value">Avertissement : %1$s</string>
+    <string name="guidance_region_us">Utilisez les normes américaines configurées, puis référez-vous à votre pasteur et aux directives diocésaines.</string>
+    <string name="guidance_region_canada">La pratique du vendredi au Canada peut varier; gardez les directives épiscopales locales en vue.</string>
+    <string name="guidance_region_other">Hors des États-Unis et du Canada, le droit épiscopal local et l\'accompagnement pastoral ont priorité.</string>
     <string name="guidance_symbol_gallery_title">Galerie de symboles catholiques</string>
     <string name="guidance_symbol_gallery_intro">Un compagnon visuel de prière pour le jeûne, l\'abstinence et les vendredis pénitentiels.</string>
 </resources>

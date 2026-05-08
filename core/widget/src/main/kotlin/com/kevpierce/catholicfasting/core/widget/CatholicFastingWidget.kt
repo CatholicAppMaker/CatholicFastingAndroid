@@ -1,9 +1,12 @@
 package com.kevpierce.catholicfasting.core.widget
 
+import android.content.ComponentName
 import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceModifier
+import androidx.glance.action.ActionParameters
+import androidx.glance.action.actionParametersOf
 import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
@@ -12,6 +15,7 @@ import androidx.glance.appwidget.provideContent
 import androidx.glance.layout.Column
 import androidx.glance.layout.padding
 import androidx.glance.text.Text
+import com.kevpierce.catholicfasting.core.model.AppDeepLinks
 import com.kevpierce.catholicfasting.core.model.WidgetSnapshot
 
 class CatholicFastingWidget : GlanceAppWidget() {
@@ -22,19 +26,28 @@ class CatholicFastingWidget : GlanceAppWidget() {
         val snapshot = WidgetSnapshotStore.read(context)
 
         provideContent {
-            widgetContent(
+            val mainActivity = ComponentName(context.packageName, "${context.packageName}.MainActivity")
+            WidgetContent(
                 context = context,
                 snapshot = snapshot,
-                openToday = actionStartActivity<TodayWidgetLaunchActivity>(),
-                openCalendar = actionStartActivity<CalendarWidgetLaunchActivity>(),
-                openTracker = actionStartActivity<TrackerWidgetLaunchActivity>(),
+                openToday = mainActivity.openDeepLink(AppDeepLinks.TODAY),
+                openCalendar = mainActivity.openDeepLink(AppDeepLinks.CALENDAR),
+                openTracker = mainActivity.openDeepLink(AppDeepLinks.TRACKER),
             )
         }
     }
 }
 
+private val deepLinkParameterKey = ActionParameters.Key<String>(AppDeepLinks.EXTRA_INITIAL_DEEP_LINK)
+
+private fun ComponentName.openDeepLink(deepLink: String) =
+    actionStartActivity(
+        this,
+        actionParametersOf(deepLinkParameterKey.to(deepLink)),
+    )
+
 @Composable
-private fun widgetContent(
+private fun WidgetContent(
     context: Context,
     snapshot: WidgetSnapshot,
     openToday: androidx.glance.action.Action,

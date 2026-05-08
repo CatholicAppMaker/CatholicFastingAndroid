@@ -25,10 +25,10 @@ import com.kevpierce.catholicfasting.core.billing.BillingState
 import com.kevpierce.catholicfasting.core.model.FastingPlanningData
 import com.kevpierce.catholicfasting.core.model.ReflectionJournalEntry
 import com.kevpierce.catholicfasting.core.rules.PremiumSnapshot
+import com.kevpierce.catholicfasting.core.ui.CatholicFastingScreenTitle
+import com.kevpierce.catholicfasting.core.ui.CatholicFastingSectionCard
 import com.kevpierce.catholicfasting.core.ui.CatholicFastingThemeValues
 import com.kevpierce.catholicfasting.core.ui.SeasonTone
-import com.kevpierce.catholicfasting.core.ui.catholicFastingScreenTitle
-import com.kevpierce.catholicfasting.core.ui.catholicFastingSectionCard
 import com.kevpierce.catholicfasting.core.ui.rememberSeasonTone
 
 data class PremiumWorkspaceUiState(
@@ -48,7 +48,7 @@ data class PremiumWorkspaceActions(
 
 @Suppress("LongMethod")
 @Composable
-fun premiumScreen(
+fun PremiumScreen(
     billingState: BillingState,
     workspaceState: PremiumWorkspaceUiState,
     actions: PremiumWorkspaceActions,
@@ -85,7 +85,7 @@ fun premiumScreen(
             onPurchase = actions.onPurchase,
         )
         item {
-            workspaceSummaryCard(
+            WorkspaceSummaryCard(
                 planningData = workspaceState.planningData,
                 reflectionCount = workspaceState.reflections.size,
                 premiumSnapshot = workspaceState.premiumSnapshot,
@@ -93,20 +93,20 @@ fun premiumScreen(
             )
         }
         item {
-            seasonPlanCard(
+            SeasonPlanCard(
                 premiumSnapshot = workspaceState.premiumSnapshot,
                 seasonProgramActions = workspaceState.seasonProgramActions,
                 seasonTone = seasonTone,
             )
         }
         item {
-            analyticsAndRecoveryCard(
+            AnalyticsAndRecoveryCard(
                 premiumSnapshot = workspaceState.premiumSnapshot,
                 fastPrepGuidance = workspaceState.fastPrepGuidance,
             )
         }
         item {
-            reflectionJournalCard(
+            ReflectionJournalCard(
                 reflections = workspaceState.reflections,
                 prompt = workspaceState.premiumSnapshot.reflection,
                 onSaveReflection = actions.onSaveReflection,
@@ -134,7 +134,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.billingHeaderItems(
     val subscriptionHealthMessage = billingState.subscriptionHealthMessage
 
     item {
-        catholicFastingScreenTitle(stringResource(R.string.premium_title))
+        CatholicFastingScreenTitle(stringResource(R.string.premium_title))
     }
     item {
         Text(
@@ -203,7 +203,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.offerItems(
         return
     }
     items(offers, key = BillingOfferUi::productId) { offer ->
-        offerCard(
+        OfferCard(
             offer = offer,
             actionLabel = stringResource(actionLabelRes),
             actionEnabled = !actionsDisabled,
@@ -213,7 +213,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.offerItems(
 }
 
 @Composable
-private fun reflectionJournalCard(
+private fun ReflectionJournalCard(
     reflections: List<ReflectionJournalEntry>,
     prompt: com.kevpierce.catholicfasting.core.model.PremiumReflection,
     onSaveReflection: (String, String) -> String,
@@ -222,7 +222,7 @@ private fun reflectionJournalCard(
     var reflectionTitle by remember { mutableStateOf("") }
     var reflectionBody by remember { mutableStateOf("") }
 
-    workspaceCard(title = stringResource(R.string.premium_reflection_journal_title)) {
+    WorkspaceCard(title = stringResource(R.string.premium_reflection_journal_title)) {
         Text(prompt.title, style = CatholicFastingThemeValues.typography.sectionTitle)
         Text(prompt.body, style = CatholicFastingThemeValues.typography.body)
         Text(
@@ -260,13 +260,13 @@ private fun reflectionJournalCard(
 }
 
 @Composable
-private fun workspaceSummaryCard(
+private fun WorkspaceSummaryCard(
     planningData: FastingPlanningData,
     reflectionCount: Int,
     premiumSnapshot: PremiumSnapshot,
     seasonTone: SeasonTone,
 ) {
-    workspaceCard(
+    WorkspaceCard(
         title = stringResource(R.string.premium_planning_export_title),
         tone = seasonTone,
         heroTitle = true,
@@ -303,12 +303,12 @@ private fun workspaceSummaryCard(
 }
 
 @Composable
-private fun seasonPlanCard(
+private fun SeasonPlanCard(
     premiumSnapshot: PremiumSnapshot,
     seasonProgramActions: List<String>,
     seasonTone: SeasonTone,
 ) {
-    workspaceCard(
+    WorkspaceCard(
         title = premiumSnapshot.seasonPlan.titleLine,
         tone = seasonTone,
     ) {
@@ -349,11 +349,11 @@ private fun seasonPlanCard(
 }
 
 @Composable
-private fun analyticsAndRecoveryCard(
+private fun AnalyticsAndRecoveryCard(
     premiumSnapshot: PremiumSnapshot,
     fastPrepGuidance: List<String>,
 ) {
-    workspaceCard(title = stringResource(R.string.premium_analytics_recovery_title)) {
+    WorkspaceCard(title = stringResource(R.string.premium_analytics_recovery_title)) {
         Text(
             stringResource(
                 R.string.premium_required_completion_value,
@@ -405,13 +405,13 @@ private fun analyticsAndRecoveryCard(
 }
 
 @Composable
-private fun workspaceCard(
+private fun WorkspaceCard(
     title: String,
     tone: SeasonTone? = null,
     heroTitle: Boolean = false,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    catholicFastingSectionCard(
+    CatholicFastingSectionCard(
         title = title,
         tone = tone,
         heroTitle = heroTitle,
@@ -420,13 +420,13 @@ private fun workspaceCard(
 }
 
 @Composable
-private fun offerCard(
+private fun OfferCard(
     offer: BillingOfferUi,
     actionLabel: String,
     actionEnabled: Boolean,
     onAction: () -> Unit,
 ) {
-    workspaceCard(title = offer.displayTitle) {
+    WorkspaceCard(title = offer.displayTitle) {
         Text(offer.priceLabel, style = CatholicFastingThemeValues.typography.body)
         Text(offer.billingLabel, style = CatholicFastingThemeValues.typography.supporting)
         Button(onClick = onAction, enabled = actionEnabled) {

@@ -1,7 +1,6 @@
 plugins {
     alias(libs.plugins.android.application) apply false
     alias(libs.plugins.android.library) apply false
-    alias(libs.plugins.kotlin.android) apply false
     alias(libs.plugins.kotlin.compose) apply false
     alias(libs.plugins.kotlin.serialization) apply false
     alias(libs.plugins.ktlint) apply false
@@ -10,7 +9,7 @@ plugins {
 
 subprojects {
     apply(plugin = "org.jlleitschuh.gradle.ktlint")
-    apply(plugin = "io.gitlab.arturbosch.detekt")
+    apply(plugin = "dev.detekt")
 
     configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
         android.set(true)
@@ -18,7 +17,7 @@ subprojects {
         ignoreFailures.set(false)
     }
 
-    configure<io.gitlab.arturbosch.detekt.extensions.DetektExtension> {
+    configure<dev.detekt.gradle.extensions.DetektExtension> {
         buildUponDefaultConfig = true
         allRules = false
         config.setFrom(rootProject.file("detekt.yml"))

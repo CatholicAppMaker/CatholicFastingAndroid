@@ -1,4 +1,4 @@
-<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+<resources>
     <string name="guidance_title">Guidance &amp; Rules</string>
     <string name="guidance_food_title">Food guidance</string>
     <string name="guidance_label_normal_day">Normal day</string>

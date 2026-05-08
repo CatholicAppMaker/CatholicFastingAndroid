@@ -25,7 +25,12 @@ class SeasonalHeroStateTest {
     fun buildSeasonalHeroStateFallsBackToSpanishOrdinaryPackWhenSeasonPackIsMissing() {
         val heroState =
             buildSeasonalHeroState(
-                locale = Locale("es", "ES"),
+                locale =
+                    Locale
+                        .Builder()
+                        .setLanguage("es")
+                        .setRegion("ES")
+                        .build(),
                 today = LocalDate.of(2026, 12, 5),
             )
 

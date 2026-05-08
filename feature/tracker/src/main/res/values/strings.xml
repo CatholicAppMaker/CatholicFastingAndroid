@@ -10,7 +10,10 @@
     <string name="tracker_fast_in_progress">Fast in progress</string>
     <string name="tracker_started_value">Started: %1$s</string>
     <string name="tracker_elapsed_value">Elapsed: %1$s</string>
-    <string name="tracker_target_hours_value">Target: %1$d hours</string>
+    <plurals name="tracker_target_hours_value">
+        <item quantity="one">Target: %1$d hour</item>
+        <item quantity="other">Target: %1$d hours</item>
+    </plurals>
     <string name="tracker_target_hours_label">Target hours</string>
     <string name="tracker_target_hours_supporting">Android bounds this between 12 and 336 hours.</string>
     <string name="tracker_current_preset_value">Current preset: %1$d h</string>
@@ -24,7 +27,7 @@
     <string name="tracker_custom_schedules_body">Save reusable local plans for the weekdays and hour that fit your rule of life.</string>
     <string name="tracker_schedule_name_label">Schedule name</string>
     <string name="tracker_schedule_name_supporting">Leave blank to use an automatic plan label.</string>
-    <string name="tracker_start_hour_label">Start hour (0-23)</string>
+    <string name="tracker_start_hour_label">Start hour (0–23)</string>
     <string name="tracker_start_hour_supporting">Current preset %1$d h will be saved with this plan.</string>
     <string name="tracker_save_schedule">Save schedule</string>
     <string name="tracker_update_schedule">Update schedule</string>

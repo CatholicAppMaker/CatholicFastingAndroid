@@ -9,7 +9,6 @@ import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClientStateListener
 import com.android.billingclient.api.BillingFlowParams
 import com.android.billingclient.api.BillingResult
-import com.android.billingclient.api.PendingPurchasesParams
 import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.PurchasesUpdatedListener
@@ -49,7 +48,8 @@ data class BillingState(
 )
 
 class BillingRepository(
-    private val context: Context,
+    private val billingClient: BillingClient,
+    private val packageName: String,
     autoConnect: Boolean = true,
 ) : PurchasesUpdatedListener {
     private data class PurchaseSnapshot(
@@ -61,15 +61,6 @@ class BillingRepository(
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val state = MutableStateFlow(BillingState(isLoading = true))
-    private val billingClient =
-        BillingClient.newBuilder(context)
-            .setListener(this)
-            .enablePendingPurchases(
-                PendingPurchasesParams.newBuilder()
-                    .enableOneTimeProducts()
-                    .build(),
-            )
-            .build()
     private var productDetailsById: Map<String, ProductDetails> = emptyMap()
 
     val billingState: StateFlow<BillingState> = state.asStateFlow()
@@ -113,7 +104,8 @@ class BillingRepository(
         }
 
         val productParams =
-            BillingFlowParams.ProductDetailsParams.newBuilder()
+            BillingFlowParams.ProductDetailsParams
+                .newBuilder()
                 .setProductDetails(productDetails)
                 .apply {
                     productDetails.subscriptionOfferDetails
@@ -126,7 +118,8 @@ class BillingRepository(
         val launchResult =
             billingClient.launchBillingFlow(
                 activity,
-                BillingFlowParams.newBuilder()
+                BillingFlowParams
+                    .newBuilder()
                     .setProductDetailsParamsList(listOf(productParams))
                     .build(),
             )
@@ -139,8 +132,11 @@ class BillingRepository(
         }
     }
 
-    fun openManageSubscription() {
-        val productId = state.value.activeSubscriptionProductId ?: state.value.catalog.offers.firstOrNull()?.id
+    fun openManageSubscription(context: Context) {
+        val productId =
+            state.value.activeSubscriptionProductId ?: state.value.catalog.offers
+                .firstOrNull()
+                ?.id
         if (productId == null) {
             state.value =
                 state.value.copy(
@@ -154,7 +150,7 @@ class BillingRepository(
                 Intent.ACTION_VIEW,
                 Uri.parse(
                     manageSubscriptionsUrl(
-                        packageName = context.packageName,
+                        packageName = packageName,
                         productId = productId,
                     ),
                 ),
@@ -286,7 +282,8 @@ class BillingRepository(
     private suspend fun refreshPurchases(): PurchaseSnapshot {
         val purchases =
             queryPurchases(
-                QueryPurchasesParams.newBuilder()
+                QueryPurchasesParams
+                    .newBuilder()
                     .setProductType(BillingClient.ProductType.SUBS)
                     .build(),
             )
@@ -330,11 +327,14 @@ class BillingRepository(
 
     private suspend fun queryProductDetails(): List<ProductDetails> {
         val productList =
-            state.value.catalog.subscriptionProductIds().map(::subscriptionProductQuery) +
+            state.value.catalog
+                .subscriptionProductIds()
+                .map(::subscriptionProductQuery) +
                 tipProducts().map(::inAppProductQuery)
 
         val params =
-            QueryProductDetailsParams.newBuilder()
+            QueryProductDetailsParams
+                .newBuilder()
                 .setProductList(productList)
                 .build()
         return suspendCancellableCoroutine { continuation ->
@@ -352,7 +352,8 @@ class BillingRepository(
         purchases.filterNot(Purchase::isAcknowledged).forEach { purchase ->
             suspendCancellableCoroutine { continuation ->
                 billingClient.acknowledgePurchase(
-                    AcknowledgePurchaseParams.newBuilder()
+                    AcknowledgePurchaseParams
+                        .newBuilder()
                         .setPurchaseToken(purchase.purchaseToken)
                         .build(),
                 ) {

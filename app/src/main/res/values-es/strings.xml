@@ -2,7 +2,7 @@
     <string name="app_name">Ayuno Catolico</string>
     <string name="notice_independent_app_summary">Esta es una app devocional independiente, no una app oficial de la Iglesia, la USCCB, el Vaticano, ni de ninguna diocesis o parroquia.</string>
     <string name="nav_today">Hoy</string>
-    <string name="nav_fasting_days">Dias de Ayuno</string>
+    <string name="nav_fasting_days">Días de Ayuno</string>
     <string name="nav_track_fast">Registrar Ayuno</string>
     <string name="nav_more">Mas</string>
     <string name="more_title">Mas</string>
@@ -18,8 +18,8 @@
     <string name="more_birth_profile_complete">El perfil de nacimiento esta completo.</string>
     <string name="more_birth_profile_partial">El perfil de nacimiento sigue incompleto.</string>
     <string name="more_profiles_stored">Perfiles guardados localmente: %1$d</string>
-    <string name="more_quick_setup_title">Configuracion rapida</string>
-    <string name="more_quick_setup_body">Configura esto una vez y luego usa principalmente Hoy, Dias de Ayuno y Registrar Ayuno.</string>
+    <string name="more_quick_setup_title">Configuracion rápida</string>
+    <string name="more_quick_setup_body">Configura esto una vez y luego usa principalmente Hoy, Días de Ayuno y Registrar Ayuno.</string>
     <string name="more_setup_progress_title">Progreso de la configuracion</string>
     <string name="more_notice_acknowledged">Se confirmo el aviso de aplicacion independiente.</string>
     <string name="more_notice_pending">Todavia falta confirmar el aviso de aplicacion independiente.</string>
@@ -34,7 +34,7 @@
     <string name="more_notification_permission_granted">El permiso de notificaciones esta concedido.</string>
     <string name="more_notification_permission_needed">Todavia se necesita el permiso de notificaciones para enviar recordatorios.</string>
     <string name="more_request_notification_permission">Solicitar permiso de notificaciones</string>
-    <string name="more_required_day_local">Los recordatorios de dias obligatorios se programan localmente en el dispositivo.</string>
+    <string name="more_required_day_local">Los recordatorios de días obligatorios se programan localmente en el dispositivo.</string>
     <string name="more_active_fast_sync">Las notificaciones de ayuno activo se mantienen sincronizadas mientras el ayuno intermitente esta en curso.</string>
     <string name="more_privacy_title">Privacidad y datos</string>
     <string name="more_privacy_local_first">Esta app de Android es local-first. Tu historial de observancias, notas, horarios y reflexiones permanece en el dispositivo.</string>
@@ -64,14 +64,22 @@
     <string name="history_article_body">Artículo</string>
     <string name="history_article_sources">Notas de fuentes</string>
     <string name="history_back_to_timeline">Volver a la línea de tiempo</string>
-    <string name="summary_completion_value">%1$d observancias marcadas como completadas, sustituidas o dispensadas.</string>
+    <plurals name="summary_completion_value">
+        <item quantity="one">%1$d observancia marcada como completada, sustituida o dispensada.</item>
+        <item quantity="many">%1$d observancias marcadas como completadas, sustituidas o dispensadas.</item>
+        <item quantity="other">%1$d observancias marcadas como completadas, sustituidas o dispensadas.</item>
+    </plurals>
     <string name="summary_setup_progress_value">Progreso de la configuracion: %1$d/%2$d</string>
     <string name="summary_year_plan_value">Obligatorias: %1$d/%2$d • Opcionales: %3$d/%4$d</string>
-    <string name="summary_weekly_recap_empty">Todavia no hay obligaciones de ayuno registradas esta semana. Mantén visible tu proximo dia obligatorio.</string>
-    <string name="summary_weekly_recap_value">Esta semana: %1$d de %2$d dias de disciplina completados.</string>
+    <string name="summary_weekly_recap_empty">Todavia no hay obligaciones de ayuno registradas esta semana. Mantén visible tu proximo día obligatorio.</string>
+    <plurals name="summary_weekly_recap_value">
+        <item quantity="one">Esta semana: %1$d de %2$d día de disciplina completado.</item>
+        <item quantity="many">Esta semana: %1$d de %2$d días de disciplina completados.</item>
+        <item quantity="other">Esta semana: %1$d de %2$d días de disciplina completados.</item>
+    </plurals>
     <string name="summary_streak_stable">Estas en un ritmo estable. Protege manana con un plan sencillo esta noche.</string>
-    <string name="summary_streak_recovery">Los dias perdidos pasan. Comienza hoy una sustitucion de recuperacion y continua manana.</string>
-    <string name="summary_streak_momentum">Construye impulso con un dia de disciplina completado a la vez.</string>
+    <string name="summary_streak_recovery">Los días perdidos pasan. Comienza hoy una sustitucion de recuperacion y continua manana.</string>
+    <string name="summary_streak_momentum">Construye impulso con un día de disciplina completado a la vez.</string>
     <string name="onboarding_title">Bienvenido a Ayuno Catolico</string>
     <string name="onboarding_subtitle">Terminemos la configuracion del telefono para que Hoy, los recordatorios y la guia premium se comporten como se espera en iOS.</string>
     <string name="onboarding_step_value">Paso %1$d de %2$d</string>
@@ -79,7 +87,7 @@
     <string name="onboarding_notice_accept">Lo entiendo</string>
     <string name="onboarding_notice_review">Revisar de nuevo</string>
     <string name="onboarding_profile_title">Perfil y normas</string>
-    <string name="onboarding_profile_body">Elige la region y la practica del viernes que mejor coincidan con tu disciplina habitual. Puedes completar el perfil de fecha de nacimiento despues desde Mas.</string>
+    <string name="onboarding_profile_body">Elige la region y la practica del viernes que mejor coincidan con tu disciplina habitual. Puedes completar el perfil de fecha de nacimiento después desde Mas.</string>
     <string name="onboarding_profile_follow_up">El perfil de fecha de nacimiento todavia necesita seguimiento en Perfil y Normas.</string>
     <string name="onboarding_region_title">Perfil regional</string>
     <string name="label_region_us">Estados Unidos</string>
@@ -91,13 +99,13 @@
     <string name="onboarding_reminders_title">Ritmo de recordatorios</string>
     <string name="label_calendar_usccb">USCCB</string>
     <string name="label_calendar_traditional">Tradicional 1962</string>
-    <string name="label_reminder_minimal">Minimo</string>
+    <string name="label_reminder_minimal">Mínimo</string>
     <string name="label_reminder_balanced">Equilibrado</string>
     <string name="label_reminder_guided">Guiado</string>
-    <string name="label_reminder_minimal_summary">Solo dias obligatorios</string>
-    <string name="label_reminder_balanced_summary">Dias obligatorios mas una revision matutina</string>
-    <string name="label_reminder_guided_summary">Dias obligatorios con apoyo matutino y vespertino</string>
-    <string name="onboarding_reminders_body">Primero elige un nivel de recordatorios y luego decide si quieres tambien un recordatorio diario de cita.</string>
+    <string name="label_reminder_minimal_summary">Solo días obligatorios</string>
+    <string name="label_reminder_balanced_summary">Días obligatorios mas una revision matutina</string>
+    <string name="label_reminder_guided_summary">Días obligatorios con apoyo matutino y vespertino</string>
+    <string name="onboarding_reminders_body">Primero elige un nivel de recordatorios y luego decide si quieres también un recordatorio diario de cita.</string>
     <string name="onboarding_quote_reminder_value">Hora del recordatorio diario de cita: %1$s</string>
     <string name="onboarding_quote_reminder_on">Recordatorio de cita activo</string>
     <string name="onboarding_quote_reminder_off">Recordatorio de cita inactivo</string>
@@ -106,7 +114,7 @@
     <string name="onboarding_premium_body">Premium agrega planificacion de temporada, guia de recuperacion, recomendaciones de recordatorios y herramientas privadas de reflexion sin cambiar el modelo local-first.</string>
     <string name="onboarding_quote_card_value">"%1$s" — %2$s</string>
     <string name="onboarding_finish">Terminar configuracion</string>
-    <string name="onboarding_finish_blocked">La configuracion final se activa cuando confianza, region y ritmo de recordatorios ya estan definidos.</string>
+    <string name="onboarding_finish_blocked">La configuracion final se activa cuando confianza, region y ritmo de recordatorios ya están definidos.</string>
     <string name="onboarding_notification_permission_needed">Todavia se necesita el permiso de notificaciones si quieres recibir recordatorios en este telefono.</string>
     <string name="onboarding_request_notification_permission">Permitir notificaciones de recordatorio</string>
     <string name="status_schedule_saved">Se guardo %1$s localmente.</string>
@@ -138,17 +146,17 @@
     <string name="notification_support_title">Apoyo para el ayuno catolico</string>
     <string name="notification_support_body">Toma un momento de silencio para preparar la disciplina de ayuno de hoy.</string>
     <string name="notification_morning_title">Recordatorio matutino de ayuno</string>
-    <string name="notification_morning_body">Comienza el dia con intencion para la oracion, la abstinencia y la caridad.</string>
+    <string name="notification_morning_body">Comienza el día con intencion para la oracion, la abstinencia y la caridad.</string>
     <string name="notification_evening_title">Recordatorio vespertino de examen</string>
-    <string name="notification_evening_body">Repasa el dia con gratitud y anota cualquier penitencia que aun falte completar.</string>
+    <string name="notification_evening_body">Repasa el día con gratitud y anota cualquier penitencia que aun falte completar.</string>
     <string name="notification_support_generic_title">Recordatorio de ayuno catolico</string>
     <string name="notification_support_generic_body">Abre Catholic Fasting para el plan de hoy.</string>
     <string name="notification_reminder_fallback_title">Recordatorio de ayuno catolico</string>
     <string name="notification_reminder_fallback_body">Abre la app para el plan de observancia de hoy.</string>
     <string name="notification_reminder_action_open_today">Abrir Hoy</string>
-    <string name="notification_reminder_action_open_calendar">Abrir Dias de Ayuno</string>
+    <string name="notification_reminder_action_open_calendar">Abrir Días de Ayuno</string>
     <string name="notification_channel_reminder_name">Recordatorios de ayuno</string>
-    <string name="notification_channel_reminder_description">Recordatorios de dias obligatorios y apoyo</string>
+    <string name="notification_channel_reminder_description">Recordatorios de días obligatorios y apoyo</string>
     <string name="accessibility_selected">Seleccionado</string>
     <string name="accessibility_not_selected">No seleccionado</string>
 </resources>

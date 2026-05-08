@@ -3,7 +3,7 @@ package com.kevpierce.catholicfastingapp.navigation
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
+import androidx.core.net.toUri
 import com.kevpierce.catholicfastingapp.MainActivity
 import com.kevpierce.catholicfastingapp.notifications.NotificationActionReceiver
 
@@ -12,7 +12,7 @@ object AppNavigationIntents {
         context: Context,
         deepLink: String,
     ): Intent =
-        Intent(Intent.ACTION_VIEW, Uri.parse(deepLink), context, MainActivity::class.java).apply {
+        Intent(Intent.ACTION_VIEW, deepLink.toUri(), context, MainActivity::class.java).apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
         }
 

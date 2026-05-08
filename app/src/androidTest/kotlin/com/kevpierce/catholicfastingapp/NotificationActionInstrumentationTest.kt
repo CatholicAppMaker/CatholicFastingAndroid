@@ -10,6 +10,7 @@ import com.kevpierce.catholicfastingapp.notifications.NotificationActionReceiver
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.time.Duration
 import java.time.Instant
 
 @RunWith(AndroidJUnit4::class)
@@ -26,13 +27,15 @@ class NotificationActionInstrumentationTest {
     @Test
     fun endFastActionEndsActiveFastAndAddsCompletedSession() {
         val repository = AppContainer.repository
-        repository.startIntermittentFast(now = Instant.parse("2026-03-13T08:00:00Z"))
+        val start = Instant.now().minus(Duration.ofHours(25))
+        repository.setIntermittentPresetHours(4)
+        repository.startIntermittentFast(now = start)
 
         NotificationActionReceiver().onReceive(
             context,
             Intent(context, NotificationActionReceiver::class.java).apply {
                 action = NotificationActionReceiver.ACTION_END_FAST
-                putExtra(NotificationActionReceiver.EXTRA_START_ISO, "2026-03-13T08:00:00Z")
+                putExtra(NotificationActionReceiver.EXTRA_START_ISO, start.toString())
                 putExtra(NotificationActionReceiver.EXTRA_TARGET_HOURS, 4)
             },
         )
@@ -47,7 +50,7 @@ class NotificationActionInstrumentationTest {
     fun unrelatedActionLeavesActiveFastUntouched() {
         val repository = AppContainer.repository
         repository.startIntermittentFast(now = Instant.parse("2026-03-13T08:00:00Z"))
-        val activeFastBefore = repository.dashboardState.value.activeIntermittentFast
+        val stateBefore = repository.dashboardState.value
 
         NotificationActionReceiver().onReceive(
             context,
@@ -56,7 +59,8 @@ class NotificationActionInstrumentationTest {
             },
         )
 
-        assertThat(repository.dashboardState.value.activeIntermittentFast).isEqualTo(activeFastBefore)
-        assertThat(repository.dashboardState.value.intermittentSessions).isEmpty()
+        val stateAfter = repository.dashboardState.value
+        assertThat(stateAfter.activeIntermittentFast).isEqualTo(stateBefore.activeIntermittentFast)
+        assertThat(stateAfter.intermittentSessions).isEqualTo(stateBefore.intermittentSessions)
     }
 }

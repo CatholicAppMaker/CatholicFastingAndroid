@@ -18,7 +18,7 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 
 @Composable
-fun catholicFastingScreenTitle(
+fun CatholicFastingScreenTitle(
     text: String,
     modifier: Modifier = Modifier,
 ) {
@@ -30,7 +30,7 @@ fun catholicFastingScreenTitle(
 }
 
 @Composable
-fun catholicFastingSectionCard(
+fun CatholicFastingSectionCard(
     title: String,
     modifier: Modifier = Modifier,
     tone: SeasonTone? = null,

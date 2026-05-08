@@ -1,18 +1,17 @@
 plugins {
     alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
 }
 
 android {
     namespace = "com.kevpierce.catholicfasting.feature.settings"
-    compileSdk = 35
+    compileSdk = 37
+    ndkVersion = "29.0.14206865"
     defaultConfig { minSdk = 27 }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions { jvmTarget = "17" }
     buildFeatures { compose = true }
 }
 

@@ -89,7 +89,10 @@ object FastingHistoryCatalog {
                         listOf(
                             source("Council of Trent", "Reinforced sacramental penance and ecclesial discipline in Catholic life."),
                             source("Roman Catechism", "Connects penance, discipline, and conversion in post-Tridentine catechesis."),
-                            source("Local diocesan statutes", "Show how universal discipline was applied through local calendars and dispensations."),
+                            source(
+                                "Local diocesan statutes",
+                                "Show how universal discipline was applied through local calendars and dispensations.",
+                            ),
                         ),
                 ),
             FastingHistoryEraId.PRE_CONCILIAR to
@@ -155,8 +158,14 @@ object FastingHistoryCatalog {
                     sourceNotes =
                         listOf(
                             source("Didaché", "Testimonio temprano de días semanales de ayuno y disciplina comunitaria."),
-                            source("San Agustín", "Reconoce diversidad regional en las costumbres de ayuno y defiende la unidad en la caridad."),
-                            source("Concilio de Nicea", "Muestra la preparación cuaresmal y pascual dentro de un orden eclesial más amplio."),
+                            source(
+                                "San Agustín",
+                                "Reconoce diversidad regional en las costumbres de ayuno y defiende la unidad en la caridad.",
+                            ),
+                            source(
+                                "Concilio de Nicea",
+                                "Muestra la preparación cuaresmal y pascual dentro de un orden eclesial más amplio.",
+                            ),
                         ),
                 ),
             FastingHistoryEraId.MEDIEVAL to
@@ -176,8 +185,14 @@ object FastingHistoryCatalog {
                     sourceNotes =
                         listOf(
                             source("Regla de san Benito", "Muestra el ayuno monástico como disciplina ordenada y comunitaria."),
-                            source("Penitenciales medievales", "Dan testimonio de detalles regionales sobre ayuno, abstinencia y penitencia."),
-                            source("Santo Tomás de Aquino", "Explica el ayuno como acto al servicio de la virtud, la oración y el dominio propio."),
+                            source(
+                                "Penitenciales medievales",
+                                "Dan testimonio de detalles regionales sobre ayuno, abstinencia y penitencia.",
+                            ),
+                            source(
+                                "Santo Tomás de Aquino",
+                                "Explica el ayuno como acto al servicio de la virtud, la oración y el dominio propio.",
+                            ),
                         ),
                 ),
             FastingHistoryEraId.TRIDENTINE to
@@ -198,7 +213,10 @@ object FastingHistoryCatalog {
                         listOf(
                             source("Concilio de Trento", "Reforzó la penitencia sacramental y la disciplina eclesial en la vida católica."),
                             source("Catecismo Romano", "Relaciona penitencia, disciplina y conversión en la catequesis postridentina."),
-                            source("Estatutos diocesanos locales", "Muestran cómo la disciplina universal se aplicaba mediante calendarios y dispensas locales."),
+                            source(
+                                "Estatutos diocesanos locales",
+                                "Muestran cómo la disciplina universal se aplicaba mediante calendarios y dispensas locales.",
+                            ),
                         ),
                 ),
             FastingHistoryEraId.PRE_CONCILIAR to
@@ -217,9 +235,15 @@ object FastingHistoryCatalog {
                     """,
                     sourceNotes =
                         listOf(
-                            source("Código de Derecho Canónico de 1917", "Codificó obligaciones de ayuno y abstinencia en la Iglesia latina."),
+                            source(
+                                "Código de Derecho Canónico de 1917",
+                                "Codificó obligaciones de ayuno y abstinencia en la Iglesia latina.",
+                            ),
                             source("Reformas de Pío XII", "Ajustaron el ayuno eucarístico y la Semana Santa a mediados del siglo XX."),
-                            source("Normas episcopales de mediados de siglo", "Muestran mayor recurso a la aplicación local y a las dispensas."),
+                            source(
+                                "Normas episcopales de mediados de siglo",
+                                "Muestran mayor recurso a la aplicación local y a las dispensas.",
+                            ),
                         ),
                 ),
             FastingHistoryEraId.POST_VATICAN_II to
@@ -239,8 +263,14 @@ object FastingHistoryCatalog {
                     sourceNotes =
                         listOf(
                             source("Paenitemini", "Constitución apostólica de Pablo VI de 1966 sobre ayuno y abstinencia."),
-                            source("Código de Derecho Canónico de 1983", "Los cánones 1249-1253 establecen normas penitenciales latinas actuales."),
-                            source("Normas de las conferencias episcopales", "Los obispos locales aplican la ley universal mediante orientación regional."),
+                            source(
+                                "Código de Derecho Canónico de 1983",
+                                "Los cánones 1249-1253 establecen normas penitenciales latinas actuales.",
+                            ),
+                            source(
+                                "Normas de las conferencias episcopales",
+                                "Los obispos locales aplican la ley universal mediante orientación regional.",
+                            ),
                         ),
                 ),
         )
@@ -264,7 +294,10 @@ object FastingHistoryCatalog {
                     sourceNotes =
                         listOf(
                             source("Didachè", "Témoin ancien de jours hebdomadaires de jeûne et de discipline communautaire."),
-                            source("Saint Augustin", "Reconnaît la diversité régionale des coutumes de jeûne tout en défendant l'unité dans la charité."),
+                            source(
+                                "Saint Augustin",
+                                "Reconnaît la diversité régionale des coutumes de jeûne tout en défendant l'unité dans la charité.",
+                            ),
                             source("Concile de Nicée", "Montre la préparation au Carême et à Pâques dans un ordre ecclésial plus large."),
                         ),
                 ),
@@ -286,7 +319,10 @@ object FastingHistoryCatalog {
                         listOf(
                             source("Règle de saint Benoît", "Montre le jeûne monastique comme discipline ordonnée et communautaire."),
                             source("Pénitentiels médiévaux", "Témoignent de détails régionaux sur le jeûne, l'abstinence et la pénitence."),
-                            source("Saint Thomas d'Aquin", "Explique le jeûne comme un acte au service de la vertu, de la prière et de la maîtrise de soi."),
+                            source(
+                                "Saint Thomas d'Aquin",
+                                "Explique le jeûne comme un acte au service de la vertu, de la prière et de la maîtrise de soi.",
+                            ),
                         ),
                 ),
             FastingHistoryEraId.TRIDENTINE to
@@ -305,9 +341,15 @@ object FastingHistoryCatalog {
                     """,
                     sourceNotes =
                         listOf(
-                            source("Concile de Trente", "Renforce la pénitence sacramentelle et la discipline ecclésiale dans la vie catholique."),
+                            source(
+                                "Concile de Trente",
+                                "Renforce la pénitence sacramentelle et la discipline ecclésiale dans la vie catholique.",
+                            ),
                             source("Catéchisme romain", "Relie pénitence, discipline et conversion dans la catéchèse post-tridentine."),
-                            source("Statuts diocésains locaux", "Montrent comment la discipline universelle est appliquée par calendriers et dispenses locales."),
+                            source(
+                                "Statuts diocésains locaux",
+                                "Montrent comment la discipline universelle est appliquée par calendriers et dispenses locales.",
+                            ),
                         ),
                 ),
             FastingHistoryEraId.PRE_CONCILIAR to
@@ -326,9 +368,15 @@ object FastingHistoryCatalog {
                     """,
                     sourceNotes =
                         listOf(
-                            source("Code de droit canonique de 1917", "Codifie les obligations de jeûne et d'abstinence dans l'Église latine."),
+                            source(
+                                "Code de droit canonique de 1917",
+                                "Codifie les obligations de jeûne et d'abstinence dans l'Église latine.",
+                            ),
                             source("Réformes de Pie XII", "Ajustent le jeûne eucharistique et la Semaine sainte au milieu du XXe siècle."),
-                            source("Normes épiscopales du milieu du siècle", "Montrent un recours accru à l'application locale et aux dispenses."),
+                            source(
+                                "Normes épiscopales du milieu du siècle",
+                                "Montrent un recours accru à l'application locale et aux dispenses.",
+                            ),
                         ),
                 ),
             FastingHistoryEraId.POST_VATICAN_II to
@@ -348,8 +396,14 @@ object FastingHistoryCatalog {
                     sourceNotes =
                         listOf(
                             source("Paenitemini", "Constitution apostolique de Paul VI en 1966 sur le jeûne et l'abstinence."),
-                            source("Code de droit canonique de 1983", "Les canons 1249-1253 énoncent les normes pénitentielles latines actuelles."),
-                            source("Normes des conférences épiscopales", "Les évêques locaux appliquent la loi universelle par des directives régionales."),
+                            source(
+                                "Code de droit canonique de 1983",
+                                "Les canons 1249-1253 énoncent les normes pénitentielles latines actuelles.",
+                            ),
+                            source(
+                                "Normes des conférences épiscopales",
+                                "Les évêques locaux appliquent la loi universelle par des directives régionales.",
+                            ),
                         ),
                 ),
         )

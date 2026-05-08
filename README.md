@@ -30,7 +30,7 @@ Run this before checkpoint commits and after substantial implementation passes:
 ```bash
 JAVA_HOME='/Applications/Android Studio.app/Contents/jbr/Contents/Home' \
 ANDROID_SDK_ROOT="$HOME/Library/Android/sdk" \
-./.local-tools/gradle-8.11.1/bin/gradle --no-daemon \
+./.local-tools/gradle-9.4.1/bin/gradle --no-daemon \
   -Dkotlin.compiler.execution.strategy=in-process \
   ktlintCheck detekt lint testDebugUnitTest
 ```

@@ -25,11 +25,10 @@ object LiturgicalSeasonThemeEngine {
         }
     }
 
-    private fun isInChristmasSeason(date: LocalDate): Boolean {
-        return when (date.monthValue) {
+    private fun isInChristmasSeason(date: LocalDate): Boolean =
+        when (date.monthValue) {
             12 -> !date.isBefore(LocalDate.of(date.year, 12, 25))
             1 -> !date.isAfter(LocalDate.of(date.year, 1, 13))
             else -> false
         }
-    }
 }

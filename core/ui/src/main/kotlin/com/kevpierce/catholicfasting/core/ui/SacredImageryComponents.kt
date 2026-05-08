@@ -56,7 +56,7 @@ object SacredImageResourceResolver {
 }
 
 @Composable
-fun sacredImageryCard(
+fun SacredImageryCard(
     item: SacredImageryItem,
     modifier: Modifier = Modifier,
 ) {

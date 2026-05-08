@@ -1,3 +1,20 @@
 <resources>
-    <string name="today_devotional_gallery_title">Galerie sacrée</string>
+    <string name="today_title">Aujourd\'hui</string>
+    <string name="today_default_detail">Utilisez aujourd\'hui pour revoir le prochain jour obligatoire et garder une règle de vie stable.</string>
+    <string name="today_no_observance">Aucune observance aujourd\'hui</string>
+    <string name="today_quote_value">"%1$s"</string>
+    <string name="today_quote_author_value">%1$s • %2$s</string>
+    <string name="today_label_season_advent">Avent</string>
+    <string name="today_label_season_christmas">Noël</string>
+    <string name="today_label_season_lent">Carême</string>
+    <string name="today_label_season_easter">Pâques</string>
+    <string name="today_label_season_ordinary">Temps ordinaire</string>
+    <string name="today_year_plan_title">Aperçu du plan annuel</string>
+    <string name="today_personal_insights_title">Repères personnels</string>
+    <string name="today_action_value">Action : %1$s</string>
+    <string name="today_season_motivation_value">%1$s • %2$s</string>
+    <string name="today_bullet_value">• %1$s</string>
+    <string name="today_devotional_gallery_title">Images sacrées du jeûne</string>
+    <string name="today_important_notice_title">Avis important</string>
+    <string name="today_notice_body">Suivez toujours votre pasteur, votre évêque local et l\'autorité légitime de l\'Église lorsque les directives diffèrent.</string>
 </resources>

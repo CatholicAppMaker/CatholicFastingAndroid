@@ -95,7 +95,16 @@ class GrowthContractsParityTest {
     @Test
     fun seasonalHeroStateUsesLocaleSpecificContentAndStableImageryCount() {
         val englishHero = buildSeasonalHeroState(locale = Locale.US, today = LocalDate.of(2026, 3, 10))
-        val spanishHero = buildSeasonalHeroState(locale = Locale("es", "ES"), today = LocalDate.of(2026, 3, 10))
+        val spanishHero =
+            buildSeasonalHeroState(
+                locale =
+                    Locale
+                        .Builder()
+                        .setLanguage("es")
+                        .setRegion("ES")
+                        .build(),
+                today = LocalDate.of(2026, 3, 10),
+            )
 
         assertThat(englishHero.campaignTitle).isEqualTo("Lenten Discipline")
         assertThat(spanishHero.campaignTitle).isEqualTo("Disciplina Cuaresmal")

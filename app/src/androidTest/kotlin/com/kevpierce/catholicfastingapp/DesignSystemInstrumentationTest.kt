@@ -2,8 +2,8 @@ package com.kevpierce.catholicfastingapp
 
 import android.content.Context
 import androidx.compose.ui.test.assertCountEquals
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
@@ -24,19 +24,19 @@ import com.kevpierce.catholicfasting.core.rules.PremiumSnapshotEngine
 import com.kevpierce.catholicfasting.core.rules.SacredImageryCatalog
 import com.kevpierce.catholicfasting.core.rules.SeasonalContentPackCatalog
 import com.kevpierce.catholicfasting.core.rules.SeasonalContentSupport
-import com.kevpierce.catholicfasting.core.ui.catholicFastingTheme
-import com.kevpierce.catholicfasting.feature.calendar.calendarScreen
-import com.kevpierce.catholicfasting.feature.guidance.guidanceScreen
+import com.kevpierce.catholicfasting.core.ui.CatholicFastingTheme
+import com.kevpierce.catholicfasting.feature.calendar.CalendarScreen
+import com.kevpierce.catholicfasting.feature.guidance.GuidanceScreen
+import com.kevpierce.catholicfasting.feature.premium.PremiumScreen
 import com.kevpierce.catholicfasting.feature.premium.PremiumWorkspaceActions
 import com.kevpierce.catholicfasting.feature.premium.PremiumWorkspaceUiState
-import com.kevpierce.catholicfasting.feature.premium.premiumScreen
-import com.kevpierce.catholicfasting.feature.settings.settingsScreen
+import com.kevpierce.catholicfasting.feature.settings.SettingsScreen
+import com.kevpierce.catholicfasting.feature.today.TodayScreen
 import com.kevpierce.catholicfasting.feature.today.TodayUiState
-import com.kevpierce.catholicfasting.feature.today.todayScreen
 import com.kevpierce.catholicfasting.feature.tracker.TrackerActions
+import com.kevpierce.catholicfasting.feature.tracker.TrackerScreen
 import com.kevpierce.catholicfasting.feature.tracker.TrackerUiState
-import com.kevpierce.catholicfasting.feature.tracker.trackerScreen
-import com.kevpierce.catholicfastingapp.ui.catholicFastingApp
+import com.kevpierce.catholicfastingapp.ui.CatholicFastingApp
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -69,12 +69,17 @@ class DesignSystemInstrumentationTest {
         val seasonalPack = SeasonalContentPackCatalog.pack(premiumSnapshot.season, contentLocale())
 
         composeRule.setContent {
-            catholicFastingTheme {
-                todayScreen(
+            CatholicFastingTheme {
+                TodayScreen(
                     uiState =
                         TodayUiState(
                             todayObservance = state.observances.firstOrNull(),
-                            completionSummary = context.getString(R.string.summary_completion_value, state.statusesById.size),
+                            completionSummary =
+                                context.resources.getQuantityString(
+                                    R.plurals.summary_completion_value,
+                                    state.statusesById.size,
+                                    state.statusesById.size,
+                                ),
                             premiumSnapshot = premiumSnapshot,
                             seasonalContentPack = seasonalPack,
                             dailyFormationLine = SeasonalContentSupport.dailyFormationLine(seasonalPack, LocalDate.now()),
@@ -104,8 +109,8 @@ class DesignSystemInstrumentationTest {
         val premiumSnapshot = premiumSnapshot()
 
         composeRule.setContent {
-            catholicFastingTheme {
-                premiumScreen(
+            CatholicFastingTheme {
+                PremiumScreen(
                     billingState =
                         BillingState(
                             premiumUnlocked = true,
@@ -159,8 +164,8 @@ class DesignSystemInstrumentationTest {
     @Test
     fun guidanceScreenRendersFoodAndAuditSectionsUnderSharedTheme() {
         composeRule.setContent {
-            catholicFastingTheme {
-                guidanceScreen(
+            CatholicFastingTheme {
+                GuidanceScreen(
                     settings = RuleSettings(),
                     ruleBundleAudit = ObservanceCalculator.ruleBundleAudit(),
                     devotionalGallery = SacredImageryCatalog.fastingGallery.take(3),
@@ -182,8 +187,8 @@ class DesignSystemInstrumentationTest {
         val state = AppContainer.repository.dashboardState.value
 
         composeRule.setContent {
-            catholicFastingTheme {
-                calendarScreen(
+            CatholicFastingTheme {
+                CalendarScreen(
                     observances = state.observances,
                     statusesById = state.statusesById,
                     fridayNotesById = state.fridayNotesById,
@@ -204,8 +209,8 @@ class DesignSystemInstrumentationTest {
         val state = AppContainer.repository.dashboardState.value
 
         composeRule.setContent {
-            catholicFastingTheme {
-                trackerScreen(
+            CatholicFastingTheme {
+                TrackerScreen(
                     uiState =
                         TrackerUiState(
                             schedules = state.schedules,
@@ -251,8 +256,8 @@ class DesignSystemInstrumentationTest {
     @Test
     fun settingsScreenRendersProfileAndNormsHierarchyUnderSharedTheme() {
         composeRule.setContent {
-            catholicFastingTheme {
-                settingsScreen(
+            CatholicFastingTheme {
+                SettingsScreen(
                     settings = RuleSettings(),
                     onSettingsChange = {},
                 )
@@ -272,8 +277,8 @@ class DesignSystemInstrumentationTest {
         AppContainer.repository.completeOnboarding()
 
         composeRule.setContent {
-            catholicFastingTheme {
-                catholicFastingApp(initialDeepLink = "https://local/more/setup")
+            CatholicFastingTheme {
+                CatholicFastingApp(initialDeepLink = "https://local/more/setup")
             }
         }
 
@@ -292,8 +297,8 @@ class DesignSystemInstrumentationTest {
         AppContainer.repository.completeOnboarding()
 
         composeRule.setContent {
-            catholicFastingTheme {
-                catholicFastingApp(initialDeepLink = "https://local/more/history")
+            CatholicFastingTheme {
+                CatholicFastingApp(initialDeepLink = "https://local/more/history")
             }
         }
 
@@ -318,7 +323,10 @@ class DesignSystemInstrumentationTest {
         )
 
     private fun contentLocale() =
-        if (context.resources.configuration.locales[0]?.language?.startsWith("es") == true) {
+        if (context.resources.configuration.locales[0]
+                ?.language
+                ?.startsWith("es") == true
+        ) {
             com.kevpierce.catholicfasting.core.model.ContentLocale.SPANISH
         } else {
             com.kevpierce.catholicfasting.core.model.ContentLocale.ENGLISH

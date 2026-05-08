@@ -26,6 +26,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
@@ -35,9 +36,9 @@ import com.kevpierce.catholicfasting.core.model.ActiveIntermittentFast
 import com.kevpierce.catholicfasting.core.model.IntermittentFastSession
 import com.kevpierce.catholicfasting.core.model.IntermittentSchedulePlan
 import com.kevpierce.catholicfasting.core.rules.PremiumSnapshot
+import com.kevpierce.catholicfasting.core.ui.CatholicFastingScreenTitle
+import com.kevpierce.catholicfasting.core.ui.CatholicFastingSectionCard
 import com.kevpierce.catholicfasting.core.ui.CatholicFastingThemeValues
-import com.kevpierce.catholicfasting.core.ui.catholicFastingScreenTitle
-import com.kevpierce.catholicfasting.core.ui.catholicFastingSectionCard
 import java.time.Duration
 import java.time.Instant
 import java.time.ZoneId
@@ -86,7 +87,7 @@ private data class ScheduleEditorActions(
 @OptIn(ExperimentalLayoutApi::class)
 @Suppress("LongMethod")
 @Composable
-fun trackerScreen(
+fun TrackerScreen(
     uiState: TrackerUiState,
     actions: TrackerActions,
     modifier: Modifier = Modifier,
@@ -108,13 +109,13 @@ fun trackerScreen(
         verticalArrangement = Arrangement.spacedBy(spacing.medium),
     ) {
         item {
-            catholicFastingScreenTitle(
+            CatholicFastingScreenTitle(
                 text = stringResource(R.string.tracker_title),
                 modifier = Modifier.semantics { heading() },
             )
         }
         item {
-            activeFastCard(
+            ActiveFastCard(
                 activeFast = uiState.activeFast,
                 presetHours = uiState.presetHours,
                 presetInput = presetInput,
@@ -128,10 +129,10 @@ fun trackerScreen(
             )
         }
         item {
-            schedulesCard(schedules = uiState.schedules)
+            SchedulesCard(schedules = uiState.schedules)
         }
         item {
-            schedulePlannerCard(
+            SchedulePlannerCard(
                 schedules = uiState.schedules,
                 activeScheduleId = uiState.activeScheduleId,
                 presetHours = uiState.presetHours,
@@ -216,14 +217,14 @@ fun trackerScreen(
             )
         }
         item {
-            sessionSummaryCard(
+            SessionSummaryCard(
                 sessions = uiState.sessions,
                 activeSchedule =
                     uiState.schedules.firstOrNull { it.id == uiState.activeScheduleId },
             )
         }
         item {
-            trackerSupportCard(
+            TrackerSupportCard(
                 premiumSnapshot = uiState.premiumSnapshot,
                 prepGuidance = uiState.prepGuidance,
                 seasonProgramActions = uiState.seasonProgramActions,
@@ -245,19 +246,19 @@ fun trackerScreen(
             }
         } else {
             items(uiState.sessions.take(12), key = IntermittentFastSession::id) { session ->
-                sessionRow(session)
+                SessionRow(session)
             }
         }
     }
 }
 
 @Composable
-private fun trackerSupportCard(
+private fun TrackerSupportCard(
     premiumSnapshot: PremiumSnapshot,
     prepGuidance: List<String>,
     seasonProgramActions: List<String>,
 ) {
-    catholicFastingSectionCard(title = stringResource(R.string.tracker_preparation_recovery)) {
+    CatholicFastingSectionCard(title = stringResource(R.string.tracker_preparation_recovery)) {
         Text(premiumSnapshot.recoveryCoachPlan.summary)
         prepGuidance.forEach { line ->
             Text(stringResource(R.string.tracker_bullet_value, line))
@@ -273,7 +274,7 @@ private fun trackerSupportCard(
 }
 
 @Composable
-private fun activeFastCard(
+private fun ActiveFastCard(
     activeFast: ActiveIntermittentFast?,
     presetHours: Int,
     presetInput: String,
@@ -282,29 +283,11 @@ private fun activeFastCard(
     onEndFast: () -> Unit,
     onCancelFast: () -> Unit,
 ) {
-    catholicFastingSectionCard(title = stringResource(R.string.tracker_control_center)) {
+    CatholicFastingSectionCard(title = stringResource(R.string.tracker_control_center)) {
         if (activeFast == null) {
             Text(stringResource(R.string.tracker_no_active_fast))
         } else {
-            val start = parseInstant(activeFast.startIso)
-            val elapsed = start?.let { Duration.between(it, Instant.now()) }
-            Text(
-                stringResource(R.string.tracker_fast_in_progress),
-                style = CatholicFastingThemeValues.typography.supporting,
-            )
-            Text(
-                stringResource(
-                    R.string.tracker_started_value,
-                    start?.let(::formatDateTime) ?: stringResource(R.string.tracker_unknown),
-                ),
-            )
-            Text(
-                stringResource(
-                    R.string.tracker_elapsed_value,
-                    elapsed?.let(::formatDuration) ?: stringResource(R.string.tracker_unavailable),
-                ),
-            )
-            Text(stringResource(R.string.tracker_target_hours_value, activeFast.targetHours))
+            ActiveFastSummary(activeFast)
         }
 
         OutlinedTextField(
@@ -340,8 +323,37 @@ private fun activeFastCard(
 }
 
 @Composable
-private fun schedulesCard(schedules: List<IntermittentSchedulePlan>) {
-    catholicFastingSectionCard(title = stringResource(R.string.tracker_saved_schedules)) {
+private fun ActiveFastSummary(activeFast: ActiveIntermittentFast) {
+    val start = parseInstant(activeFast.startIso)
+    val elapsed = start?.let { Duration.between(it, Instant.now()) }
+    Text(
+        stringResource(R.string.tracker_fast_in_progress),
+        style = CatholicFastingThemeValues.typography.supporting,
+    )
+    Text(
+        stringResource(
+            R.string.tracker_started_value,
+            start?.let(::formatDateTime) ?: stringResource(R.string.tracker_unknown),
+        ),
+    )
+    Text(
+        stringResource(
+            R.string.tracker_elapsed_value,
+            elapsed?.let(::formatDuration) ?: stringResource(R.string.tracker_unavailable),
+        ),
+    )
+    Text(
+        pluralStringResource(
+            R.plurals.tracker_target_hours_value,
+            activeFast.targetHours,
+            activeFast.targetHours,
+        ),
+    )
+}
+
+@Composable
+private fun SchedulesCard(schedules: List<IntermittentSchedulePlan>) {
+    CatholicFastingSectionCard(title = stringResource(R.string.tracker_saved_schedules)) {
         if (schedules.isEmpty()) {
             Text(stringResource(R.string.tracker_no_saved_schedules))
         } else {
@@ -362,14 +374,14 @@ private fun schedulesCard(schedules: List<IntermittentSchedulePlan>) {
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun schedulePlannerCard(
+private fun SchedulePlannerCard(
     schedules: List<IntermittentSchedulePlan>,
     activeScheduleId: String?,
     presetHours: Int,
     editorState: ScheduleEditorUiState,
     editorActions: ScheduleEditorActions,
 ) {
-    catholicFastingSectionCard(title = stringResource(R.string.tracker_custom_schedules)) {
+    CatholicFastingSectionCard(title = stringResource(R.string.tracker_custom_schedules)) {
         Text(stringResource(R.string.tracker_custom_schedules_body))
         OutlinedTextField(
             value = editorState.scheduleName,
@@ -389,11 +401,11 @@ private fun schedulePlannerCard(
             singleLine = true,
             modifier = Modifier.fillMaxWidth(),
         )
-        weekdaySelector(
+        WeekdaySelector(
             selectedWeekdays = editorState.selectedWeekdays,
             onToggleWeekday = editorActions.onToggleWeekday,
         )
-        scheduleEditorActions(
+        ScheduleEditorActions(
             editingScheduleId = editorState.editingScheduleId,
             canSave = editorState.selectedWeekdays.isNotEmpty(),
             onSaveSchedule = editorActions.onSaveSchedule,
@@ -403,7 +415,7 @@ private fun schedulePlannerCard(
             Text(stringResource(R.string.tracker_no_saved_schedules))
         } else {
             schedules.forEach { schedule ->
-                scheduleRow(
+                ScheduleRow(
                     schedule = schedule,
                     isActive = schedule.id == activeScheduleId,
                     onApply = { editorActions.onApplySchedule(schedule.id) },
@@ -423,7 +435,7 @@ private fun schedulePlannerCard(
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun weekdaySelector(
+private fun WeekdaySelector(
     selectedWeekdays: Set<Int>,
     onToggleWeekday: (Int) -> Unit,
 ) {
@@ -443,7 +455,7 @@ private fun weekdaySelector(
 }
 
 @Composable
-private fun scheduleEditorActions(
+private fun ScheduleEditorActions(
     editingScheduleId: String?,
     canSave: Boolean,
     onSaveSchedule: () -> Unit,
@@ -471,7 +483,7 @@ private fun scheduleEditorActions(
 }
 
 @Composable
-private fun scheduleRow(
+private fun ScheduleRow(
     schedule: IntermittentSchedulePlan,
     isActive: Boolean,
     onApply: () -> Unit,
@@ -479,7 +491,7 @@ private fun scheduleRow(
     onDelete: () -> Unit,
 ) {
     val context = LocalContext.current
-    catholicFastingSectionCard(
+    CatholicFastingSectionCard(
         title =
             if (isActive) {
                 stringResource(R.string.tracker_applied_schedule_value, schedule.name)
@@ -510,7 +522,7 @@ private fun scheduleRow(
 }
 
 @Composable
-private fun sessionSummaryCard(
+private fun SessionSummaryCard(
     sessions: List<IntermittentFastSession>,
     activeSchedule: IntermittentSchedulePlan?,
 ) {
@@ -524,7 +536,7 @@ private fun sessionSummaryCard(
             (completedTargets.toDouble() / sessions.size.toDouble() * 100).toInt()
         }
 
-    catholicFastingSectionCard(title = stringResource(R.string.tracker_recent_summary)) {
+    CatholicFastingSectionCard(title = stringResource(R.string.tracker_recent_summary)) {
         Text(stringResource(R.string.tracker_sessions_tracked_value, sessions.size))
         Text(stringResource(R.string.tracker_target_hit_count_value, completedTargets))
         Text(stringResource(R.string.tracker_longest_session_value, "%.1f".format(longestSession)))
@@ -542,10 +554,10 @@ private fun sessionSummaryCard(
 }
 
 @Composable
-private fun sessionRow(session: IntermittentFastSession) {
+private fun SessionRow(session: IntermittentFastSession) {
     val start = parseInstant(session.startIso)
     val end = parseInstant(session.endIso)
-    catholicFastingSectionCard(
+    CatholicFastingSectionCard(
         title =
             "${start?.let(::formatDateTime) ?: session.startIso} -> " +
                 "${end?.let(::formatDateTime) ?: session.endIso}",
@@ -566,7 +578,8 @@ private fun sessionRow(session: IntermittentFastSession) {
 private fun parseInstant(value: String): Instant? = runCatching { Instant.parse(value) }.getOrNull()
 
 private fun formatDateTime(instant: Instant): String =
-    DateTimeFormatter.ofPattern("MMM d, h:mm a")
+    DateTimeFormatter
+        .ofPattern("MMM d, h:mm a")
         .withZone(ZoneId.systemDefault())
         .format(instant)
 

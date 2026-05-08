@@ -10,7 +10,11 @@
     <string name="tracker_fast_in_progress">Ayuno en curso</string>
     <string name="tracker_started_value">Inicio: %1$s</string>
     <string name="tracker_elapsed_value">Tiempo transcurrido: %1$s</string>
-    <string name="tracker_target_hours_value">Objetivo: %1$d horas</string>
+    <plurals name="tracker_target_hours_value">
+        <item quantity="one">Objetivo: %1$d hora</item>
+        <item quantity="many">Objetivo: %1$d horas</item>
+        <item quantity="other">Objetivo: %1$d horas</item>
+    </plurals>
     <string name="tracker_target_hours_label">Horas objetivo</string>
     <string name="tracker_target_hours_supporting">Android limita esto entre 12 y 336 horas.</string>
     <string name="tracker_current_preset_value">Preajuste actual: %1$d h</string>
@@ -21,16 +25,16 @@
     <string name="tracker_no_saved_schedules">Todavia no hay horarios guardados.</string>
     <string name="tracker_saved_schedule_value">%1$s • %2$dh • empieza a las %3$s</string>
     <string name="tracker_custom_schedules">Horarios personalizados</string>
-    <string name="tracker_custom_schedules_body">Guarda planes locales reutilizables para los dias y la hora que mejor se adapten a tu regla de vida.</string>
+    <string name="tracker_custom_schedules_body">Guarda planes locales reutilizables para los días y la hora que mejor se adapten a tu regla de vida.</string>
     <string name="tracker_schedule_name_label">Nombre del horario</string>
     <string name="tracker_schedule_name_supporting">Dejalo en blanco para usar una etiqueta automatica.</string>
-    <string name="tracker_start_hour_label">Hora de inicio (0-23)</string>
+    <string name="tracker_start_hour_label">Hora de inicio (0–23)</string>
     <string name="tracker_start_hour_supporting">El preajuste actual de %1$d h se guardara con este plan.</string>
     <string name="tracker_save_schedule">Guardar horario</string>
     <string name="tracker_update_schedule">Actualizar horario</string>
     <string name="tracker_cancel_edit">Cancelar edicion</string>
     <string name="tracker_applied_schedule_value">%1$s • Aplicado</string>
-    <string name="tracker_schedule_row_value">Objetivo %1$dh • Inicio %2$s • Dias %3$s</string>
+    <string name="tracker_schedule_row_value">Objetivo %1$dh • Inicio %2$s • Días %3$s</string>
     <string name="tracker_use">Usar</string>
     <string name="tracker_edit">Editar</string>
     <string name="tracker_delete">Eliminar</string>
@@ -38,7 +42,7 @@
     <string name="tracker_sessions_tracked_value">Sesiones registradas localmente: %1$d</string>
     <string name="tracker_target_hit_count_value">Objetivos alcanzados: %1$d</string>
     <string name="tracker_longest_session_value">Sesion mas larga: %1$sh</string>
-    <string name="tracker_recent_hit_rate_value">Tasa reciente de exito: %1$d%%</string>
+    <string name="tracker_recent_hit_rate_value">Tasa reciente de éxito: %1$d%%</string>
     <string name="tracker_applied_schedule_days_value">Horario aplicado: %1$s (%2$s)</string>
     <string name="tracker_duration_value">Duracion: %1$sh</string>
     <string name="tracker_plan_value">Plan: %1$dh</string>

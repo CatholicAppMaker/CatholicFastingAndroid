@@ -1,6 +1,8 @@
 package com.kevpierce.catholicfasting.core.billing
 
 import android.content.Context
+import com.android.billingclient.api.BillingClient
+import com.android.billingclient.api.PendingPurchasesParams
 
 object BillingContainer {
     @Volatile
@@ -13,9 +15,21 @@ object BillingContainer {
         if (repositoryInstance == null) {
             synchronized(this) {
                 if (repositoryInstance == null) {
+                    val appContext = context.applicationContext
                     repositoryInstance =
                         BillingRepository(
-                            context = context.applicationContext,
+                            billingClient =
+                                BillingClient
+                                    .newBuilder(appContext)
+                                    .setListener { billingResult, purchases ->
+                                        repositoryInstance?.onPurchasesUpdated(billingResult, purchases)
+                                    }.enablePendingPurchases(
+                                        PendingPurchasesParams
+                                            .newBuilder()
+                                            .enableOneTimeProducts()
+                                            .build(),
+                                    ).build(),
+                            packageName = appContext.packageName,
                             autoConnect = autoConnect,
                         )
                 }

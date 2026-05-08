@@ -1,6 +1,6 @@
 <resources>
     <string name="premium_title">Apoyo y Premium</string>
-    <string name="premium_catalog_subtitle">Premium te ayuda a planificar con anticipacion, mantenerte firme despues de fallar y reflexionar con oracion.</string>
+    <string name="premium_catalog_subtitle">Premium te ayuda a planificar con anticipacion, mantenerte firme después de fallar y reflexionar con oracion.</string>
     <string name="premium_active">Premium activo</string>
     <string name="premium_inactive">Premium inactivo</string>
     <string name="premium_refreshing">Actualizando…</string>
@@ -20,7 +20,7 @@
     <string name="premium_billing_purchase_cancelled">Compra cancelada.</string>
     <string name="premium_billing_purchase_pending_status">Compra pendiente. Google Play desbloqueara Premium cuando se confirme el pago.</string>
     <string name="premium_billing_purchase_updated">La compra de Google Play se actualizo.</string>
-    <string name="premium_billing_purchases_ready">Las compras de Google Play estan listas.</string>
+    <string name="premium_billing_purchases_ready">Las compras de Google Play están listas.</string>
     <string name="premium_billing_products_missing">Google Play se conecto, pero no devolvio productos. Verifica la configuracion de Play Console y las pistas de prueba.</string>
     <string name="premium_billing_purchases_refreshed">Las compras premium se actualizaron.</string>
     <string name="premium_billing_no_active_purchase">No se encontro una compra premium activa para esta cuenta de Play.</string>
@@ -34,7 +34,7 @@
     <string name="premium_billing_failure_item_already_owned">Ya posees esta compra. Actualiza las compras o administrala en Google Play.</string>
     <string name="premium_billing_failure_item_not_owned">Google Play no pudo encontrar una compra existente para restaurar.</string>
     <string name="premium_billing_failure_developer_error">Error de configuracion de facturacion. Verifica los productos de Play Console y la cuenta de prueba.</string>
-    <string name="premium_billing_failure_feature_not_supported">Este dispositivo no admite la funcion de facturacion solicitada.</string>
+    <string name="premium_billing_failure_feature_not_supported">Este dispositivo no admite la función de facturacion solicitada.</string>
     <string name="premium_billing_failure_generic">La compra de Google Play fallo.</string>
     <string name="premium_billing_failure_with_debug">%1$s %2$s</string>
     <string name="premium_subscriptions_title">Suscripciones</string>

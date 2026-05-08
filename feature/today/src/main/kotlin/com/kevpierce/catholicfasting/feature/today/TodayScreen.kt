@@ -21,12 +21,12 @@ import com.kevpierce.catholicfasting.core.model.Observance
 import com.kevpierce.catholicfasting.core.model.SacredImageryItem
 import com.kevpierce.catholicfasting.core.model.SeasonalContentPack
 import com.kevpierce.catholicfasting.core.rules.PremiumSnapshot
+import com.kevpierce.catholicfasting.core.ui.CatholicFastingScreenTitle
+import com.kevpierce.catholicfasting.core.ui.CatholicFastingSectionCard
 import com.kevpierce.catholicfasting.core.ui.CatholicFastingThemeValues
+import com.kevpierce.catholicfasting.core.ui.SacredImageryCard
 import com.kevpierce.catholicfasting.core.ui.SeasonTone
-import com.kevpierce.catholicfasting.core.ui.catholicFastingScreenTitle
-import com.kevpierce.catholicfasting.core.ui.catholicFastingSectionCard
 import com.kevpierce.catholicfasting.core.ui.rememberSeasonTone
-import com.kevpierce.catholicfasting.core.ui.sacredImageryCard
 
 data class TodayUiState(
     val todayObservance: Observance?,
@@ -44,7 +44,7 @@ data class TodayUiState(
 )
 
 @Composable
-fun todayScreen(
+fun TodayScreen(
     uiState: TodayUiState,
     modifier: Modifier = Modifier,
 ) {
@@ -60,7 +60,7 @@ fun todayScreen(
                 .padding(spacing.medium),
         verticalArrangement = Arrangement.spacedBy(spacing.medium),
     ) {
-        todayContent(
+        TodayContent(
             uiState = uiState,
             todayDetail = todayDetail,
         )
@@ -68,31 +68,31 @@ fun todayScreen(
 }
 
 @Composable
-private fun ColumnScope.todayContent(
+private fun ColumnScope.TodayContent(
     uiState: TodayUiState,
     todayDetail: String,
 ) {
     val seasonTone = rememberSeasonTone(uiState.premiumSnapshot.season)
 
-    catholicFastingScreenTitle(stringResource(R.string.today_title))
-    observanceSummaryCard(uiState, todayDetail)
-    seasonalFormationCard(uiState, seasonTone)
-    yearPlanCard(uiState)
-    personalInsightsCard(uiState)
-    seasonPlanCard(uiState, seasonTone)
-    recoveryCoachCard(uiState)
-    devotionalGalleryCard(uiState)
-    noticeCard(uiState)
+    CatholicFastingScreenTitle(stringResource(R.string.today_title))
+    ObservanceSummaryCard(uiState, todayDetail)
+    SeasonalFormationCard(uiState, seasonTone)
+    YearPlanCard(uiState)
+    PersonalInsightsCard(uiState)
+    SeasonPlanCard(uiState, seasonTone)
+    RecoveryCoachCard(uiState)
+    DevotionalGalleryCard(uiState)
+    NoticeCard(uiState)
 }
 
 @Composable
-private fun todayCard(
+private fun TodayCard(
     title: String,
     tone: SeasonTone? = null,
     heroTitle: Boolean = false,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    catholicFastingSectionCard(
+    CatholicFastingSectionCard(
         title = title,
         tone = tone,
         heroTitle = heroTitle,
@@ -101,11 +101,11 @@ private fun todayCard(
 }
 
 @Composable
-private fun observanceSummaryCard(
+private fun ObservanceSummaryCard(
     uiState: TodayUiState,
     todayDetail: String,
 ) {
-    todayCard(title = uiState.todayObservance?.title ?: stringResource(R.string.today_no_observance)) {
+    TodayCard(title = uiState.todayObservance?.title ?: stringResource(R.string.today_no_observance)) {
         Text(todayDetail, style = CatholicFastingThemeValues.typography.body)
         Text(
             uiState.completionSummary,
@@ -115,11 +115,11 @@ private fun observanceSummaryCard(
 }
 
 @Composable
-private fun seasonalFormationCard(
+private fun SeasonalFormationCard(
     uiState: TodayUiState,
     seasonTone: SeasonTone,
 ) {
-    todayCard(
+    TodayCard(
         title = uiState.seasonalContentPack.campaignTitle,
         tone = seasonTone,
         heroTitle = true,
@@ -145,8 +145,8 @@ private fun seasonalFormationCard(
 }
 
 @Composable
-private fun yearPlanCard(uiState: TodayUiState) {
-    todayCard(title = stringResource(R.string.today_year_plan_title)) {
+private fun YearPlanCard(uiState: TodayUiState) {
+    TodayCard(title = stringResource(R.string.today_year_plan_title)) {
         Text(uiState.yearPlanSummary, style = CatholicFastingThemeValues.typography.body)
         Text(uiState.weeklyRecap, style = CatholicFastingThemeValues.typography.supporting)
         Text(uiState.setupProgressSummary, style = CatholicFastingThemeValues.typography.supporting)
@@ -154,8 +154,8 @@ private fun yearPlanCard(uiState: TodayUiState) {
 }
 
 @Composable
-private fun personalInsightsCard(uiState: TodayUiState) {
-    todayCard(title = stringResource(R.string.today_personal_insights_title)) {
+private fun PersonalInsightsCard(uiState: TodayUiState) {
+    TodayCard(title = stringResource(R.string.today_personal_insights_title)) {
         Text(uiState.streakMessage, style = CatholicFastingThemeValues.typography.body)
         Text(uiState.premiumSnapshot.motivationLine, style = CatholicFastingThemeValues.typography.supporting)
         Text(
@@ -166,11 +166,11 @@ private fun personalInsightsCard(uiState: TodayUiState) {
 }
 
 @Composable
-private fun seasonPlanCard(
+private fun SeasonPlanCard(
     uiState: TodayUiState,
     seasonTone: SeasonTone,
 ) {
-    todayCard(
+    TodayCard(
         title = uiState.premiumSnapshot.seasonPlan.titleLine,
         tone = seasonTone,
     ) {
@@ -194,8 +194,8 @@ private fun seasonPlanCard(
 }
 
 @Composable
-private fun recoveryCoachCard(uiState: TodayUiState) {
-    todayCard(title = uiState.premiumSnapshot.recoveryCoachPlan.title) {
+private fun RecoveryCoachCard(uiState: TodayUiState) {
+    TodayCard(title = uiState.premiumSnapshot.recoveryCoachPlan.title) {
         Text(uiState.premiumSnapshot.recoveryCoachPlan.summary, style = CatholicFastingThemeValues.typography.body)
         uiState.premiumSnapshot.recoveryCoachPlan.steps.take(3).forEach { step ->
             Text(
@@ -220,25 +220,25 @@ private fun recoveryCoachCard(uiState: TodayUiState) {
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun devotionalGalleryCard(uiState: TodayUiState) {
+private fun DevotionalGalleryCard(uiState: TodayUiState) {
     val spacing = CatholicFastingThemeValues.spacing
 
-    todayCard(title = stringResource(R.string.today_devotional_gallery_title)) {
+    TodayCard(title = stringResource(R.string.today_devotional_gallery_title)) {
         FlowRow(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(spacing.xSmall),
             verticalArrangement = Arrangement.spacedBy(spacing.xSmall),
         ) {
             uiState.devotionalGallery.take(6).forEach { item ->
-                sacredImageryCard(item = item)
+                SacredImageryCard(item = item)
             }
         }
     }
 }
 
 @Composable
-private fun noticeCard(uiState: TodayUiState) {
-    todayCard(title = stringResource(R.string.today_important_notice_title)) {
+private fun NoticeCard(uiState: TodayUiState) {
+    TodayCard(title = stringResource(R.string.today_important_notice_title)) {
         Text(uiState.noticeSummary, style = CatholicFastingThemeValues.typography.body)
         Text(
             stringResource(R.string.today_notice_body),

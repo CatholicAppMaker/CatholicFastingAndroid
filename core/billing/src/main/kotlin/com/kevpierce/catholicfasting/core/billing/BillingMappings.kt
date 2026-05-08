@@ -34,22 +34,24 @@ internal fun List<ProductDetails>.tipOffers(): List<BillingOfferUi> =
             )
         }
 
-internal fun Purchase.isPurchasedAndActive(): Boolean {
-    return purchaseStateCompat() == Purchase.PurchaseState.PURCHASED && isAcknowledgedCompat()
-}
+internal fun Purchase.isPurchasedAndActive(): Boolean =
+    purchaseStateCompat() == Purchase.PurchaseState.PURCHASED &&
+        isAcknowledgedCompat()
 
 internal fun SubscriptionOfferCatalog.subscriptionProductIds(): List<String> = offers.map { it.id }
 
 internal fun tipProducts(): List<String> = BillingProductCatalog.tipProducts
 
 internal fun subscriptionProductQuery(productId: String): QueryProductDetailsParams.Product =
-    QueryProductDetailsParams.Product.newBuilder()
+    QueryProductDetailsParams.Product
+        .newBuilder()
         .setProductId(productId)
         .setProductType(BillingClient.ProductType.SUBS)
         .build()
 
 internal fun inAppProductQuery(productId: String): QueryProductDetailsParams.Product =
-    QueryProductDetailsParams.Product.newBuilder()
+    QueryProductDetailsParams.Product
+        .newBuilder()
         .setProductId(productId)
         .setProductType(BillingClient.ProductType.INAPP)
         .build()

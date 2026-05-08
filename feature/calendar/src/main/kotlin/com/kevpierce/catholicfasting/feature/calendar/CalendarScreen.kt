@@ -31,14 +31,14 @@ import com.kevpierce.catholicfasting.core.model.ObservanceKind
 import com.kevpierce.catholicfasting.core.model.ObservanceSortOrder
 import com.kevpierce.catholicfasting.core.rules.ObservanceQueryEngine
 import com.kevpierce.catholicfasting.core.rules.PremiumSnapshot
+import com.kevpierce.catholicfasting.core.ui.CatholicFastingScreenTitle
+import com.kevpierce.catholicfasting.core.ui.CatholicFastingSectionCard
 import com.kevpierce.catholicfasting.core.ui.CatholicFastingThemeValues
-import com.kevpierce.catholicfasting.core.ui.catholicFastingScreenTitle
-import com.kevpierce.catholicfasting.core.ui.catholicFastingSectionCard
 import java.time.LocalDate
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun calendarScreen(
+fun CalendarScreen(
     observances: List<Observance>,
     statusesById: Map<String, CompletionStatus>,
     fridayNotesById: Map<String, String>,
@@ -72,15 +72,15 @@ fun calendarScreen(
                 .padding(spacing.medium),
         verticalArrangement = Arrangement.spacedBy(spacing.small),
     ) {
-        catholicFastingScreenTitle(stringResource(R.string.calendar_title))
-        analyticsSummaryCard(premiumSnapshot)
+        CatholicFastingScreenTitle(stringResource(R.string.calendar_title))
+        AnalyticsSummaryCard(premiumSnapshot)
         OutlinedTextField(
             value = query,
             onValueChange = { query = it },
             modifier = Modifier.fillMaxWidth(),
             label = { Text(stringResource(R.string.calendar_search_label)) },
         )
-        calendarFilters(
+        CalendarFilters(
             filter = filter,
             window = window,
             sortOrder = sortOrder,
@@ -90,7 +90,7 @@ fun calendarScreen(
         )
         LazyColumn(verticalArrangement = Arrangement.spacedBy(spacing.xSmall)) {
             items(visibleObservances.take(36), key = { it.id }) { observance ->
-                observanceCard(
+                ObservanceCard(
                     observance = observance,
                     selectedStatus = statusesById[observance.id] ?: CompletionStatus.NOT_STARTED,
                     fridayNote = fridayNotesById[observance.id].orEmpty(),
@@ -103,8 +103,8 @@ fun calendarScreen(
 }
 
 @Composable
-private fun analyticsSummaryCard(premiumSnapshot: PremiumSnapshot) {
-    catholicFastingSectionCard(title = stringResource(R.string.calendar_progress_overview)) {
+private fun AnalyticsSummaryCard(premiumSnapshot: PremiumSnapshot) {
+    CatholicFastingSectionCard(title = stringResource(R.string.calendar_progress_overview)) {
         Text(premiumSnapshot.motivationLine, style = CatholicFastingThemeValues.typography.body)
         Text(
             stringResource(
@@ -141,7 +141,7 @@ private fun analyticsSummaryCard(premiumSnapshot: PremiumSnapshot) {
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun calendarFilters(
+private fun CalendarFilters(
     filter: ObservanceFilter,
     window: CalendarWindow,
     sortOrder: ObservanceSortOrder,
@@ -155,21 +155,21 @@ private fun calendarFilters(
         verticalArrangement = Arrangement.spacedBy(spacing.xSmall),
     ) {
         ObservanceFilter.entries.forEach { entry ->
-            calendarSelectableChip(
+            CalendarSelectableChip(
                 label = entry.localizedLabel(),
                 selected = filter == entry,
                 onClick = { onFilterChange(entry) },
             )
         }
         CalendarWindow.entries.forEach { entry ->
-            calendarSelectableChip(
+            CalendarSelectableChip(
                 label = entry.localizedLabel(),
                 selected = window == entry,
                 onClick = { onWindowChange(entry) },
             )
         }
         ObservanceSortOrder.entries.forEach { entry ->
-            calendarSelectableChip(
+            CalendarSelectableChip(
                 label = entry.localizedLabel(),
                 selected = sortOrder == entry,
                 onClick = { onSortOrderChange(entry) },
@@ -180,23 +180,23 @@ private fun calendarFilters(
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun observanceCard(
+private fun ObservanceCard(
     observance: Observance,
     selectedStatus: CompletionStatus,
     fridayNote: String,
     onStatusChange: (String, CompletionStatus) -> Unit,
     onFridayNoteChange: (String, String) -> Unit,
 ) {
-    catholicFastingSectionCard(title = observance.title) {
-        observanceHeader(observance)
-        observanceCitations(observance)
-        completionStatusChips(
+    CatholicFastingSectionCard(title = observance.title) {
+        ObservanceHeader(observance)
+        ObservanceCitations(observance)
+        CompletionStatusChips(
             observanceId = observance.id,
             selectedStatus = selectedStatus,
             onStatusChange = onStatusChange,
         )
         if (observance.kind == ObservanceKind.FRIDAY_PENANCE) {
-            fridayNoteField(
+            FridayNoteField(
                 observanceId = observance.id,
                 initialValue = fridayNote,
                 onFridayNoteChange = onFridayNoteChange,
@@ -206,7 +206,7 @@ private fun observanceCard(
 }
 
 @Composable
-private fun observanceHeader(observance: Observance) {
+private fun ObservanceHeader(observance: Observance) {
     Text(observance.date, style = CatholicFastingThemeValues.typography.supporting)
     Text(
         stringResource(
@@ -221,7 +221,7 @@ private fun observanceHeader(observance: Observance) {
 }
 
 @Composable
-private fun observanceCitations(observance: Observance) {
+private fun ObservanceCitations(observance: Observance) {
     observance.citations.forEach { citation ->
         Text(
             stringResource(
@@ -237,7 +237,7 @@ private fun observanceCitations(observance: Observance) {
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun completionStatusChips(
+private fun CompletionStatusChips(
     observanceId: String,
     selectedStatus: CompletionStatus,
     onStatusChange: (String, CompletionStatus) -> Unit,
@@ -248,7 +248,7 @@ private fun completionStatusChips(
         verticalArrangement = Arrangement.spacedBy(spacing.xSmall),
     ) {
         CompletionStatus.entries.forEach { status ->
-            calendarSelectableChip(
+            CalendarSelectableChip(
                 label = status.localizedLabel(),
                 selected = selectedStatus == status,
                 onClick = { onStatusChange(observanceId, status) },
@@ -258,7 +258,7 @@ private fun completionStatusChips(
 }
 
 @Composable
-private fun calendarSelectableChip(
+private fun CalendarSelectableChip(
     label: String,
     selected: Boolean,
     onClick: () -> Unit,
@@ -284,7 +284,7 @@ private fun calendarSelectableChip(
 }
 
 @Composable
-private fun fridayNoteField(
+private fun FridayNoteField(
     observanceId: String,
     initialValue: String,
     onFridayNoteChange: (String, String) -> Unit,

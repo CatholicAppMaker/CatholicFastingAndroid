@@ -23,13 +23,13 @@ import com.kevpierce.catholicfasting.core.model.CalendarMode
 import com.kevpierce.catholicfasting.core.model.FridayOutsideLentMode
 import com.kevpierce.catholicfasting.core.model.RegionProfile
 import com.kevpierce.catholicfasting.core.model.RuleSettings
+import com.kevpierce.catholicfasting.core.ui.CatholicFastingScreenTitle
+import com.kevpierce.catholicfasting.core.ui.CatholicFastingSectionCard
 import com.kevpierce.catholicfasting.core.ui.CatholicFastingThemeValues
-import com.kevpierce.catholicfasting.core.ui.catholicFastingScreenTitle
-import com.kevpierce.catholicfasting.core.ui.catholicFastingSectionCard
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun settingsScreen(
+fun SettingsScreen(
     settings: RuleSettings,
     onSettingsChange: (RuleSettings) -> Unit,
     modifier: Modifier = Modifier,
@@ -42,9 +42,9 @@ fun settingsScreen(
                 .padding(spacing.medium),
         verticalArrangement = Arrangement.spacedBy(spacing.medium),
     ) {
-        catholicFastingScreenTitle(stringResource(R.string.settings_more_title))
-        catholicFastingSectionCard(title = stringResource(R.string.settings_profile_norms)) {
-            settingsForm(
+        CatholicFastingScreenTitle(stringResource(R.string.settings_more_title))
+        CatholicFastingSectionCard(title = stringResource(R.string.settings_profile_norms)) {
+            SettingsForm(
                 settings = settings,
                 onSettingsChange = onSettingsChange,
             )
@@ -53,22 +53,22 @@ fun settingsScreen(
 }
 
 @Composable
-private fun settingsForm(
+private fun SettingsForm(
     settings: RuleSettings,
     onSettingsChange: (RuleSettings) -> Unit,
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        settingsEnumSections(
+        SettingsEnumSections(
             settings = settings,
             onSettingsChange = onSettingsChange,
         )
-        settingsToggleSection(
+        SettingsToggleSection(
             settings = settings,
             onSettingsChange = onSettingsChange,
         )
-        birthYearField(
+        BirthYearField(
             birthYear = settings.birthYear,
             onBirthYearChange = {
                 onSettingsChange(settings.copy(birthYear = it))
@@ -78,32 +78,32 @@ private fun settingsForm(
 }
 
 @Composable
-private fun settingsEnumSections(
+private fun SettingsEnumSections(
     settings: RuleSettings,
     onSettingsChange: (RuleSettings) -> Unit,
 ) {
-    settingsEnumSection(
+    SettingsEnumSection(
         title = stringResource(R.string.settings_region),
         options = RegionProfile.entries,
         selected = settings.regionProfile,
         labelFor = { it.localizedLabel() },
         onSelect = { onSettingsChange(settings.copy(regionProfile = it)) },
     )
-    settingsEnumSection(
+    SettingsEnumSection(
         title = stringResource(R.string.settings_calendar),
         options = CalendarMode.entries,
         selected = settings.calendarMode,
         labelFor = { it.localizedLabel() },
         onSelect = { onSettingsChange(settings.copy(calendarMode = it)) },
     )
-    settingsEnumSection(
+    SettingsEnumSection(
         title = stringResource(R.string.settings_friday_mode),
         options = FridayOutsideLentMode.entries,
         selected = settings.fridayOutsideLentMode,
         labelFor = { it.localizedLabel() },
         onSelect = { onSettingsChange(settings.copy(fridayOutsideLentMode = it)) },
     )
-    settingsEnumSection(
+    SettingsEnumSection(
         title = stringResource(R.string.settings_ascension_observance),
         options = AscensionObservance.entries,
         selected = settings.ascensionObservance,
@@ -113,25 +113,25 @@ private fun settingsEnumSections(
 }
 
 @Composable
-private fun settingsToggleSection(
+private fun SettingsToggleSection(
     settings: RuleSettings,
     onSettingsChange: (RuleSettings) -> Unit,
 ) {
-    toggleRow(
+    ToggleRow(
         title = stringResource(R.string.settings_age_14),
         checked = settings.isAge14OrOlderForAbstinence,
         onCheckedChange = {
             onSettingsChange(settings.copy(isAge14OrOlderForAbstinence = it))
         },
     )
-    toggleRow(
+    ToggleRow(
         title = stringResource(R.string.settings_age_18),
         checked = settings.isAge18OrOlderForFasting,
         onCheckedChange = {
             onSettingsChange(settings.copy(isAge18OrOlderForFasting = it))
         },
     )
-    toggleRow(
+    ToggleRow(
         title = stringResource(R.string.settings_medical_dispensation),
         checked = settings.hasMedicalDispensation,
         onCheckedChange = {
@@ -141,7 +141,7 @@ private fun settingsToggleSection(
 }
 
 @Composable
-private fun <T> settingsEnumSection(
+private fun <T> SettingsEnumSection(
     title: String,
     options: List<T>,
     selected: T,
@@ -149,7 +149,7 @@ private fun <T> settingsEnumSection(
     onSelect: (T) -> Unit,
 ) {
     Text(title, style = CatholicFastingThemeValues.typography.supporting)
-    enumChips(
+    EnumChips(
         options = options,
         selected = selected,
         labelFor = labelFor,
@@ -158,7 +158,7 @@ private fun <T> settingsEnumSection(
 }
 
 @Composable
-private fun birthYearField(
+private fun BirthYearField(
     birthYear: Int,
     onBirthYearChange: (Int) -> Unit,
 ) {
@@ -173,7 +173,7 @@ private fun birthYearField(
 }
 
 @Composable
-private fun toggleRow(
+private fun ToggleRow(
     title: String,
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
@@ -192,7 +192,7 @@ private fun toggleRow(
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun <T> enumChips(
+private fun <T> EnumChips(
     options: List<T>,
     selected: T,
     labelFor: @Composable (T) -> String,

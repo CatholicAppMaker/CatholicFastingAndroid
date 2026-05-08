@@ -390,8 +390,7 @@ private fun memorialDays(
                     LocalDate.of(year, entry.month, entry.day),
                     defaultDetail,
                 )
-            }
-            .toMutableList()
+            }.toMutableList()
 
     items +=
         Triple(
@@ -762,9 +761,7 @@ private fun holyDayRegionalCitations(settings: RuleSettings): List<RuleCitation>
             )
     }
 
-private fun requiresParticularLawNote(title: String): Boolean {
-    return title.contains("Ascension") || title.contains("Immaculate")
-}
+private fun requiresParticularLawNote(title: String): Boolean = title.contains("Ascension") || title.contains("Immaculate")
 
 private fun fastDetail(settings: RuleSettings): String =
     if (settings.hasMedicalDispensation) {
@@ -811,13 +808,9 @@ private fun ageDispensationDetail(settings: RuleSettings): String =
         "Not required for your age eligibility toggle settings."
     }
 
-private fun isFastRequired(settings: RuleSettings): Boolean {
-    return !settings.hasMedicalDispensation && settings.isAge18OrOlderForFasting
-}
+private fun isFastRequired(settings: RuleSettings): Boolean = !settings.hasMedicalDispensation && settings.isAge18OrOlderForFasting
 
-private fun isAbstinenceRequired(settings: RuleSettings): Boolean {
-    return !settings.hasMedicalDispensation && settings.isAge14OrOlderForAbstinence
-}
+private fun isAbstinenceRequired(settings: RuleSettings): Boolean = !settings.hasMedicalDispensation && settings.isAge14OrOlderForAbstinence
 
 private enum class LiturgicalObligationAgeStatus {
     UNDER_SEVEN,

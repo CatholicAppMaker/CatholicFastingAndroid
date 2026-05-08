@@ -96,8 +96,7 @@ object RequiredDayReminderPlanner {
                 .filter { observance ->
                     observance.obligation == ObservanceObligation.MANDATORY &&
                         LocalDate.parse(observance.date) >= now
-                }
-                .sortedWith(compareBy<Observance> { it.date }.thenBy { it.id })
+                }.sortedWith(compareBy<Observance> { it.date }.thenBy { it.id })
 
         val seenIds = mutableSetOf<String>()
         val planned = mutableListOf<Observance>()

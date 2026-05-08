@@ -2,7 +2,6 @@ import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
 }
 
@@ -21,12 +20,13 @@ val hasReleaseSigning =
 
 android {
     namespace = "com.kevpierce.catholicfastingapp"
-    compileSdk = 35
+    compileSdk = 37
+    ndkVersion = "29.0.14206865"
 
     defaultConfig {
         applicationId = "com.kevpierce.catholicfastingapp"
         minSdk = 27
-        targetSdk = 35
+        targetSdk = 37
         versionCode = 10003
         versionName = "1.0.0"
 
@@ -73,10 +73,6 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = "17"
-    }
-
     buildFeatures {
         compose = true
     }
@@ -121,12 +117,12 @@ dependencies {
     testImplementation(libs.junit4)
     testImplementation(libs.truth)
     androidTestImplementation(platform(libs.compose.bom))
-    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
+    androidTestImplementation(libs.compose.ui.test.junit4)
     androidTestImplementation(libs.androidx.test.core.ktx)
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.androidx.test.espresso.core)
     androidTestImplementation(libs.androidx.test.runner)
-    androidTestImplementation("androidx.test.uiautomator:uiautomator:2.3.0")
+    androidTestImplementation(libs.androidx.test.uiautomator)
     androidTestImplementation(libs.truth)
     androidTestUtil(libs.androidx.test.orchestrator)
 }

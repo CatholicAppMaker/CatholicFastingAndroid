@@ -9,6 +9,7 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.JsonDecoder
 import kotlinx.serialization.json.JsonEncoder
+import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.booleanOrNull
 import kotlinx.serialization.json.intOrNull
@@ -18,26 +19,34 @@ import java.time.LocalDate
 import kotlin.math.roundToInt
 
 @Serializable
-enum class RegionProfile(val label: String) {
+enum class RegionProfile(
+    val label: String,
+) {
     US("United States"),
     CANADA("Canada"),
     OTHER("Other"),
 }
 
 @Serializable
-enum class CalendarMode(val label: String) {
+enum class CalendarMode(
+    val label: String,
+) {
     USCCB("USCCB (Ordinary Form)"),
     TRADITIONAL_1962("Traditional (1962-inspired)"),
 }
 
 @Serializable
-enum class AscensionObservance(val label: String) {
+enum class AscensionObservance(
+    val label: String,
+) {
     THURSDAY("Thursday (traditional)"),
     SUNDAY("Sunday (transferred)"),
 }
 
 @Serializable
-enum class FridayOutsideLentMode(val label: String) {
+enum class FridayOutsideLentMode(
+    val label: String,
+) {
     ABSTAIN_FROM_MEAT("Abstain from meat"),
     SUBSTITUTE_PENANCE("Another penitential act"),
 }
@@ -60,7 +69,9 @@ data class RuleSettings(
 }
 
 @Serializable
-enum class GuidanceScenario(val label: String) {
+enum class GuidanceScenario(
+    val label: String,
+) {
     NORMAL_DAY("Normal Day"),
     HEAVY_LABOR("Heavy Labor"),
     TRAVEL("Travel"),
@@ -95,7 +106,9 @@ data class FoodGuidanceSnapshot(
 )
 
 @Serializable
-enum class RuleAuthority(val label: String) {
+enum class RuleAuthority(
+    val label: String,
+) {
     UNIVERSAL_LAW("Universal Law"),
     USCCB("USCCB"),
     CCCB("CCCB"),
@@ -134,7 +147,9 @@ data class RuleBundleAudit(
 )
 
 @Serializable
-enum class LiturgicalSeason(val label: String) {
+enum class LiturgicalSeason(
+    val label: String,
+) {
     ADVENT("Advent"),
     CHRISTMAS("Christmas"),
     LENT("Lent"),
@@ -143,7 +158,9 @@ enum class LiturgicalSeason(val label: String) {
 }
 
 @Serializable
-enum class ObservanceKind(val label: String) {
+enum class ObservanceKind(
+    val label: String,
+) {
     FAST_AND_ABSTINENCE("Fast + Abstinence"),
     ABSTINENCE("Abstinence"),
     FRIDAY_PENANCE("Friday Penance"),
@@ -154,7 +171,9 @@ enum class ObservanceKind(val label: String) {
 }
 
 @Serializable
-enum class ObservanceObligation(val label: String) {
+enum class ObservanceObligation(
+    val label: String,
+) {
     MANDATORY("Required"),
     OPTIONAL("Optional"),
     NOT_APPLICABLE("Not Required"),
@@ -174,7 +193,10 @@ data class Observance(
 )
 
 @Serializable
-enum class CompletionStatus(val label: String, val countsTowardProgress: Boolean) {
+enum class CompletionStatus(
+    val label: String,
+    val countsTowardProgress: Boolean,
+) {
     NOT_STARTED("Not Started", false),
     COMPLETED("Completed", true),
     SUBSTITUTED("Substituted", true),
@@ -238,16 +260,10 @@ object HouseholdProfileSerializer : kotlinx.serialization.KSerializer<HouseholdP
     }
 
     override fun deserialize(decoder: Decoder): HouseholdProfile {
-        val jsonDecoder =
-            decoder as? JsonDecoder
-                ?: throw SerializationException("HouseholdProfile requires Json decoding.")
+        val jsonDecoder = decoder.asHouseholdProfileJsonDecoder()
         val jsonObject = jsonDecoder.decodeJsonElement().jsonObject
-        val id =
-            jsonObject["id"]?.jsonPrimitive?.content
-                ?: throw SerializationException("HouseholdProfile.id missing")
-        val name =
-            jsonObject["name"]?.jsonPrimitive?.content
-                ?: throw SerializationException("HouseholdProfile.name missing")
+        val id = jsonObject.requiredString("id")
+        val name = jsonObject.requiredString("name")
         val medicalDispensation = jsonObject["medicalDispensation"]?.jsonPrimitive?.booleanOrNull ?: false
         val explicitAbstinence = jsonObject["isAge14OrOlderForAbstinence"]?.jsonPrimitive?.booleanOrNull
         val explicitFasting = jsonObject["isAge18OrOlderForFasting"]?.jsonPrimitive?.booleanOrNull
@@ -276,6 +292,14 @@ object HouseholdProfileSerializer : kotlinx.serialization.KSerializer<HouseholdP
             medicalDispensation = medicalDispensation,
         )
     }
+
+    private fun Decoder.asHouseholdProfileJsonDecoder(): JsonDecoder =
+        this as? JsonDecoder
+            ?: throw SerializationException("HouseholdProfile requires Json decoding.")
+
+    private fun JsonObject.requiredString(key: String): String =
+        this[key]?.jsonPrimitive?.content
+            ?: throw SerializationException("HouseholdProfile.$key missing")
 
     private fun legacyAge(
         birthYear: Int,
@@ -383,7 +407,9 @@ data class FastingPlanningData(
 }
 
 @Serializable
-enum class PremiumRuleTemplate(val label: String) {
+enum class PremiumRuleTemplate(
+    val label: String,
+) {
     BEGINNER("Beginner"),
     STEADY("Steady"),
     DISCIPLINED("Disciplined"),
@@ -392,7 +418,9 @@ enum class PremiumRuleTemplate(val label: String) {
 }
 
 @Serializable
-enum class PremiumSeasonProgram(val label: String) {
+enum class PremiumSeasonProgram(
+    val label: String,
+) {
     LITURGICAL_RHYTHM("Liturgical Rhythm"),
     LENT_DEEPEN("Lenten Deepen"),
     ADVENT_WATCH("Advent Watch"),
@@ -540,32 +568,37 @@ enum class ReminderTier(
             supportEnabled: Boolean,
             morningEnabled: Boolean,
             eveningEnabled: Boolean,
-        ): ReminderTier {
-            return when {
+        ): ReminderTier =
+            when {
                 supportEnabled && morningEnabled && eveningEnabled -> GUIDED
                 supportEnabled && morningEnabled -> BALANCED
                 else -> MINIMAL
             }
-        }
     }
 }
 
 @Serializable
-enum class ObservanceFilter(val label: String) {
+enum class ObservanceFilter(
+    val label: String,
+) {
     ALL("All"),
     REQUIRED_ONLY("Required"),
     TRACKED_ONLY("Tracked"),
 }
 
 @Serializable
-enum class CalendarWindow(val label: String) {
+enum class CalendarWindow(
+    val label: String,
+) {
     ALL_YEAR("All Year"),
     THIS_MONTH("This Month"),
     NEXT_30_DAYS("Next 30 Days"),
 }
 
 @Serializable
-enum class ObservanceSortOrder(val label: String) {
+enum class ObservanceSortOrder(
+    val label: String,
+) {
     CHRONOLOGICAL("By Date"),
     REQUIRED_FIRST("Required First"),
 }
@@ -825,6 +858,7 @@ data class SubscriptionOfferCatalog(
 }
 
 object AppDeepLinks {
+    const val EXTRA_INITIAL_DEEP_LINK = "com.kevpierce.catholicfasting.extra.INITIAL_DEEP_LINK"
     const val SCHEME = "catholicfasting"
     const val HOST = "open"
     const val TODAY = "$SCHEME://$HOST/today"

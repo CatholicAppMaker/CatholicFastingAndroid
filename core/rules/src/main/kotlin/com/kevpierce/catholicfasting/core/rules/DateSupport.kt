@@ -38,21 +38,19 @@ object DateSupport {
         return cursor
     }
 
-    fun epiphanySunday(year: Int): LocalDate {
-        return (2..8)
+    fun epiphanySunday(year: Int): LocalDate =
+        (2..8)
             .asSequence()
             .map { LocalDate.of(year, Month.JANUARY, it) }
             .firstOrNull { it.dayOfWeek == DayOfWeek.SUNDAY }
             ?: LocalDate.of(year, Month.JANUARY, 6)
-    }
 
-    fun holyFamilyDate(year: Int): LocalDate {
-        return (26..31)
+    fun holyFamilyDate(year: Int): LocalDate =
+        (26..31)
             .asSequence()
             .map { LocalDate.of(year, Month.DECEMBER, it) }
             .firstOrNull { it.dayOfWeek == DayOfWeek.SUNDAY }
             ?: LocalDate.of(year, Month.DECEMBER, 30)
-    }
 
     fun nextWeekdayOnOrAfter(
         date: LocalDate,
@@ -68,9 +66,7 @@ object DateSupport {
     fun nextWeekdayAfter(
         date: LocalDate,
         dayOfWeek: DayOfWeek,
-    ): LocalDate {
-        return nextWeekdayOnOrAfter(date.plusDays(1), dayOfWeek)
-    }
+    ): LocalDate = nextWeekdayOnOrAfter(date.plusDays(1), dayOfWeek)
 
     fun ageOn(
         date: LocalDate,

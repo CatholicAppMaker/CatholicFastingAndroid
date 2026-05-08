@@ -3,6 +3,8 @@
 package com.kevpierce.catholicfasting.core.data
 
 import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -79,7 +81,7 @@ data class DashboardState(
 )
 
 @Serializable
-private data class AppStorageSnapshot(
+internal data class AppStorageSnapshot(
     val settings: RuleSettings = RuleSettings(),
     val year: Int = LocalDate.now().year,
     val statusesById: Map<String, CompletionStatus> = emptyMap(),
@@ -151,14 +153,15 @@ private val defaultChecklist =
     )
 
 @Suppress("TooManyFunctions")
-class AppRepository(private val context: Context) {
+class AppRepository internal constructor(
+    private val storage: AppStorage,
+) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-    private val storage = AppStorage(context)
     private val state = MutableStateFlow(loadDefaultState())
     val dashboardState: StateFlow<DashboardState> = state.asStateFlow()
 
     init {
-        scope.launch {
+        runBlocking(Dispatchers.IO) {
             storage.migrateIfNeeded()
             val snapshot = storage.readSnapshot()
             state.value = snapshot.toDashboardState()
@@ -424,9 +427,11 @@ class AppRepository(private val context: Context) {
     }
 }
 
-private class AppStorage(private val context: Context) {
+internal class AppStorage(
+    private val dataStore: DataStore<Preferences>,
+) {
     suspend fun writeSnapshot(snapshot: AppStorageSnapshot) {
-        context.catholicFastingDataStore.edit { preferences ->
+        dataStore.edit { preferences ->
             preferences[schemaVersionKey] = STORAGE_SCHEMA_VERSION
             preferences[snapshotKey] =
                 JsonCodec.encodeToString(
@@ -437,7 +442,7 @@ private class AppStorage(private val context: Context) {
     }
 
     suspend fun readSnapshot(): AppStorageSnapshot {
-        val preferences = context.catholicFastingDataStore.data.first()
+        val preferences = dataStore.data.first()
         val encoded = preferences[snapshotKey] ?: return AppStorageSnapshot()
         return runCatching {
             JsonCodec.decodeFromString(AppStorageSnapshot.serializer(), encoded)
@@ -447,7 +452,7 @@ private class AppStorage(private val context: Context) {
     }
 
     suspend fun migrateIfNeeded() {
-        context.catholicFastingDataStore.edit { preferences ->
+        dataStore.edit { preferences ->
             val version = preferences[schemaVersionKey] ?: 0
             if (version < STORAGE_SCHEMA_VERSION) {
                 preferences[schemaVersionKey] = STORAGE_SCHEMA_VERSION
@@ -471,8 +476,8 @@ private fun loadDefaultState(): DashboardState {
     )
 }
 
-private fun AppStorageSnapshot.toDashboardState(): DashboardState {
-    return DashboardState(
+private fun AppStorageSnapshot.toDashboardState(): DashboardState =
+    DashboardState(
         settings = settings,
         year = year,
         observances = ObservanceCalculator.makeCalendar(year, settings),
@@ -491,10 +496,9 @@ private fun AppStorageSnapshot.toDashboardState(): DashboardState {
         premiumCompanionState = premiumCompanionState,
         launchFunnelSnapshot = launchFunnelSnapshot,
     )
-}
 
-private fun DashboardState.toStorageSnapshot(): AppStorageSnapshot {
-    return AppStorageSnapshot(
+private fun DashboardState.toStorageSnapshot(): AppStorageSnapshot =
+    AppStorageSnapshot(
         settings = settings,
         year = year,
         statusesById = statusesById,
@@ -512,7 +516,6 @@ private fun DashboardState.toStorageSnapshot(): AppStorageSnapshot {
         premiumCompanionState = premiumCompanionState,
         launchFunnelSnapshot = launchFunnelSnapshot,
     )
-}
 
 fun buildSyncSnapshot(state: DashboardState): SyncSnapshot {
     val completedCount = state.statusesById.values.count(CompletionStatus::countsTowardProgress)
@@ -541,8 +544,8 @@ fun buildSyncSnapshot(state: DashboardState): SyncSnapshot {
     )
 }
 
-fun buildOnboardingState(state: DashboardState): OnboardingState {
-    return OnboardingState(
+fun buildOnboardingState(state: DashboardState): OnboardingState =
+    OnboardingState(
         isCompleted = state.launchFunnelSnapshot.completedOnboardingAtIso != null,
         currentStep =
             when {
@@ -561,7 +564,6 @@ fun buildOnboardingState(state: DashboardState): OnboardingState {
         dailyQuoteReminderMinute = state.launchFunnelSnapshot.dailyQuoteReminderMinute,
         hasFullBirthDate = state.settings.hasFullBirthDate,
     )
-}
 
 fun buildSetupProgressState(state: DashboardState): SetupProgressState {
     val birthProfileComplete = state.settings.hasFullBirthDate
@@ -648,7 +650,10 @@ object AppContainer {
         if (repositoryInstance == null) {
             synchronized(this) {
                 if (repositoryInstance == null) {
-                    repositoryInstance = AppRepository(context.applicationContext)
+                    repositoryInstance =
+                        AppRepository(
+                            storage = AppStorage(context.applicationContext.catholicFastingDataStore),
+                        )
                 }
             }
         }

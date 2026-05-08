@@ -164,7 +164,12 @@ class ReminderAndStorageParityTest {
     ): DashboardState =
         DashboardState(
             year = 2026,
-            observances = observancesFor(2026, com.kevpierce.catholicfasting.core.model.RuleSettings()),
+            observances =
+                observancesFor(
+                    2026,
+                    com.kevpierce.catholicfasting.core.model
+                        .RuleSettings(),
+                ),
             launchFunnelSnapshot = launchFunnelSnapshot,
             statusesById = statusesById,
             fridayNotesById = fridayNotesById,

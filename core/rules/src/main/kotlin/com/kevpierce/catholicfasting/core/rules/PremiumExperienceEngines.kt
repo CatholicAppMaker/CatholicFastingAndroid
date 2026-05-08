@@ -191,7 +191,8 @@ object PremiumDirectionSummaryEngine {
         zoneId: ZoneId = ZoneId.systemDefault(),
     ): String {
         val generatedAt =
-            DateTimeFormatter.ofLocalizedDateTime(FormatStyle.LONG, FormatStyle.SHORT)
+            DateTimeFormatter
+                .ofLocalizedDateTime(FormatStyle.LONG, FormatStyle.SHORT)
                 .withLocale(Locale.getDefault())
                 .withZone(zoneId)
                 .format(date)
@@ -286,8 +287,8 @@ object PremiumConditionReminderAdvisor {
     fun applyRules(
         rules: PremiumConditionRules,
         hasUpcomingRequiredDays: Boolean,
-    ): PremiumReminderRecommendation {
-        return when {
+    ): PremiumReminderRecommendation =
+        when {
             rules.requiredDaysDoubleReminder && hasUpcomingRequiredDays ->
                 PremiumReminderRecommendation(
                     shouldEnableDailySupport = true,
@@ -310,7 +311,6 @@ object PremiumConditionReminderAdvisor {
                     summaryLine = "Condition rules enabled: evening examen support is active.",
                 )
         }
-    }
 }
 
 object MissedDayRecoveryEngine {
@@ -483,8 +483,8 @@ object PremiumSubscriptionHealthEvaluator {
     fun message(
         states: List<PremiumSubscriptionState>,
         premiumUnlocked: Boolean,
-    ): String {
-        return when {
+    ): String =
+        when {
             PremiumSubscriptionState.REVOKED in states ->
                 "Subscription was revoked. Restore or update your account."
             PremiumSubscriptionState.IN_BILLING_RETRY in states ->
@@ -497,7 +497,6 @@ object PremiumSubscriptionHealthEvaluator {
                 "Premium subscription is active."
             else -> ""
         }
-    }
 }
 
 data class PremiumSnapshot(
@@ -572,7 +571,8 @@ private fun weekdayName(weekday: Int): String = DateFormatSymbols(Locale.getDefa
 
 private fun shortDate(date: LocalDate): String =
     date.format(
-        DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)
+        DateTimeFormatter
+            .ofLocalizedDate(FormatStyle.MEDIUM)
             .withLocale(Locale.US),
     )
 
