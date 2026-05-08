@@ -5,8 +5,10 @@ Use this checklist before validating premium purchase and restore behavior.
 ## Play Console
 
 - Create the subscription products used by the Android app:
-  - `com.kevpierce.catholicfasting.premium.yearly.v3`
-  - `com.kevpierce.catholicfasting.premium.monthly.v3`
+  - `cfa_premium_yearly_v3`
+  - `cfa_premium_monthly_v3`
+- Keep every Play product ID at 40 characters or fewer. The product IDs in
+  code and Play Console must match exactly.
 - Create the support-tip in-app products if they will ship in v1.
 - Support-tip product ids:
   - `com.kevpierce.catholicfasting.tip.small`

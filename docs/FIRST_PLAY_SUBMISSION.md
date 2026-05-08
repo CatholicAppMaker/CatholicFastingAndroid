@@ -39,10 +39,11 @@ Use this flow if you already have the verified Google Play developer account but
 1. Enable Play App Signing.
 2. Register the upload key that matches the local release keystore.
 3. Create these subscriptions in the same Play app:
-   - `com.kevpierce.catholicfasting.premium.yearly.v3`
-   - `com.kevpierce.catholicfasting.premium.monthly.v3`
-4. Do not create or market support-tip products for this first release.
-5. Add your Google account as a license tester.
+   - `cfa_premium_yearly_v3`
+   - `cfa_premium_monthly_v3`
+4. Keep Play product IDs at 40 characters or fewer and exactly aligned with the app code.
+5. Do not create or market support-tip products for this first release.
+6. Add your Google account as a license tester.
 
 ## 5. Upload and Review the Release
 

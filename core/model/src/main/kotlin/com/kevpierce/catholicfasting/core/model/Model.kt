@@ -804,7 +804,7 @@ data class SubscriptionOfferCatalog(
                 offers =
                     listOf(
                         SubscriptionOffer(
-                            id = "com.kevpierce.catholicfasting.premium.yearly.v3",
+                            id = "cfa_premium_yearly_v3",
                             displayTitle = "Premium Yearly",
                             durationLabel = "1 year",
                             billingCadenceLabel = "Billed once per year",
@@ -812,7 +812,7 @@ data class SubscriptionOfferCatalog(
                             isPrimaryAnchor = true,
                         ),
                         SubscriptionOffer(
-                            id = "com.kevpierce.catholicfasting.premium.monthly.v3",
+                            id = "cfa_premium_monthly_v3",
                             displayTitle = "Premium Monthly",
                             durationLabel = "1 month",
                             billingCadenceLabel = "Billed monthly",

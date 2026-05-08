@@ -33,8 +33,8 @@ class GrowthContractsParityTest {
         assertThat(catalog.offers).hasSize(2)
         assertThat(catalog.offers.map { it.id })
             .containsExactly(
-                "com.kevpierce.catholicfasting.premium.yearly.v3",
-                "com.kevpierce.catholicfasting.premium.monthly.v3",
+                "cfa_premium_yearly_v3",
+                "cfa_premium_monthly_v3",
             )
         assertThat(catalog.offers.count { it.isPrimaryAnchor }).isEqualTo(1)
     }

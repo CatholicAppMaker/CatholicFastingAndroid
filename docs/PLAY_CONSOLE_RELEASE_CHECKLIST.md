@@ -26,8 +26,9 @@ Use this checklist in order for the first public Android release.
 - Run pre-launch report
 - Review crashes, ANRs, accessibility, and large-screen warnings
 - Confirm billing products resolve in the same listing
-  - `com.kevpierce.catholicfasting.premium.yearly.v3`
-  - `com.kevpierce.catholicfasting.premium.monthly.v3`
+  - `cfa_premium_yearly_v3`
+  - `cfa_premium_monthly_v3`
+- Confirm every Play product ID is 40 characters or fewer and matches app code exactly
 - Confirm testers can install the same package from Play
 - Publish from the production release only after all review warnings are cleared or consciously accepted
 
