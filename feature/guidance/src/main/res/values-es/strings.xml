@@ -22,4 +22,6 @@
     <string name="guidance_region_us">Usa las normas de Estados Unidos segun la configuracion y luego sigue a tu parroco y a la guia diocesana.</string>
     <string name="guidance_region_canada">La practica del viernes en Canada puede variar; mantén presente la guia episcopal local.</string>
     <string name="guidance_region_other">Fuera de Estados Unidos y Canada, la ley episcopal local y la guia pastoral tienen prioridad.</string>
+    <string name="guidance_symbol_gallery_title">Galería de símbolos católicos</string>
+    <string name="guidance_symbol_gallery_intro">Un acompañamiento visual de oración para el ayuno, la abstinencia y los viernes penitenciales.</string>
 </resources>

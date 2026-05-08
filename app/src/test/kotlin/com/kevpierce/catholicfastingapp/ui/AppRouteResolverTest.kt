@@ -42,6 +42,8 @@ class AppRouteResolverTest {
             .isEqualTo(MoreSection.PROFILE_NORMS)
         assertThat(AppRouteResolver.resolve("catholicfasting://open/more/guidance").moreSection)
             .isEqualTo(MoreSection.GUIDANCE_RULES)
+        assertThat(AppRouteResolver.resolve("catholicfasting://open/more/history").moreSection)
+            .isEqualTo(MoreSection.HISTORY_OF_FASTING)
         assertThat(AppRouteResolver.resolve("catholicfasting://open/more/privacy").moreSection)
             .isEqualTo(MoreSection.PRIVACY_DATA)
     }
@@ -63,6 +65,8 @@ class AppRouteResolverTest {
             .isEqualTo(MoreSection.SETUP_REMINDERS)
         assertThat(AppRouteResolver.resolve(AppDeepLinks.MORE_PRIVACY).moreSection)
             .isEqualTo(MoreSection.PRIVACY_DATA)
+        assertThat(AppRouteResolver.resolve(AppDeepLinks.MORE_HISTORY).moreSection)
+            .isEqualTo(MoreSection.HISTORY_OF_FASTING)
         assertThat(AppRouteResolver.resolve("${AppDeepLinks.MORE_SETUP}?source=shortcut"))
             .isEqualTo(
                 AppLaunchDestination(

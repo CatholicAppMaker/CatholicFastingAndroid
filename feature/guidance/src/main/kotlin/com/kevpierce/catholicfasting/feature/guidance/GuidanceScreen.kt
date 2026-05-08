@@ -3,10 +3,13 @@ package com.kevpierce.catholicfasting.feature.guidance
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -19,15 +22,18 @@ import androidx.compose.ui.res.stringResource
 import com.kevpierce.catholicfasting.core.model.GuidanceScenario
 import com.kevpierce.catholicfasting.core.model.RuleBundleAudit
 import com.kevpierce.catholicfasting.core.model.RuleSettings
+import com.kevpierce.catholicfasting.core.model.SacredImageryItem
 import com.kevpierce.catholicfasting.core.rules.FoodGuidanceEngine
 import com.kevpierce.catholicfasting.core.ui.CatholicFastingThemeValues
 import com.kevpierce.catholicfasting.core.ui.catholicFastingScreenTitle
 import com.kevpierce.catholicfasting.core.ui.catholicFastingSectionCard
+import com.kevpierce.catholicfasting.core.ui.sacredImageryCard
 
 @Composable
 fun guidanceScreen(
     settings: RuleSettings,
     ruleBundleAudit: RuleBundleAudit,
+    devotionalGallery: List<SacredImageryItem> = emptyList(),
     modifier: Modifier = Modifier,
 ) {
     val spacing = CatholicFastingThemeValues.spacing
@@ -43,6 +49,7 @@ fun guidanceScreen(
         modifier =
             modifier
                 .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
                 .padding(spacing.medium),
         verticalArrangement = Arrangement.spacedBy(spacing.medium),
     ) {
@@ -57,6 +64,7 @@ fun guidanceScreen(
             settings = settings,
             ruleBundleAudit = ruleBundleAudit,
         )
+        sacredGalleryCard(devotionalGallery)
     }
 }
 
@@ -213,5 +221,27 @@ private fun ruleAuditCard(
             settings.regionProfile.localizedRegionGuidance(),
             style = CatholicFastingThemeValues.typography.utility,
         )
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun sacredGalleryCard(devotionalGallery: List<SacredImageryItem>) {
+    val spacing = CatholicFastingThemeValues.spacing
+
+    catholicFastingSectionCard(title = stringResource(R.string.guidance_symbol_gallery_title)) {
+        Text(
+            stringResource(R.string.guidance_symbol_gallery_intro),
+            style = CatholicFastingThemeValues.typography.body,
+        )
+        FlowRow(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(spacing.xSmall),
+            verticalArrangement = Arrangement.spacedBy(spacing.xSmall),
+        ) {
+            devotionalGallery.forEach { item ->
+                sacredImageryCard(item = item)
+            }
+        }
     }
 }

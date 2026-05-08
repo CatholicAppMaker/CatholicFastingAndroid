@@ -14,6 +14,7 @@ internal enum class MoreSection {
     SETUP_REMINDERS,
     PROFILE_NORMS,
     GUIDANCE_RULES,
+    HISTORY_OF_FASTING,
     PRIVACY_DATA,
 }
 
@@ -49,6 +50,7 @@ internal object AppRouteResolver {
                             "setup" -> MoreSection.SETUP_REMINDERS
                             "profile" -> MoreSection.PROFILE_NORMS
                             "guidance" -> MoreSection.GUIDANCE_RULES
+                            "history" -> MoreSection.HISTORY_OF_FASTING
                             "privacy" -> MoreSection.PRIVACY_DATA
                             else -> MoreSection.SUPPORT_PREMIUM
                         },

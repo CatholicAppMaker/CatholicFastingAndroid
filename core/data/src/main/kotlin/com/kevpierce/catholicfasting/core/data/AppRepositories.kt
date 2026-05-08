@@ -621,10 +621,13 @@ internal fun buildSeasonalHeroState(
     today: LocalDate,
 ): SeasonalHeroState {
     val contentLocale =
-        if (locale.language.startsWith("es")) {
-            com.kevpierce.catholicfasting.core.model.ContentLocale.SPANISH
-        } else {
-            com.kevpierce.catholicfasting.core.model.ContentLocale.ENGLISH
+        when {
+            locale.language.startsWith("es") ->
+                com.kevpierce.catholicfasting.core.model.ContentLocale.SPANISH
+            locale.language.startsWith("fr") ->
+                com.kevpierce.catholicfasting.core.model.ContentLocale.FRENCH_CANADIAN
+            else ->
+                com.kevpierce.catholicfasting.core.model.ContentLocale.ENGLISH
         }
     val season = LiturgicalSeasonThemeEngine.seasonFor(today)
     val pack = SeasonalContentPackCatalog.pack(season = season, locale = contentLocale)

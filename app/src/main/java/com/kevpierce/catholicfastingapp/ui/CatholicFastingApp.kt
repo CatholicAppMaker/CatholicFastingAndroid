@@ -49,6 +49,7 @@ import com.kevpierce.catholicfasting.core.data.buildSyncSnapshot
 import com.kevpierce.catholicfasting.core.data.buildWidgetSnapshot
 import com.kevpierce.catholicfasting.core.model.CatholicFastingQuote
 import com.kevpierce.catholicfasting.core.model.ContentLocale
+import com.kevpierce.catholicfasting.core.model.FastingHistoryArticle
 import com.kevpierce.catholicfasting.core.model.FridayOutsideLentMode
 import com.kevpierce.catholicfasting.core.model.OnboardingState
 import com.kevpierce.catholicfasting.core.model.RegionProfile
@@ -61,6 +62,7 @@ import com.kevpierce.catholicfasting.core.model.SeasonalHeroState
 import com.kevpierce.catholicfasting.core.model.SetupProgressState
 import com.kevpierce.catholicfasting.core.model.StorageDiagnosticsState
 import com.kevpierce.catholicfasting.core.model.SyncSnapshot
+import com.kevpierce.catholicfasting.core.rules.FastingHistoryCatalog
 import com.kevpierce.catholicfasting.core.rules.ObservanceCalculator
 import com.kevpierce.catholicfasting.core.rules.PremiumFastPrepGuidanceEngine
 import com.kevpierce.catholicfasting.core.rules.PremiumSeasonProgramEngine
@@ -104,6 +106,7 @@ private data class AppSupportState(
     val storageDiagnosticsState: StorageDiagnosticsState,
     val seasonalHeroState: SeasonalHeroState,
     val ruleBundleAudit: RuleBundleAudit,
+    val contentLocale: ContentLocale,
     val seasonalContentPack: SeasonalContentPack,
     val dailyFormationLine: String,
     val dailyQuote: CatholicFastingQuote,
@@ -954,6 +957,105 @@ private fun booleanChoiceRow(
 }
 
 @Composable
+private fun historyOfFastingSection(
+    supportState: AppSupportState,
+    modifier: Modifier = Modifier,
+) {
+    val articles = FastingHistoryCatalog.articles(supportState.contentLocale)
+    var selectedArticleId by rememberSaveable { mutableStateOf<String?>(null) }
+    val selectedArticle = articles.firstOrNull { it.id == selectedArticleId }
+
+    Column(
+        modifier =
+            modifier
+                .verticalScroll(rememberScrollState())
+                .padding(CatholicFastingThemeValues.spacing.medium),
+        verticalArrangement = Arrangement.spacedBy(CatholicFastingThemeValues.spacing.small),
+    ) {
+        if (selectedArticle == null) {
+            historyOverviewCard()
+            historyTimelineCard(
+                articles = articles,
+                onArticleSelected = { selectedArticleId = it.id },
+            )
+        } else {
+            historyArticleDetail(
+                article = selectedArticle,
+                onBack = { selectedArticleId = null },
+            )
+        }
+    }
+}
+
+@Composable
+private fun historyOverviewCard() {
+    sectionCard(title = stringResource(R.string.history_overview_title), heroTitle = true) {
+        Text(
+            stringResource(R.string.history_overview_eyebrow),
+            style = CatholicFastingThemeValues.typography.utility,
+        )
+        Text(
+            stringResource(R.string.history_overview_detail),
+            style = CatholicFastingThemeValues.typography.body,
+        )
+    }
+}
+
+@Composable
+private fun historyTimelineCard(
+    articles: List<FastingHistoryArticle>,
+    onArticleSelected: (FastingHistoryArticle) -> Unit,
+) {
+    sectionCard(title = stringResource(R.string.history_timeline_section)) {
+        articles.forEach { article ->
+            androidx.compose.material3.OutlinedButton(
+                onClick = { onArticleSelected(article) },
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(CatholicFastingThemeValues.spacing.xxSmall),
+                ) {
+                    Text(article.dateRange, style = CatholicFastingThemeValues.typography.utility)
+                    Text(article.title, style = CatholicFastingThemeValues.typography.sectionTitle)
+                    Text(article.summary, style = CatholicFastingThemeValues.typography.supporting)
+                }
+            }
+        }
+        Text(
+            stringResource(R.string.history_timeline_footer),
+            style = CatholicFastingThemeValues.typography.utility,
+        )
+    }
+}
+
+@Composable
+private fun historyArticleDetail(
+    article: FastingHistoryArticle,
+    onBack: () -> Unit,
+) {
+    outlinedActionButton(
+        label = stringResource(R.string.history_back_to_timeline),
+        onClick = onBack,
+    )
+    sectionCard(title = article.title, heroTitle = true) {
+        Text(article.dateRange, style = CatholicFastingThemeValues.typography.utility)
+        Text(article.summary, style = CatholicFastingThemeValues.typography.body)
+    }
+    sectionCard(title = stringResource(R.string.history_article_body)) {
+        article.body.split("\n\n").forEach { paragraph ->
+            Text(paragraph, style = CatholicFastingThemeValues.typography.body)
+        }
+    }
+    sectionCard(title = stringResource(R.string.history_article_sources)) {
+        article.sourceNotes.forEach { sourceNote ->
+            Text(sourceNote.title, style = CatholicFastingThemeValues.typography.sectionTitle)
+            Text(sourceNote.detail, style = CatholicFastingThemeValues.typography.supporting)
+        }
+    }
+}
+
+@Composable
 private fun privacyAndDataSection(
     state: com.kevpierce.catholicfasting.core.data.DashboardState,
     supportState: AppSupportState,
@@ -1140,6 +1242,7 @@ private fun MoreSection.labelRes(): Int =
         MoreSection.SETUP_REMINDERS -> R.string.more_setup_reminders
         MoreSection.PROFILE_NORMS -> R.string.more_profile_norms
         MoreSection.GUIDANCE_RULES -> R.string.more_guidance_rules
+        MoreSection.HISTORY_OF_FASTING -> R.string.more_history_fasting
         MoreSection.PRIVACY_DATA -> R.string.more_privacy_data
     }
 
@@ -1224,6 +1327,12 @@ private fun moreSectionContent(
             guidanceScreen(
                 settings = state.settings,
                 ruleBundleAudit = supportState.ruleBundleAudit,
+                devotionalGallery = supportState.devotionalGallery,
+                modifier = Modifier.fillMaxSize(),
+            )
+        MoreSection.HISTORY_OF_FASTING ->
+            historyOfFastingSection(
+                supportState = supportState,
                 modifier = Modifier.fillMaxSize(),
             )
         MoreSection.PRIVACY_DATA ->
@@ -1303,6 +1412,7 @@ private fun buildAppSupportState(
             storageDiagnosticsState = buildStorageDiagnosticsState(state),
             seasonalHeroState = buildSeasonalHeroState(),
             ruleBundleAudit = ObservanceCalculator.ruleBundleAudit(),
+            contentLocale = locale,
             seasonalContentPack = seasonalPack,
             dailyFormationLine =
                 SeasonalContentSupport.dailyFormationLine(
@@ -1340,10 +1450,10 @@ private fun seasonProgramWeek(startIso: String): Int {
 }
 
 private fun currentContentLocale(): ContentLocale =
-    if (Locale.getDefault().language.startsWith("es")) {
-        ContentLocale.SPANISH
-    } else {
-        ContentLocale.ENGLISH
+    when {
+        Locale.getDefault().language.startsWith("es") -> ContentLocale.SPANISH
+        Locale.getDefault().language.startsWith("fr") -> ContentLocale.FRENCH_CANADIAN
+        else -> ContentLocale.ENGLISH
     }
 
 private fun setupProgressSummary(

@@ -5,7 +5,9 @@ import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeUp
 import androidx.test.core.app.ApplicationProvider
@@ -161,6 +163,7 @@ class DesignSystemInstrumentationTest {
                 guidanceScreen(
                     settings = RuleSettings(),
                     ruleBundleAudit = ObservanceCalculator.ruleBundleAudit(),
+                    devotionalGallery = SacredImageryCatalog.fastingGallery.take(3),
                 )
             }
         }
@@ -170,6 +173,8 @@ class DesignSystemInstrumentationTest {
         composeRule.onAllNodesWithText(context.getString(GuidanceR.string.guidance_stricter_practice)).assertCountEquals(1)
         composeRule.onAllNodesWithText(context.getString(GuidanceR.string.guidance_if_unsure)).assertCountEquals(1)
         composeRule.onAllNodesWithText(context.getString(GuidanceR.string.guidance_rule_audit_title)).assertCountEquals(1)
+        composeRule.onRoot().performTouchInput { swipeUp() }
+        composeRule.onAllNodesWithText(context.getString(GuidanceR.string.guidance_symbol_gallery_title)).assertCountEquals(1)
     }
 
     @Test
@@ -277,8 +282,29 @@ class DesignSystemInstrumentationTest {
         composeRule.onAllNodesWithText(context.getString(R.string.more_setup_reminders)).assertCountEquals(1)
         composeRule.onAllNodesWithText(context.getString(R.string.more_profile_norms)).assertCountEquals(1)
         composeRule.onAllNodesWithText(context.getString(R.string.more_guidance_rules)).assertCountEquals(1)
+        composeRule.onAllNodesWithText(context.getString(R.string.more_history_fasting)).assertCountEquals(1)
         composeRule.onAllNodesWithText(context.getString(R.string.more_privacy_data)).assertCountEquals(1)
         composeRule.onAllNodesWithText(context.getString(R.string.more_reminder_center_title)).assertCountEquals(1)
+    }
+
+    @Test
+    fun appShellRendersHistoryTimelineAndArticleFromDeepLink() {
+        AppContainer.repository.completeOnboarding()
+
+        composeRule.setContent {
+            catholicFastingTheme {
+                catholicFastingApp(initialDeepLink = "https://local/more/history")
+            }
+        }
+
+        composeRule.onAllNodesWithText(context.getString(R.string.more_history_fasting)).assertCountEquals(1)
+        composeRule.onAllNodesWithText(context.getString(R.string.history_timeline_section)).assertCountEquals(1)
+        composeRule.onAllNodesWithText("Early Church foundations").assertCountEquals(1)
+        composeRule.onNodeWithText("Early Church foundations").performClick()
+        composeRule.onAllNodesWithText(context.getString(R.string.history_article_body)).assertCountEquals(1)
+        composeRule
+            .onAllNodesWithText("The earliest Christian fasting was not a single universal schedule.", substring = true)
+            .assertCountEquals(1)
     }
 
     private fun premiumSnapshot() =

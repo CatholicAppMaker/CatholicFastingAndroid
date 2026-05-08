@@ -10,6 +10,7 @@
     <string name="more_setup_reminders">Configuracion y Recordatorios</string>
     <string name="more_profile_norms">Perfil y Normas</string>
     <string name="more_guidance_rules">Guia y Reglas</string>
+    <string name="more_history_fasting">Historia del ayuno</string>
     <string name="more_privacy_data">Privacidad y Datos</string>
     <string name="more_region_value">Region: %1$s</string>
     <string name="more_calendar_value">Calendario: %1$s</string>
@@ -55,6 +56,14 @@
     <string name="more_intermittent_sessions_saved">Sesiones intermitentes guardadas: %1$d</string>
     <string name="more_selected_reminder_tier">Nivel de recordatorios seleccionado: %1$s</string>
     <string name="more_warning_value">Advertencia: %1$s</string>
+    <string name="history_overview_eyebrow">Referencia de formación</string>
+    <string name="history_overview_title">Cómo se desarrolló el ayuno católico</string>
+    <string name="history_overview_detail">Una línea de tiempo legible del ayuno desde la Iglesia primitiva hasta la práctica latina actual. Es formación histórica, separada de las reglas de hoy.</string>
+    <string name="history_timeline_section">Línea de tiempo y artículos</string>
+    <string name="history_timeline_footer">Usa Guía y Reglas para las obligaciones actuales. Esta sección explica cómo se desarrolló la disciplina con el tiempo.</string>
+    <string name="history_article_body">Artículo</string>
+    <string name="history_article_sources">Notas de fuentes</string>
+    <string name="history_back_to_timeline">Volver a la línea de tiempo</string>
     <string name="summary_completion_value">%1$d observancias marcadas como completadas, sustituidas o dispensadas.</string>
     <string name="summary_setup_progress_value">Progreso de la configuracion: %1$d/%2$d</string>
     <string name="summary_year_plan_value">Obligatorias: %1$d/%2$d • Opcionales: %3$d/%4$d</string>

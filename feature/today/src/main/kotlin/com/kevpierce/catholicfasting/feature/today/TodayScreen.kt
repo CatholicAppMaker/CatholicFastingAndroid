@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Card
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -27,6 +26,7 @@ import com.kevpierce.catholicfasting.core.ui.SeasonTone
 import com.kevpierce.catholicfasting.core.ui.catholicFastingScreenTitle
 import com.kevpierce.catholicfasting.core.ui.catholicFastingSectionCard
 import com.kevpierce.catholicfasting.core.ui.rememberSeasonTone
+import com.kevpierce.catholicfasting.core.ui.sacredImageryCard
 
 data class TodayUiState(
     val todayObservance: Observance?,
@@ -230,15 +230,7 @@ private fun devotionalGalleryCard(uiState: TodayUiState) {
             verticalArrangement = Arrangement.spacedBy(spacing.xSmall),
         ) {
             uiState.devotionalGallery.take(6).forEach { item ->
-                Card {
-                    Column(
-                        modifier = Modifier.padding(spacing.small),
-                        verticalArrangement = Arrangement.spacedBy(spacing.xxSmall),
-                    ) {
-                        Text(item.title, style = CatholicFastingThemeValues.typography.supporting)
-                        Text(item.subtitle, style = CatholicFastingThemeValues.typography.utility)
-                    }
-                }
+                sacredImageryCard(item = item)
             }
         }
     }

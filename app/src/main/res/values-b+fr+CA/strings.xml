@@ -1,0 +1,11 @@
+<resources>
+    <string name="more_history_fasting">Histoire du jeûne</string>
+    <string name="history_overview_eyebrow">Référence de formation</string>
+    <string name="history_overview_title">Comment le jeûne catholique s\'est développé</string>
+    <string name="history_overview_detail">Une ligne du temps lisible du jeûne, de l\'Église primitive à la pratique latine actuelle. C\'est une formation historique, séparée des règles d\'aujourd\'hui.</string>
+    <string name="history_timeline_section">Ligne du temps et articles</string>
+    <string name="history_timeline_footer">Utilisez Conseils et règles pour les obligations actuelles. Cette section explique comment la discipline s\'est développée avec le temps.</string>
+    <string name="history_article_body">Article</string>
+    <string name="history_article_sources">Notes de sources</string>
+    <string name="history_back_to_timeline">Retour à la ligne du temps</string>
+</resources>

@@ -5,6 +5,7 @@ import com.kevpierce.catholicfasting.core.model.CalendarWindow
 import com.kevpierce.catholicfasting.core.model.CatholicFastingQuote
 import com.kevpierce.catholicfasting.core.model.CompletionStatus
 import com.kevpierce.catholicfasting.core.model.ContentLocale
+import com.kevpierce.catholicfasting.core.model.FastingHistoryEraId
 import com.kevpierce.catholicfasting.core.model.LiturgicalSeason
 import com.kevpierce.catholicfasting.core.model.Observance
 import com.kevpierce.catholicfasting.core.model.ObservanceFilter
@@ -146,7 +147,35 @@ class ObservanceQueryAndContentSupportTest {
         assertThat(spanishAdvent.locale).isEqualTo(ContentLocale.SPANISH)
         assertThat(SeasonalContentSupport.dailyFormationLine(englishLent, LocalDate.of(2026, 3, 10))).isNotEmpty()
         assertThat(quote).isInstanceOf(CatholicFastingQuote::class.java)
-        assertThat(SacredImageryCatalog.fastingGallery).isNotEmpty()
+        assertThat(SacredImageryCatalog.fastingGallery).hasSize(18)
+        assertThat(SacredImageryCatalog.fastingGallery.map { it.id }.toSet()).hasSize(18)
+        assertThat(SacredImageryCatalog.fastingGallery.map { it.assetName }.toSet()).hasSize(18)
+        assertThat(SacredImageryCatalog.fastingGallery.map { it.assetName })
+            .containsNoneIn(listOf("SacredConceptChiRho", "SacredConceptRosary", "SacredConceptHeart"))
+    }
+
+    @Test
+    fun fastingHistoryCatalogHasCompleteLocalizedArticleSets() {
+        ContentLocale.entries.forEach { locale ->
+            val articles = FastingHistoryCatalog.articles(locale)
+
+            assertThat(articles).hasSize(5)
+            assertThat(articles.map { it.eraId })
+                .containsExactlyElementsIn(FastingHistoryEraId.entries)
+                .inOrder()
+            articles.forEach { article ->
+                assertThat(article.locale).isEqualTo(locale)
+                assertThat(article.title).isNotEmpty()
+                assertThat(article.dateRange).isNotEmpty()
+                assertThat(article.summary).isNotEmpty()
+                assertThat(article.body).isNotEmpty()
+                assertThat(article.sourceNotes).isNotEmpty()
+                article.sourceNotes.forEach { sourceNote ->
+                    assertThat(sourceNote.title).isNotEmpty()
+                    assertThat(sourceNote.detail).isNotEmpty()
+                }
+            }
+        }
     }
 
     private fun sampleObservances(): List<Observance> =

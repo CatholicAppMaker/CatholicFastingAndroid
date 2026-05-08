@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
     <string name="app_name">Catholic Fasting</string>
     <string name="notice_independent_app_summary">This is an independent devotional app, not an official app of the Church, USCCB, Vatican, or any diocese/parish.</string>
     <string name="nav_today">Today</string>
@@ -10,6 +10,7 @@
     <string name="more_setup_reminders">Setup &amp; Reminders</string>
     <string name="more_profile_norms">Profile &amp; Norms</string>
     <string name="more_guidance_rules">Guidance &amp; Rules</string>
+    <string name="more_history_fasting">History of Fasting</string>
     <string name="more_privacy_data">Privacy &amp; Data</string>
     <string name="more_region_value">Region: %1$s</string>
     <string name="more_calendar_value">Calendar: %1$s</string>
@@ -55,6 +56,14 @@
     <string name="more_intermittent_sessions_saved">Intermittent sessions saved: %1$d</string>
     <string name="more_selected_reminder_tier">Selected reminder tier: %1$s</string>
     <string name="more_warning_value">Warning: %1$s</string>
+    <string name="history_overview_eyebrow">Formation Reference</string>
+    <string name="history_overview_title">How Catholic fasting developed</string>
+    <string name="history_overview_detail">A readable timeline of fasting from the early Church to current Latin Church practice. This is historical formation, separate from today\'s rules.</string>
+    <string name="history_timeline_section">Timeline and Articles</string>
+    <string name="history_timeline_footer">Use Guidance &amp; Rules for current obligations. This section explains how the discipline developed over time.</string>
+    <string name="history_article_body">Article</string>
+    <string name="history_article_sources">Source Notes</string>
+    <string name="history_back_to_timeline">Back to timeline</string>
     <string name="summary_completion_value">%1$d observances marked complete, substituted, or dispensed.</string>
     <string name="summary_setup_progress_value">Setup progress: %1$d/%2$d</string>
     <string name="summary_year_plan_value">Required: %1$d/%2$d • Optional: %3$d/%4$d</string>

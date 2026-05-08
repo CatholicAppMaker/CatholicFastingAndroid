@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
     <string name="today_title">Today</string>
     <string name="today_default_detail">Use today to review the next required day and keep a steady rule of life.</string>
     <string name="today_no_observance">No observance today</string>

@@ -648,6 +648,7 @@ data class SeasonalHeroState(
 enum class ContentLocale {
     ENGLISH,
     SPANISH,
+    FRENCH_CANADIAN,
 }
 
 @Serializable
@@ -666,6 +667,35 @@ data class SacredImageryItem(
     val title: String,
     val subtitle: String,
 )
+
+@Serializable
+enum class FastingHistoryEraId {
+    EARLY_CHURCH,
+    MEDIEVAL,
+    TRIDENTINE,
+    PRE_CONCILIAR,
+    POST_VATICAN_II,
+}
+
+@Serializable
+data class FastingHistorySourceNote(
+    val title: String,
+    val detail: String,
+)
+
+@Serializable
+data class FastingHistoryArticle(
+    val eraId: FastingHistoryEraId,
+    val locale: ContentLocale,
+    val title: String,
+    val dateRange: String,
+    val summary: String,
+    val body: String,
+    val sourceNotes: List<FastingHistorySourceNote>,
+) {
+    val id: String
+        get() = "${locale.name.lowercase()}-${eraId.name.lowercase()}"
+}
 
 @Serializable
 data class SeasonalContentQuote(
@@ -802,6 +832,7 @@ object AppDeepLinks {
     const val TRACKER = "$SCHEME://$HOST/tracker"
     const val MORE_PREMIUM = "$SCHEME://$HOST/more/premium"
     const val MORE_SETUP = "$SCHEME://$HOST/more/setup"
+    const val MORE_HISTORY = "$SCHEME://$HOST/more/history"
     const val MORE_PRIVACY = "$SCHEME://$HOST/more/privacy"
     const val CALENDAR_FRIDAY_NOTE = "$SCHEME://$HOST/calendar/friday-note"
 }
