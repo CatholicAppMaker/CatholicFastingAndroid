@@ -154,7 +154,7 @@ private val defaultChecklist =
 
 @Suppress("TooManyFunctions")
 class AppRepository internal constructor(
-    private val storage: AppStorage,
+    private val storage: AppStorageGateway,
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val state = MutableStateFlow(loadDefaultState())
@@ -427,10 +427,20 @@ class AppRepository internal constructor(
     }
 }
 
+internal interface AppStorageGateway {
+    suspend fun writeSnapshot(snapshot: AppStorageSnapshot)
+
+    suspend fun readSnapshot(): AppStorageSnapshot
+
+    suspend fun migrateIfNeeded()
+
+    suspend fun clear()
+}
+
 internal class AppStorage(
     private val dataStore: DataStore<Preferences>,
-) {
-    suspend fun writeSnapshot(snapshot: AppStorageSnapshot) {
+) : AppStorageGateway {
+    override suspend fun writeSnapshot(snapshot: AppStorageSnapshot) {
         dataStore.edit { preferences ->
             preferences[schemaVersionKey] = STORAGE_SCHEMA_VERSION
             preferences[snapshotKey] =
@@ -441,7 +451,7 @@ internal class AppStorage(
         }
     }
 
-    suspend fun readSnapshot(): AppStorageSnapshot {
+    override suspend fun readSnapshot(): AppStorageSnapshot {
         val preferences = dataStore.data.first()
         val encoded = preferences[snapshotKey] ?: return AppStorageSnapshot()
         return runCatching {
@@ -451,12 +461,18 @@ internal class AppStorage(
         }
     }
 
-    suspend fun migrateIfNeeded() {
+    override suspend fun migrateIfNeeded() {
         dataStore.edit { preferences ->
             val version = preferences[schemaVersionKey] ?: 0
             if (version < STORAGE_SCHEMA_VERSION) {
                 preferences[schemaVersionKey] = STORAGE_SCHEMA_VERSION
             }
+        }
+    }
+
+    override suspend fun clear() {
+        dataStore.edit { preferences ->
+            preferences.clear()
         }
     }
 }
@@ -664,6 +680,19 @@ object AppContainer {
             checkNotNull(repositoryInstance) {
                 "AppContainer.initialize(context) must be called before use."
             }
+
+    fun resetForTesting(context: Context) {
+        synchronized(this) {
+            val storage = AppStorage(context.applicationContext.catholicFastingDataStore)
+            runBlocking(Dispatchers.IO) {
+                storage.clear()
+            }
+            repositoryInstance =
+                AppRepository(
+                    storage = storage,
+                )
+        }
+    }
 }
 
 internal fun boundedPresetHours(hours: Int): Int =

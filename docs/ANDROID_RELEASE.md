@@ -12,8 +12,12 @@ Use this repo flow for a Play-ready signed Android bundle.
 
 - Cleanup gate:
   - `JAVA_HOME='/Applications/Android Studio.app/Contents/jbr/Contents/Home' ANDROID_SDK_ROOT="$HOME/Library/Android/sdk" ./.local-tools/gradle-9.4.1/bin/gradle --no-daemon ktlintCheck detekt lint testDebugUnitTest`
-- Targeted phone validation gate:
+- Targeted connected release gate:
   - `JAVA_HOME='/Applications/Android Studio.app/Contents/jbr/Contents/Home' ANDROID_SDK_ROOT="$HOME/Library/Android/sdk" ./.local-tools/gradle-9.4.1/bin/gradle --no-daemon app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.kevpierce.catholicfastingapp.ReleaseRoutingInstrumentationTest,com.kevpierce.catholicfastingapp.PrivacyLocalizationInstrumentationTest`
+- Expanded connected parity gate:
+  - `JAVA_HOME='/Applications/Android Studio.app/Contents/jbr/Contents/Home' ANDROID_SDK_ROOT="$HOME/Library/Android/sdk" ./.local-tools/gradle-9.4.1/bin/gradle --no-daemon app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.kevpierce.catholicfastingapp.ExpandedReleaseUiInstrumentationTest`
+- Full connected gate:
+  - `JAVA_HOME='/Applications/Android Studio.app/Contents/jbr/Contents/Home' ANDROID_SDK_ROOT="$HOME/Library/Android/sdk" ./.local-tools/gradle-9.4.1/bin/gradle --no-daemon app:connectedDebugAndroidTest`
 - Signed Play bundle:
   - `JAVA_HOME='/Applications/Android Studio.app/Contents/jbr/Contents/Home' ANDROID_SDK_ROOT="$HOME/Library/Android/sdk" ./.local-tools/gradle-9.4.1/bin/gradle --no-daemon :app:bundleRelease`
 

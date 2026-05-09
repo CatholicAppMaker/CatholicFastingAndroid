@@ -35,6 +35,10 @@ ANDROID_SDK_ROOT="$HOME/Library/Android/sdk" \
   ktlintCheck detekt lint testDebugUnitTest
 ```
 
+For release-candidate validation, also run the connected Android gates from
+`docs/ANDROID_RELEASE.md`, including the expanded parity suite and full
+`app:connectedDebugAndroidTest` pass.
+
 ## Progress Tracking
 
 The current implementation checklist lives in:

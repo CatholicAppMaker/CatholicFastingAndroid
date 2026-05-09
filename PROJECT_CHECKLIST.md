@@ -35,6 +35,8 @@
 - [x] Localization sweep completed for remaining Android-owned release surfaces
 - [x] Accessibility sweep completed for major phone workflows
 - [x] Direct parity coverage expanded for growth contracts, liturgical seasons, required-day planning, and intermittent-fast edge cases
+- [x] Android testing overhaul expanded the suite to 260+ tests with 75+ connected release-flow tests
+- [x] Deterministic repository reset and seeded UI coverage added for onboarding, routing, localization, premium, tracker, guidance, settings, privacy, and history flows
 - [x] Shared `core:ui` token layer added for typography, spacing, cards, and seasonal tones
 - [x] Design-doc pass applied to onboarding, Today, Premium, Guidance, Calendar headers, and the More hub
 - [x] Design-system UI tests now cover onboarding, Today, Premium, Guidance, Calendar, Tracker, Settings, and the More hub on device
@@ -46,6 +48,8 @@
 - [x] `detekt`
 - [x] `lint`
 - [x] `testDebugUnitTest`
+- [x] targeted connected release gate
+- [x] expanded connected parity gate
 - [x] `app:connectedDebugAndroidTest`
 
 ## Play Release Prep

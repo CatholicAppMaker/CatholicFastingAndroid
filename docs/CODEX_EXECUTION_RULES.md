@@ -27,6 +27,7 @@ This document is the standing operating agreement for work in the Android repo. 
 
 - Keep [PROJECT_CHECKLIST.md](/Users/kevpierce/Desktop/CFAAnrdoid/PROJECT_CHECKLIST.md) updated as work progresses.
 - Do not mark items complete aspirationally. Only check them off after the implementation and validation for that item are actually done.
+- When using a visible Codex progress plan, update every completed plan item before sending the final response. Do not leave the thread progress UI showing unfinished work after implementation, validation, review, or cleanup has actually been completed.
 - Keep release-validation work aligned with [docs/PHONE_RELEASE_VALIDATION.md](/Users/kevpierce/Desktop/CFAAnrdoid/docs/PHONE_RELEASE_VALIDATION.md).
 - Use [docs/PARITY_PROCESS.md](/Users/kevpierce/Desktop/CFAAnrdoid/docs/PARITY_PROCESS.md) as the parity/rerating reference when running final-mile passes.
 
