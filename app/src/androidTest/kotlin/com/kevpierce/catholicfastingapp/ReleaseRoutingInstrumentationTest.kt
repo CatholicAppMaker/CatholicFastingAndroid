@@ -2,9 +2,12 @@ package com.kevpierce.catholicfastingapp
 
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.content.pm.ApplicationInfo
+import android.content.pm.PackageManager
 import android.content.pm.ShortcutManager
 import android.net.Uri
+import android.os.Build
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -13,11 +16,15 @@ import com.kevpierce.catholicfasting.core.data.AppContainer
 import com.kevpierce.catholicfasting.core.model.AppDeepLinks
 import com.kevpierce.catholicfasting.core.model.CompletionStatus
 import com.kevpierce.catholicfasting.core.model.ObservanceObligation
+import com.kevpierce.catholicfasting.core.widget.CatholicFastingWidgetReceiver
 import com.kevpierce.catholicfasting.core.widget.WidgetSnapshotStore
+import com.kevpierce.catholicfastingapp.notifications.NotificationActionReceiver
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.xmlpull.v1.XmlPullParser
+import com.kevpierce.catholicfasting.core.widget.R as WidgetR
 
 @RunWith(AndroidJUnit4::class)
 class ReleaseRoutingInstrumentationTest {
@@ -51,6 +58,72 @@ class ReleaseRoutingInstrumentationTest {
     @Test
     fun androidSystemBackupIsDisabled() {
         assertThat(context.applicationInfo.flags and ApplicationInfo.FLAG_ALLOW_BACKUP).isEqualTo(0)
+    }
+
+    @Test
+    fun backupAndTransferRulesExcludeLocalAppData() {
+        assertThat(xmlExcludes(R.xml.backup_rules)).containsAtLeast(
+            "sharedpref:.",
+            "database:.",
+            "file:.",
+        )
+        assertThat(xmlExcludes(R.xml.data_extraction_rules)).containsAtLeast(
+            "sharedpref:.",
+            "database:.",
+            "file:.",
+        )
+    }
+
+    @Test
+    fun notificationAndWidgetReceiversAreNotExported() {
+        val receivers =
+            packageInfo(PackageManager.GET_RECEIVERS)
+                .receivers
+                .orEmpty()
+                .associateBy { it.name }
+
+        assertThat(receivers.getValue(NotificationActionReceiver::class.java.name).exported).isFalse()
+        assertThat(receivers.getValue(CatholicFastingWidgetReceiver::class.java.name).exported).isFalse()
+    }
+
+    @Test
+    fun mainActivityExposesShortcutMetadataAndBrowsableDeepLinks() {
+        val activityInfo =
+            activityInfo(
+                android.content.ComponentName(context, MainActivity::class.java),
+                PackageManager.GET_META_DATA,
+            )
+
+        assertThat(activityInfo.exported).isTrue()
+        assertThat(activityInfo.metaData.getInt("android.app.shortcuts")).isEqualTo(R.xml.shortcuts)
+
+        publicDeepLinks().forEach { deepLink ->
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(deepLink)).addCategory(Intent.CATEGORY_BROWSABLE)
+
+            val resolved = intent.resolveActivity(context.packageManager)
+
+            assertThat(resolved).isNotNull()
+            assertThat(resolved!!.className).isEqualTo(MainActivity::class.java.name)
+        }
+    }
+
+    @Test
+    fun widgetProviderMetadataMatchesHomeScreenReleaseContract() {
+        val parser = context.resources.getXml(WidgetR.xml.catholic_fasting_widget_info)
+        val attributes = mutableMapOf<String, String>()
+        parser.use {
+            while (it.next() != XmlPullParser.END_DOCUMENT) {
+                if (it.eventType == XmlPullParser.START_TAG && it.name == "appwidget-provider") {
+                    repeat(it.attributeCount) { index ->
+                        attributes[it.getAttributeName(index)] = it.getAttributeValue(index)
+                    }
+                }
+            }
+        }
+
+        assertThat(attributes["updatePeriodMillis"]).isEqualTo("0")
+        assertThat(attributes["widgetCategory"]).isEqualTo("0x1")
+        assertThat(attributes["resizeMode"]).isEqualTo("0x3")
     }
 
     @Test
@@ -165,4 +238,42 @@ class ReleaseRoutingInstrumentationTest {
         }
         throw AssertionError("Timed out waiting for $description.")
     }
+
+    private fun xmlExcludes(resourceId: Int): List<String> {
+        val parser = context.resources.getXml(resourceId)
+        return parser.use {
+            buildList {
+                while (it.next() != XmlPullParser.END_DOCUMENT) {
+                    if (it.eventType == XmlPullParser.START_TAG && it.name == "exclude") {
+                        add("${it.getAttributeValue(null, "domain")}:${it.getAttributeValue(null, "path")}")
+                    }
+                }
+            }
+        }
+    }
+
+    private fun packageInfo(flags: Int): android.content.pm.PackageInfo =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            context.packageManager.getPackageInfo(
+                context.packageName,
+                PackageManager.PackageInfoFlags.of(flags.toLong()),
+            )
+        } else {
+            @Suppress("DEPRECATION")
+            context.packageManager.getPackageInfo(context.packageName, flags)
+        }
+
+    private fun activityInfo(
+        componentName: android.content.ComponentName,
+        flags: Int,
+    ): ActivityInfo =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            context.packageManager.getActivityInfo(
+                componentName,
+                PackageManager.ComponentInfoFlags.of(flags.toLong()),
+            )
+        } else {
+            @Suppress("DEPRECATION")
+            context.packageManager.getActivityInfo(componentName, flags)
+        }
 }

@@ -410,6 +410,12 @@ class AppRepository internal constructor(
         return Result.success(Unit)
     }
 
+    fun flushForTesting() {
+        runBlocking(Dispatchers.IO) {
+            storage.writeSnapshot(state.value.toStorageSnapshot())
+        }
+    }
+
     private fun persist(nextState: DashboardState) {
         val syncedState = nextState.copy(lastSyncDateIso = Instant.now().toString())
         state.value = syncedState
@@ -690,6 +696,15 @@ object AppContainer {
             repositoryInstance =
                 AppRepository(
                     storage = storage,
+                )
+        }
+    }
+
+    fun reloadForTesting(context: Context) {
+        synchronized(this) {
+            repositoryInstance =
+                AppRepository(
+                    storage = AppStorage(context.applicationContext.catholicFastingDataStore),
                 )
         }
     }

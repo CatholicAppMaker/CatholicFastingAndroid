@@ -37,6 +37,7 @@
 - [x] Direct parity coverage expanded for growth contracts, liturgical seasons, required-day planning, and intermittent-fast edge cases
 - [x] Android testing overhaul expanded the suite to 260+ tests with 75+ connected release-flow tests
 - [x] Deterministic repository reset and seeded UI coverage added for onboarding, routing, localization, premium, tracker, guidance, settings, privacy, and history flows
+- [x] Local-only 9/10 release-confidence coverage added for billing contracts, premium states, widgets, notifications, shortcuts, deep links, backup/package config, and persistence/recreate flows
 - [x] Shared `core:ui` token layer added for typography, spacing, cards, and seasonal tones
 - [x] Design-doc pass applied to onboarding, Today, Premium, Guidance, Calendar headers, and the More hub
 - [x] Design-system UI tests now cover onboarding, Today, Premium, Guidance, Calendar, Tracker, Settings, and the More hub on device
@@ -51,6 +52,8 @@
 - [x] targeted connected release gate
 - [x] expanded connected parity gate
 - [x] `app:connectedDebugAndroidTest`
+- [x] local-only 9/10 warning-fail cleanup and connected gates
+- [x] dead-test scan has no ignored, disabled, or assumption-bypassed tests
 
 ## Play Release Prep
 - [x] Public support website selected for Play contact details

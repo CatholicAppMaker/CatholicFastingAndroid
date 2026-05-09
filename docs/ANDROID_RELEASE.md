@@ -21,6 +21,27 @@ Use this repo flow for a Play-ready signed Android bundle.
 - Signed Play bundle:
   - `JAVA_HOME='/Applications/Android Studio.app/Contents/jbr/Contents/Home' ANDROID_SDK_ROOT="$HOME/Library/Android/sdk" ./.local-tools/gradle-9.4.1/bin/gradle --no-daemon :app:bundleRelease`
 
+## Local-only 9/10 confidence gate
+
+Use this gate when validating the Android app locally before Play Console or
+external-device work. It specifically covers billing contracts, premium UI
+states, Android-native manifest/package configuration, notification receivers,
+widgets, shortcuts, deep links, cold launch/recreate, and persisted app state.
+
+- Warning-fail cleanup gate:
+  - `JAVA_HOME='/Applications/Android Studio.app/Contents/jbr/Contents/Home' ANDROID_SDK_ROOT="$HOME/Library/Android/sdk" ./.local-tools/gradle-9.4.1/bin/gradle --no-daemon --warning-mode fail ktlintCheck detekt lint testDebugUnitTest`
+- Targeted local-only 9/10 connected gate:
+  - `JAVA_HOME='/Applications/Android Studio.app/Contents/jbr/Contents/Home' ANDROID_SDK_ROOT="$HOME/Library/Android/sdk" ./.local-tools/gradle-9.4.1/bin/gradle --no-daemon --warning-mode fail app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.kevpierce.catholicfastingapp.PremiumBillingStateInstrumentationTest,com.kevpierce.catholicfastingapp.PersistenceRecreateInstrumentationTest,com.kevpierce.catholicfastingapp.ReleaseRoutingInstrumentationTest`
+- Full warning-fail connected gate:
+  - `JAVA_HOME='/Applications/Android Studio.app/Contents/jbr/Contents/Home' ANDROID_SDK_ROOT="$HOME/Library/Android/sdk" ./.local-tools/gradle-9.4.1/bin/gradle --no-daemon --warning-mode fail app:connectedDebugAndroidTest`
+- Dead-test scan:
+  - `find app/src/androidTest app/src/test core feature -path '*/build' -prune -o -name '*.kt' -print | xargs rg -n '@Ignore|@Disabled|Assume\.|assumeTrue|assumeFalse'`
+
+Do not count skipped, ignored, or assumption-bypassed tests toward local release
+confidence. If any targeted or full gate fails, triage it as an app bug, test
+defect, or environment blocker, then fix and rerun the affected command before
+rating the release upward.
+
 ## Release artifact
 
 - Bundle path:
