@@ -12,11 +12,15 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeUp
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.google.common.truth.Truth.assertThat
 import com.kevpierce.catholicfasting.core.billing.BillingOfferUi
 import com.kevpierce.catholicfasting.core.billing.BillingState
 import com.kevpierce.catholicfasting.core.data.AppContainer
 import com.kevpierce.catholicfasting.core.data.buildSeasonalHeroState
+import com.kevpierce.catholicfasting.core.model.CompanionActionDestination
+import com.kevpierce.catholicfasting.core.model.IntermittentFastIntention
 import com.kevpierce.catholicfasting.core.model.RuleSettings
+import com.kevpierce.catholicfasting.core.rules.CompanionSnapshotEngine
 import com.kevpierce.catholicfasting.core.rules.ObservanceCalculator
 import com.kevpierce.catholicfasting.core.rules.PremiumFastPrepGuidanceEngine
 import com.kevpierce.catholicfasting.core.rules.PremiumSeasonProgramEngine
@@ -74,6 +78,16 @@ class DesignSystemInstrumentationTest {
                     uiState =
                         TodayUiState(
                             todayObservance = state.observances.firstOrNull(),
+                            companionSnapshot =
+                                CompanionSnapshotEngine.build(
+                                    observances = state.observances,
+                                    statusesById = state.statusesById,
+                                    sessions = state.intermittentSessions,
+                                    activeFast = state.activeIntermittentFast,
+                                    settings = state.settings,
+                                    premiumSnapshot = premiumSnapshot,
+                                    premiumUnlocked = false,
+                                ),
                             completionSummary =
                                 context.resources.getQuantityString(
                                     R.plurals.summary_completion_value,
@@ -101,6 +115,57 @@ class DesignSystemInstrumentationTest {
         composeRule.onAllNodesWithText(context.getString(TodayR.string.today_personal_insights_title)).assertCountEquals(1)
         composeRule.onAllNodesWithText(context.getString(TodayR.string.today_devotional_gallery_title)).assertCountEquals(1)
         composeRule.onAllNodesWithText(context.getString(TodayR.string.today_important_notice_title)).assertCountEquals(1)
+    }
+
+    @Test
+    fun todayCompanionPrimaryActionInvokesDestinationCallback() {
+        val state = AppContainer.repository.dashboardState.value
+        val premiumSnapshot = premiumSnapshot()
+        val seasonalPack = SeasonalContentPackCatalog.pack(premiumSnapshot.season, contentLocale())
+        val companionSnapshot =
+            CompanionSnapshotEngine.build(
+                observances = emptyList(),
+                statusesById = emptyMap(),
+                sessions = emptyList(),
+                activeFast = null,
+                settings = state.settings,
+                premiumSnapshot = premiumSnapshot,
+                premiumUnlocked = false,
+                today = LocalDate.of(2026, 6, 16),
+            )
+        var selectedDestination: CompanionActionDestination? = null
+
+        composeRule.setContent {
+            CatholicFastingTheme {
+                TodayScreen(
+                    uiState =
+                        TodayUiState(
+                            todayObservance = null,
+                            companionSnapshot = companionSnapshot,
+                            completionSummary = "No completions yet.",
+                            premiumSnapshot = premiumSnapshot,
+                            seasonalContentPack = seasonalPack,
+                            dailyFormationLine = "Prepare calmly.",
+                            dailyQuote = SeasonalContentSupport.dailyQuote(premiumSnapshot.season, seasonalPack, LocalDate.now()),
+                            devotionalGallery = emptyList(),
+                            setupProgressSummary = "Setup progress",
+                            yearPlanSummary = "Year plan",
+                            weeklyRecap = "Weekly recap",
+                            streakMessage = "Streak summary",
+                            noticeSummary = context.getString(R.string.notice_independent_app_summary),
+                        ),
+                    onCompanionAction = { action ->
+                        selectedDestination = action.destination
+                    },
+                )
+            }
+        }
+
+        composeRule.onAllNodesWithText(context.getString(TodayR.string.today_companion_title)).assertCountEquals(1)
+        composeRule.onNodeWithText("Begin an intentional fast").performClick()
+        composeRule.runOnIdle {
+            assertThat(selectedDestination).isEqualTo(CompanionActionDestination.TRACK_FAST)
+        }
     }
 
     @Test
@@ -153,7 +218,7 @@ class DesignSystemInstrumentationTest {
 
         composeRule.onAllNodesWithText(context.getString(PremiumR.string.premium_title)).assertCountEquals(1)
         composeRule.onAllNodesWithText(context.getString(PremiumR.string.premium_subscriptions_title)).assertCountEquals(1)
-        composeRule.onAllNodesWithText(context.getString(PremiumR.string.premium_support_tips_title)).assertCountEquals(1)
+        composeRule.onAllNodesWithText(context.getString(PremiumR.string.premium_support_tips_title)).assertCountEquals(0)
         composeRule.onAllNodesWithText(context.getString(PremiumR.string.premium_planning_export_title)).assertCountEquals(1)
         composeRule.onRoot().performTouchInput { swipeUp() }
         composeRule.onAllNodesWithText(context.getString(PremiumR.string.premium_analytics_recovery_title)).assertCountEquals(1)
@@ -218,6 +283,8 @@ class DesignSystemInstrumentationTest {
                             sessions = state.intermittentSessions,
                             activeFast = state.activeIntermittentFast,
                             presetHours = state.intermittentPresetHours,
+                            selectedIntentionId = state.launchFunnelSnapshot.selectedIntermittentIntentionId,
+                            latestRecap = null,
                             premiumSnapshot = premiumSnapshot(),
                             prepGuidance =
                                 PremiumFastPrepGuidanceEngine.prepAndRefeed(
@@ -233,8 +300,9 @@ class DesignSystemInstrumentationTest {
                     actions =
                         TrackerActions(
                             onPresetHoursChange = {},
-                            onStartFast = {},
-                            onEndFast = {},
+                            onIntentionChange = { _ -> },
+                            onStartFast = { _ -> },
+                            onEndFast = { _ -> },
                             onCancelFast = {},
                             onSaveSchedule = { _, _, _, _ -> "saved" },
                             onDeleteSchedule = { "deleted" },
@@ -251,6 +319,55 @@ class DesignSystemInstrumentationTest {
         composeRule.onAllNodesWithText(context.getString(TrackerR.string.tracker_recent_summary)).assertCountEquals(1)
         composeRule.onRoot().performTouchInput { swipeUp() }
         composeRule.onAllNodesWithText(context.getString(TrackerR.string.tracker_preparation_recovery)).assertCountEquals(1)
+    }
+
+    @Test
+    fun trackerIntentionSelectionIsUsedWhenStartingFastImmediately() {
+        val state = AppContainer.repository.dashboardState.value
+        var persistedIntentionId: String? = null
+        var startedIntentionId: String? = null
+
+        composeRule.setContent {
+            CatholicFastingTheme {
+                TrackerScreen(
+                    uiState =
+                        TrackerUiState(
+                            schedules = emptyList(),
+                            activeScheduleId = null,
+                            sessions = emptyList(),
+                            activeFast = null,
+                            presetHours = 16,
+                            selectedIntentionId = IntermittentFastIntention.PERSONAL_DISCIPLINE.name,
+                            latestRecap = null,
+                            premiumSnapshot = premiumSnapshot(),
+                            prepGuidance =
+                                PremiumFastPrepGuidanceEngine.prepAndRefeed(
+                                    targetHours = 16,
+                                    hasMedicalDispensation = state.settings.hasMedicalDispensation,
+                                ),
+                            seasonProgramActions = emptyList(),
+                        ),
+                    actions =
+                        TrackerActions(
+                            onPresetHoursChange = {},
+                            onIntentionChange = { persistedIntentionId = it },
+                            onStartFast = { startedIntentionId = it },
+                            onEndFast = { _ -> },
+                            onCancelFast = {},
+                            onSaveSchedule = { _, _, _, _ -> "saved" },
+                            onDeleteSchedule = { "deleted" },
+                            onApplySchedule = { "applied" },
+                        ),
+                )
+            }
+        }
+
+        composeRule.onNodeWithText(IntermittentFastIntention.PRAYER.label).performClick()
+        composeRule.onNodeWithText(context.getString(TrackerR.string.tracker_start_fast)).performClick()
+        composeRule.runOnIdle {
+            assertThat(persistedIntentionId).isEqualTo(IntermittentFastIntention.PRAYER.name)
+            assertThat(startedIntentionId).isEqualTo(IntermittentFastIntention.PRAYER.name)
+        }
     }
 
     @Test
@@ -346,9 +463,10 @@ class OnboardingDesignInstrumentationTest {
 
         composeRule.onAllNodesWithText(context.getString(R.string.onboarding_title)).assertCountEquals(1)
         composeRule.onAllNodesWithText(context.getString(R.string.onboarding_notice_title)).assertCountEquals(1)
-        composeRule.onAllNodesWithText(context.getString(R.string.onboarding_profile_title)).assertCountEquals(1)
-        composeRule.onAllNodesWithText(context.getString(R.string.onboarding_reminders_title)).assertCountEquals(1)
-        composeRule.onAllNodesWithText(context.getString(R.string.onboarding_premium_title)).assertCountEquals(1)
-        composeRule.onAllNodesWithText(seasonalHero.campaignTitle).assertCountEquals(1)
+        composeRule.onAllNodesWithText(context.getString(R.string.onboarding_profile_title)).assertCountEquals(0)
+        composeRule.onAllNodesWithText(context.getString(R.string.onboarding_reminders_title)).assertCountEquals(0)
+        composeRule.onAllNodesWithText(context.getString(R.string.onboarding_intention_title)).assertCountEquals(0)
+        composeRule.onAllNodesWithText(context.getString(R.string.onboarding_premium_title)).assertCountEquals(0)
+        composeRule.onAllNodesWithText(seasonalHero.campaignTitle).assertCountEquals(0)
     }
 }

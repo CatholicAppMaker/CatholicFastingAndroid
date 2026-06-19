@@ -9,11 +9,9 @@ Use this checklist before validating premium purchase and restore behavior.
   - `cfa_premium_monthly_v3`
 - Keep every Play product ID at 40 characters or fewer. The product IDs in
   code and Play Console must match exactly.
-- Create the support-tip in-app products if they will ship in v1.
-- Support-tip product ids:
-  - `com.kevpierce.catholicfasting.tip.small`
-  - `com.kevpierce.catholicfasting.tip.medium`
-  - `com.kevpierce.catholicfasting.tip.large`
+- Do not create or market support-tip products for the Android 1.0 closed-test
+  pass. The app does not query support-tip product IDs unless a future release
+  deliberately reintroduces them.
 - Activate products in the same app listing that matches `com.kevpierce.catholicfastingapp`.
 - Enable Play App Signing and keep the upload key details stored locally.
 

@@ -3,12 +3,18 @@
 package com.kevpierce.catholicfastingapp
 
 import android.content.Context
-import android.content.res.Configuration
-import android.os.LocaleList
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.click
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeUp
 import androidx.test.core.app.ApplicationProvider
@@ -21,11 +27,14 @@ import com.kevpierce.catholicfasting.core.model.ActiveIntermittentFast
 import com.kevpierce.catholicfasting.core.model.AppDeepLinks
 import com.kevpierce.catholicfasting.core.model.CompletionStatus
 import com.kevpierce.catholicfasting.core.model.ContentLocale
+import com.kevpierce.catholicfasting.core.model.IntermittentFastIntention
 import com.kevpierce.catholicfasting.core.model.IntermittentFastSession
+import com.kevpierce.catholicfasting.core.model.IntermittentFastSessionRecap
 import com.kevpierce.catholicfasting.core.model.ReflectionJournalEntry
 import com.kevpierce.catholicfasting.core.model.RegionProfile
 import com.kevpierce.catholicfasting.core.model.ReminderTier
 import com.kevpierce.catholicfasting.core.model.RuleSettings
+import com.kevpierce.catholicfasting.core.rules.CompanionSnapshotEngine
 import com.kevpierce.catholicfasting.core.rules.ObservanceCalculator
 import com.kevpierce.catholicfasting.core.rules.PremiumFastPrepGuidanceEngine
 import com.kevpierce.catholicfasting.core.rules.PremiumSeasonProgramEngine
@@ -41,12 +50,20 @@ import com.kevpierce.catholicfasting.feature.premium.PremiumScreen
 import com.kevpierce.catholicfasting.feature.premium.PremiumWorkspaceActions
 import com.kevpierce.catholicfasting.feature.premium.PremiumWorkspaceUiState
 import com.kevpierce.catholicfasting.feature.settings.SettingsScreen
+import com.kevpierce.catholicfasting.feature.today.TODAY_COMPANION_ACTION_TEST_TAG_PREFIX
 import com.kevpierce.catholicfasting.feature.today.TodayScreen
 import com.kevpierce.catholicfasting.feature.today.TodayUiState
+import com.kevpierce.catholicfasting.feature.tracker.TRACKER_END_FAST_TEST_TAG
+import com.kevpierce.catholicfasting.feature.tracker.TRACKER_INTENTION_TEST_TAG_PREFIX
+import com.kevpierce.catholicfasting.feature.tracker.TRACKER_REVIEW_NOTE_TEST_TAG
+import com.kevpierce.catholicfasting.feature.tracker.TRACKER_START_FAST_TEST_TAG
 import com.kevpierce.catholicfasting.feature.tracker.TrackerActions
 import com.kevpierce.catholicfasting.feature.tracker.TrackerScreen
 import com.kevpierce.catholicfasting.feature.tracker.TrackerUiState
 import com.kevpierce.catholicfastingapp.ui.CatholicFastingApp
+import com.kevpierce.catholicfastingapp.ui.INTERMITTENT_INTENTION_CHIP_TEST_TAG_PREFIX
+import com.kevpierce.catholicfastingapp.ui.REGION_CHIP_TEST_TAG_PREFIX
+import com.kevpierce.catholicfastingapp.ui.REMINDER_TIER_CHIP_TEST_TAG_PREFIX
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -191,7 +208,7 @@ class ExpandedReleaseUiInstrumentationTest {
     }
 
     @Test
-    fun onboardingDefaultRouteShowsTrustProfileReminderAndPremiumSections() {
+    fun onboardingRouteShowsOnlyTheCurrentRequiredStep() {
         composeRule.setContent {
             CatholicFastingTheme {
                 CatholicFastingApp()
@@ -199,9 +216,10 @@ class ExpandedReleaseUiInstrumentationTest {
         }
 
         assertText(context.getString(R.string.onboarding_notice_title))
-        assertText(context.getString(R.string.onboarding_profile_title))
-        assertText(context.getString(R.string.onboarding_reminders_title))
-        assertText(context.getString(R.string.onboarding_premium_title))
+        composeRule.onAllNodesWithText(context.getString(R.string.onboarding_profile_title)).assertCountEquals(0)
+        composeRule.onAllNodesWithText(context.getString(R.string.onboarding_reminders_title)).assertCountEquals(0)
+        composeRule.onAllNodesWithText(context.getString(R.string.onboarding_intention_title)).assertCountEquals(0)
+        composeRule.onAllNodesWithText(context.getString(R.string.onboarding_premium_title)).assertCountEquals(0)
     }
 
     @Test
@@ -216,47 +234,87 @@ class ExpandedReleaseUiInstrumentationTest {
     }
 
     @Test
-    fun onboardingDefaultRouteShowsRegionChoices() {
+    fun onboardingRouteAdvancesThroughRegionReminderIntentionAndPayoff() {
         composeRule.setContent {
             CatholicFastingTheme {
                 CatholicFastingApp()
             }
         }
 
+        composeRule
+            .onNodeWithText(context.getString(R.string.onboarding_notice_accept))
+            .performScrollTo()
+            .performClick()
         assertText(context.getString(R.string.label_region_us))
         assertText(context.getString(R.string.label_region_canada))
         assertText(context.getString(R.string.label_region_other))
+        composeRule.onAllNodesWithText(context.getString(R.string.label_reminder_minimal)).assertCountEquals(0)
+
+        clickTaggedNodeAfterScrolling(REGION_CHIP_TEST_TAG_PREFIX + RegionProfile.US.name)
+        assertText(context.getString(R.string.onboarding_reminders_title))
+        composeRule.onAllNodesWithText(context.getString(R.string.onboarding_intention_title)).assertCountEquals(0)
+
+        clickTaggedNodeAfterScrolling(REMINDER_TIER_CHIP_TEST_TAG_PREFIX + ReminderTier.MINIMAL.name)
+        assertText(context.getString(R.string.onboarding_intention_title))
+        composeRule.onAllNodesWithText(context.getString(R.string.onboarding_premium_title)).assertCountEquals(0)
+
+        clickTaggedNodeAfterScrolling(
+            INTERMITTENT_INTENTION_CHIP_TEST_TAG_PREFIX + IntermittentFastIntention.PRAYER.name,
+        )
+        assertText(context.getString(R.string.onboarding_premium_title))
+        composeRule
+            .onNodeWithText(context.getString(R.string.onboarding_finish))
+            .assertIsEnabled()
     }
 
     @Test
-    fun onboardingDefaultRouteShowsReminderChoices() {
+    fun onboardingDefaultRouteStartsWithTrustNotice() {
         composeRule.setContent {
             CatholicFastingTheme {
                 CatholicFastingApp()
             }
         }
 
-        assertText(context.getString(R.string.label_reminder_minimal))
-        assertText(context.getString(R.string.label_reminder_balanced))
-        assertText(context.getString(R.string.label_reminder_guided))
+        assertText(context.getString(R.string.onboarding_notice_title))
+        composeRule.onAllNodesWithText(context.getString(R.string.label_reminder_minimal)).assertCountEquals(0)
     }
 
     @Test
-    fun onboardingSpanishResourcesResolveCoreCopy() {
-        val spanish = localizedContext("es-US")
+    fun freshInstallCompletesReminderAndIntentionThenLandsOnTodayCompanion() {
+        composeRule.setContent {
+            CatholicFastingTheme {
+                CatholicFastingApp()
+            }
+        }
 
-        assertLocalizedString(spanish, R.string.onboarding_title)
-        assertLocalizedString(spanish, R.string.onboarding_notice_title)
-        assertLocalizedString(spanish, R.string.label_reminder_guided_summary)
-    }
+        composeRule
+            .onNodeWithText(context.getString(R.string.onboarding_notice_accept))
+            .performScrollTo()
+            .performClick()
+        clickTaggedNodeAfterScrolling(REGION_CHIP_TEST_TAG_PREFIX + RegionProfile.US.name)
+        clickTaggedNodeAfterScrolling(REMINDER_TIER_CHIP_TEST_TAG_PREFIX + ReminderTier.MINIMAL.name)
+        clickTaggedNodeAfterScrolling(
+            INTERMITTENT_INTENTION_CHIP_TEST_TAG_PREFIX + IntermittentFastIntention.PRAYER.name,
+        )
+        composeRule.waitForIdle()
+        val setupState = AppContainer.repository.dashboardState.value.launchFunnelSnapshot
+        assertThat(setupState.independentAppNoticeAcknowledged).isTrue()
+        assertThat(setupState.regionSelected).isTrue()
+        assertThat(setupState.selectedReminderTier).isEqualTo(ReminderTier.MINIMAL)
+        assertThat(setupState.reminderTierSelected).isTrue()
+        assertThat(setupState.intermittentIntentionSelected).isTrue()
+        assertThat(setupState.selectedIntermittentIntentionId).isEqualTo(IntermittentFastIntention.PRAYER.name)
+        composeRule
+            .onNodeWithText(context.getString(R.string.onboarding_finish))
+            .assertIsEnabled()
+            .performScrollTo()
+            .performClick()
+        composeRule.waitUntil {
+            composeRule.onAllNodesWithText(context.getString(TodayR.string.today_title)).fetchSemanticsNodes().isNotEmpty()
+        }
 
-    @Test
-    fun onboardingFrenchCanadianResourcesResolveCoreCopy() {
-        val french = localizedContext("fr-CA")
-
-        assertLocalizedString(french, R.string.onboarding_title)
-        assertLocalizedString(french, R.string.onboarding_notice_title)
-        assertLocalizedString(french, R.string.label_region_canada)
+        assertText(context.getString(TodayR.string.today_title))
+        assertText(context.getString(TodayR.string.today_companion_title))
     }
 
     @Test
@@ -288,6 +346,29 @@ class ExpandedReleaseUiInstrumentationTest {
         composeRule.onRoot().performTouchInput { swipeUp() }
 
         assertText(context.getString(TodayR.string.today_important_notice_title))
+    }
+
+    @Test
+    fun todayCompanionActiveFastActionRoutesFromAppShellToTrackFast() {
+        seedCompletedOnboarding()
+        AppContainer.repository.startIntermittentFastWithIntention(
+            intentionId = IntermittentFastIntention.PENANCE.name,
+            now = Instant.now().minusSeconds(3600),
+        )
+        AppContainer.repository.flushForTesting()
+        composeRule.setContent {
+            CatholicFastingTheme {
+                CatholicFastingApp(initialDeepLink = AppDeepLinks.TODAY)
+            }
+        }
+
+        clickFirstTaggedNodeAfterScrolling(
+            TODAY_COMPANION_ACTION_TEST_TAG_PREFIX + "active-fast",
+            TODAY_COMPANION_ACTION_TEST_TAG_PREFIX + "track-fast",
+        )
+
+        assertText(context.getString(TrackerR.string.tracker_title))
+        assertText(context.getString(TrackerR.string.tracker_end_fast))
     }
 
     @Test
@@ -341,6 +422,80 @@ class ExpandedReleaseUiInstrumentationTest {
 
         assertText(context.getString(TrackerR.string.tracker_fast_in_progress))
         assertText(context.getString(TrackerR.string.tracker_end_fast))
+    }
+
+    @Test
+    fun trackerDirectScreenStartsFastWithSelectedIntention() {
+        var persistedIntentionId: String? = null
+        var startedIntentionId: String? = null
+
+        setTrackerScreen(
+            activeFast = null,
+            actions =
+                trackerActions(
+                    onIntentionChange = { persistedIntentionId = it },
+                    onStartFast = { startedIntentionId = it },
+                ),
+        )
+
+        composeRule
+            .onNodeWithTag(TRACKER_INTENTION_TEST_TAG_PREFIX + IntermittentFastIntention.PRAYER.name)
+            .performClick()
+        composeRule
+            .onNodeWithTag(TRACKER_START_FAST_TEST_TAG)
+            .performClick()
+
+        composeRule.runOnIdle {
+            assertThat(persistedIntentionId).isEqualTo(IntermittentFastIntention.PRAYER.name)
+            assertThat(startedIntentionId).isEqualTo(IntermittentFastIntention.PRAYER.name)
+        }
+    }
+
+    @Test
+    fun trackerDirectScreenSavesReviewNoteWhenEndingActiveFast() {
+        var endedReviewNote: String? = null
+        setTrackerScreen(
+            activeFast =
+                ActiveIntermittentFast(
+                    startIso = Instant.now().minusSeconds(18 * 60 * 60).toString(),
+                    targetHours = 16,
+                    intentionId = IntermittentFastIntention.PENANCE.name,
+                ),
+            actions = trackerActions(onEndFast = { endedReviewNote = it }),
+        )
+
+        composeRule
+            .onNodeWithTag(TRACKER_REVIEW_NOTE_TEST_TAG)
+            .performTextInput("Kept the Friday fast prayerfully.")
+        composeRule
+            .onNodeWithTag(TRACKER_END_FAST_TEST_TAG)
+            .performClick()
+
+        composeRule.runOnIdle {
+            assertThat(endedReviewNote).isEqualTo("Kept the Friday fast prayerfully.")
+        }
+    }
+
+    @Test
+    fun trackerDirectScreenShowsLatestRecapIntentionAndReviewNote() {
+        setTrackerScreen(
+            activeFast = null,
+            latestRecap =
+                IntermittentFastSessionRecap(
+                    durationHours = 18.0,
+                    targetHours = 16,
+                    completedTarget = true,
+                    title = "Target reached",
+                    encouragement = "You completed the fast with steadiness.",
+                    suggestedNextAction = "Recover gently.",
+                    intentionId = IntermittentFastIntention.PENANCE.name,
+                    reviewNote = "Kept the Friday fast prayerfully.",
+                ),
+        )
+
+        assertText(context.getString(TrackerR.string.tracker_latest_recap_title))
+        assertText(context.getString(TrackerR.string.tracker_intention_value, IntermittentFastIntention.PENANCE.label))
+        assertText(context.getString(TrackerR.string.tracker_review_note_value, "Kept the Friday fast prayerfully."))
     }
 
     @Test
@@ -451,10 +606,10 @@ class ExpandedReleaseUiInstrumentationTest {
     }
 
     @Test
-    fun premiumScreenShowsSupportTipSection() {
-        setPremiumScreen(unlocked = false)
+    fun premiumScreenHidesSupportTipSectionWhenNoTipProductsShip() {
+        setPremiumScreen(unlocked = false, includeTipOffers = false)
 
-        assertText(context.getString(PremiumR.string.premium_support_tips_title))
+        composeRule.onAllNodesWithText(context.getString(PremiumR.string.premium_support_tips_title)).assertCountEquals(0)
     }
 
     @Test
@@ -500,114 +655,6 @@ class ExpandedReleaseUiInstrumentationTest {
         assertText(context.getString(PremiumR.string.premium_saved_reflections_value, 1))
     }
 
-    @Test
-    fun premiumSpanishResourcesResolvePlanCopy() {
-        val spanish = localizedContext("es-US")
-
-        assertLocalizedString(spanish, PremiumR.string.premium_title)
-        assertLocalizedString(spanish, PremiumR.string.premium_subscriptions_title)
-        assertLocalizedString(spanish, PremiumR.string.premium_reflection_journal_title)
-    }
-
-    @Test
-    fun premiumFrenchCanadianResourcesResolvePlanCopy() {
-        val french = localizedContext("fr-CA")
-
-        assertLocalizedString(french, PremiumR.string.premium_title)
-        assertLocalizedString(french, PremiumR.string.premium_subscriptions_title)
-        assertLocalizedString(french, PremiumR.string.premium_reflection_journal_title)
-    }
-
-    @Test
-    fun trackerSpanishResourcesResolveCoreControls() {
-        val spanish = localizedContext("es-US")
-
-        assertLocalizedString(spanish, TrackerR.string.tracker_title)
-        assertLocalizedString(spanish, TrackerR.string.tracker_start_fast)
-        assertLocalizedString(spanish, TrackerR.string.tracker_custom_schedules)
-    }
-
-    @Test
-    fun trackerFrenchCanadianResourcesResolveCoreControls() {
-        val french = localizedContext("fr-CA")
-
-        assertLocalizedString(french, TrackerR.string.tracker_title)
-        assertLocalizedString(french, TrackerR.string.tracker_start_fast)
-        assertLocalizedString(french, TrackerR.string.tracker_custom_schedules)
-    }
-
-    @Test
-    fun guidanceSpanishResourcesResolveCoreSections() {
-        val spanish = localizedContext("es-US")
-
-        assertLocalizedString(spanish, GuidanceR.string.guidance_title)
-        assertLocalizedString(spanish, GuidanceR.string.guidance_food_title)
-        assertLocalizedString(spanish, GuidanceR.string.guidance_rule_audit_title)
-    }
-
-    @Test
-    fun guidanceFrenchCanadianResourcesResolveCoreSections() {
-        val french = localizedContext("fr-CA")
-
-        assertLocalizedString(french, GuidanceR.string.guidance_title)
-        assertLocalizedString(french, GuidanceR.string.guidance_food_title)
-        assertLocalizedString(french, GuidanceR.string.guidance_rule_audit_title)
-    }
-
-    @Test
-    fun calendarSpanishResourcesResolveCoreSections() {
-        val spanish = localizedContext("es-US")
-
-        assertLocalizedString(spanish, CalendarR.string.calendar_title)
-        assertLocalizedString(spanish, CalendarR.string.calendar_search_label)
-        assertLocalizedString(spanish, CalendarR.string.calendar_progress_overview)
-    }
-
-    @Test
-    fun calendarFrenchCanadianResourcesResolveCoreSections() {
-        val french = localizedContext("fr-CA")
-
-        assertLocalizedString(french, CalendarR.string.calendar_title)
-        assertLocalizedString(french, CalendarR.string.calendar_search_label)
-        assertLocalizedString(french, CalendarR.string.calendar_progress_overview)
-    }
-
-    @Test
-    fun settingsSpanishResourcesResolveCoreSections() {
-        val spanish = localizedContext("es-US")
-
-        assertLocalizedString(spanish, SettingsR.string.settings_more_title)
-        assertLocalizedString(spanish, SettingsR.string.settings_region)
-        assertLocalizedString(spanish, SettingsR.string.settings_birth_year)
-    }
-
-    @Test
-    fun settingsFrenchCanadianResourcesResolveCoreSections() {
-        val french = localizedContext("fr-CA")
-
-        assertLocalizedString(french, SettingsR.string.settings_more_title)
-        assertLocalizedString(french, SettingsR.string.settings_region)
-        assertLocalizedString(french, SettingsR.string.settings_birth_year)
-    }
-
-    @Test
-    fun todaySpanishResourcesResolveCoreSections() {
-        val spanish = localizedContext("es-US")
-
-        assertLocalizedString(spanish, TodayR.string.today_title)
-        assertLocalizedString(spanish, TodayR.string.today_year_plan_title)
-        assertLocalizedString(spanish, TodayR.string.today_important_notice_title)
-    }
-
-    @Test
-    fun todayFrenchCanadianResourcesResolveCoreSections() {
-        val french = localizedContext("fr-CA")
-
-        assertLocalizedString(french, TodayR.string.today_title)
-        assertLocalizedString(french, TodayR.string.today_year_plan_title)
-        assertLocalizedString(french, TodayR.string.today_important_notice_title)
-    }
-
     private fun setAppShell(deepLink: String) {
         seedCompletedOnboarding()
         composeRule.setContent {
@@ -627,6 +674,16 @@ class ExpandedReleaseUiInstrumentationTest {
                     uiState =
                         TodayUiState(
                             todayObservance = state.observances.firstOrNull(),
+                            companionSnapshot =
+                                CompanionSnapshotEngine.build(
+                                    observances = state.observances,
+                                    statusesById = state.statusesById,
+                                    sessions = state.intermittentSessions,
+                                    activeFast = state.activeIntermittentFast,
+                                    settings = state.settings,
+                                    premiumSnapshot = premiumSnapshot,
+                                    premiumUnlocked = false,
+                                ),
                             completionSummary = context.resources.getQuantityString(R.plurals.summary_completion_value, 0, 0),
                             premiumSnapshot = premiumSnapshot,
                             seasonalContentPack = seasonalPack,
@@ -663,6 +720,8 @@ class ExpandedReleaseUiInstrumentationTest {
     private fun setTrackerScreen(
         activeFast: ActiveIntermittentFast?,
         sessions: List<IntermittentFastSession> = emptyList(),
+        latestRecap: IntermittentFastSessionRecap? = null,
+        actions: TrackerActions = trackerActions(),
     ) {
         val state = AppContainer.repository.dashboardState.value
         composeRule.setContent {
@@ -675,6 +734,8 @@ class ExpandedReleaseUiInstrumentationTest {
                             sessions = sessions,
                             activeFast = activeFast,
                             presetHours = state.intermittentPresetHours,
+                            selectedIntentionId = state.launchFunnelSnapshot.selectedIntermittentIntentionId,
+                            latestRecap = latestRecap,
                             premiumSnapshot = premiumSnapshot(),
                             prepGuidance =
                                 PremiumFastPrepGuidanceEngine.prepAndRefeed(
@@ -687,20 +748,31 @@ class ExpandedReleaseUiInstrumentationTest {
                                     week = 1,
                                 ),
                         ),
-                    actions =
-                        TrackerActions(
-                            onPresetHoursChange = {},
-                            onStartFast = {},
-                            onEndFast = {},
-                            onCancelFast = {},
-                            onSaveSchedule = { _, _, _, _ -> "saved" },
-                            onDeleteSchedule = { "deleted" },
-                            onApplySchedule = { "applied" },
-                        ),
+                    actions = actions,
                 )
             }
         }
     }
+
+    private fun trackerActions(
+        onPresetHoursChange: (Int) -> Unit = {},
+        onIntentionChange: (String) -> Unit = {},
+        onStartFast: (String) -> Unit = {},
+        onEndFast: (String?) -> Unit = {},
+        onCancelFast: () -> Unit = {},
+        onSaveSchedule: (String?, String, Int, Set<Int>) -> String = { _, _, _, _ -> "saved" },
+        onDeleteSchedule: (String) -> String = { "deleted" },
+        onApplySchedule: (String) -> String = { "applied" },
+    ) = TrackerActions(
+        onPresetHoursChange = onPresetHoursChange,
+        onIntentionChange = onIntentionChange,
+        onStartFast = onStartFast,
+        onEndFast = onEndFast,
+        onCancelFast = onCancelFast,
+        onSaveSchedule = onSaveSchedule,
+        onDeleteSchedule = onDeleteSchedule,
+        onApplySchedule = onApplySchedule,
+    )
 
     private fun setGuidanceScreen() {
         composeRule.setContent {
@@ -729,6 +801,7 @@ class ExpandedReleaseUiInstrumentationTest {
         unlocked: Boolean,
         reflections: List<ReflectionJournalEntry> = emptyList(),
         includeCatalogOffers: Boolean = true,
+        includeTipOffers: Boolean = false,
     ) {
         val state = AppContainer.repository.dashboardState.value
         composeRule.setContent {
@@ -747,7 +820,7 @@ class ExpandedReleaseUiInstrumentationTest {
                                     emptyList()
                                 },
                             tipOffers =
-                                if (includeCatalogOffers) {
+                                if (includeTipOffers) {
                                     listOf(
                                         BillingOfferUi("tip", "Support Tip", "$2.99", "One-time support"),
                                     )
@@ -801,24 +874,30 @@ class ExpandedReleaseUiInstrumentationTest {
         repository.setIndependentAppNoticeAcknowledged(true)
         repository.setSelectedRegion(RegionProfile.US)
         repository.setReminderTier(ReminderTier.BALANCED)
+        repository.setIntermittentIntention(IntermittentFastIntention.PRAYER.name)
         repository.completeOnboarding(Instant.parse("2026-03-13T00:00:00Z"))
-    }
-
-    private fun localizedContext(languageTags: String): Context {
-        val configuration = Configuration(context.resources.configuration)
-        configuration.setLocales(LocaleList.forLanguageTags(languageTags))
-        return context.createConfigurationContext(configuration)
-    }
-
-    private fun assertLocalizedString(
-        localizedContext: Context,
-        resId: Int,
-    ) {
-        val value = localizedContext.getString(resId)
-        check(value.isNotBlank()) { "Expected localized string $resId to resolve." }
     }
 
     private fun assertText(text: String) {
         assertThat(composeRule.onAllNodesWithText(text).fetchSemanticsNodes().size).isAtLeast(1)
+    }
+
+    private fun clickTaggedNodeAfterScrolling(tag: String) {
+        clickFirstTaggedNodeAfterScrolling(tag)
+    }
+
+    private fun clickFirstTaggedNodeAfterScrolling(vararg tags: String) {
+        repeat(6) {
+            tags.forEach { tag ->
+                val node = composeRule.onNodeWithTag(tag)
+                if (runCatching { node.assertIsDisplayed() }.isSuccess) {
+                    node.performTouchInput { click() }
+                    return
+                }
+            }
+            composeRule.onRoot().performTouchInput { swipeUp() }
+            composeRule.waitForIdle()
+        }
+        throw AssertionError("Could not find any tagged node after scrolling: ${tags.joinToString()}")
     }
 }

@@ -1,5 +1,12 @@
 <resources>
     <string name="today_title">Today</string>
+    <string name="today_companion_title">Today’s Companion</string>
+    <string name="today_companion_formation_value">%1$s formation: %2$s</string>
+    <string name="today_companion_active_fast_value">Active fast: %1$s elapsed, %2$s remaining.</string>
+    <string name="today_companion_target_reached_value">Target reached after %1$s.</string>
+    <string name="today_companion_recap_value">%1$s: %2$s</string>
+    <string name="today_companion_eating_window_value">Eating window: recover gently for %1$s.</string>
+    <string name="today_companion_intention_value">%1$s Intention: %2$s.</string>
     <string name="today_default_detail">Use today to review the next required day and keep a steady rule of life.</string>
     <string name="today_no_observance">No observance today</string>
     <string name="today_quote_value">"%1$s"</string>

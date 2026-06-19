@@ -1,5 +1,6 @@
 .DS_Store
 .gradle/
+.gradle-codex/
 .idea/
 .kotlin/
 *.iml
@@ -10,6 +11,11 @@ captures/
 local.properties
 
 # Local tooling
+
+# Impeccable local live-session artifacts
+.impeccable-live/
+.impeccable/live/
+.impeccable-live.json
 .local-tools/
 keystore.properties
 *.jks

@@ -46,6 +46,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import java.time.Instant
@@ -53,6 +55,7 @@ import java.time.LocalDate
 import java.time.ZoneId
 import java.util.Locale
 import java.util.UUID
+import java.util.concurrent.atomic.AtomicLong
 
 private val Context.catholicFastingDataStore by preferencesDataStore(name = "catholic_fasting_store")
 
@@ -100,12 +103,9 @@ internal data class AppStorageSnapshot(
     val launchFunnelSnapshot: LaunchFunnelSnapshot = LaunchFunnelSnapshot(startedAtIso = DEFAULT_TIMESTAMP),
 )
 
-private const val STORAGE_SCHEMA_VERSION = 4
+private const val STORAGE_SCHEMA_VERSION = 5
 private const val DEFAULT_TIMESTAMP = "2026-03-13T00:00:00Z"
 private const val DEFAULT_INTERMITTENT_PRESET_HOURS = 16
-private const val MIN_INTERMITTENT_PRESET_HOURS = 12
-private const val MAX_INTERMITTENT_PRESET_HOURS = 336
-private const val MAX_STORED_INTERMITTENT_SESSIONS = 500
 
 private val JsonCodec =
     Json {
@@ -157,6 +157,8 @@ class AppRepository internal constructor(
     private val storage: AppStorageGateway,
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val writeMutex = Mutex()
+    private val writeVersion = AtomicLong(0L)
     private val state = MutableStateFlow(loadDefaultState())
     val dashboardState: StateFlow<DashboardState> = state.asStateFlow()
 
@@ -182,6 +184,7 @@ class AppRepository internal constructor(
                 launchFunnelSnapshot =
                     current.launchFunnelSnapshot.copy(
                         selectedRegion = settings.regionProfile,
+                        regionSelected = true,
                     ),
             ),
         )
@@ -204,6 +207,7 @@ class AppRepository internal constructor(
                 launchFunnelSnapshot =
                     state.value.launchFunnelSnapshot.copy(
                         selectedReminderTier = reminderTier,
+                        reminderTierSelected = true,
                     ),
             ),
         )
@@ -218,6 +222,7 @@ class AppRepository internal constructor(
                 launchFunnelSnapshot =
                     current.launchFunnelSnapshot.copy(
                         selectedRegion = regionProfile,
+                        regionSelected = true,
                     ),
             ),
         )
@@ -244,6 +249,23 @@ class AppRepository internal constructor(
                     state.value.launchFunnelSnapshot.copy(
                         dailyQuoteReminderHour = hour.coerceIn(0, 23),
                         dailyQuoteReminderMinute = minute.coerceIn(0, 59),
+                    ),
+            ),
+        )
+    }
+
+    fun setIntermittentIntention(intentionId: String) {
+        val normalized = normalizedIntentionId(intentionId)
+        persist(
+            state.value.copy(
+                activeIntermittentFast =
+                    state.value.activeIntermittentFast?.copy(
+                        intentionId = normalized,
+                    ),
+                launchFunnelSnapshot =
+                    state.value.launchFunnelSnapshot.copy(
+                        selectedIntermittentIntentionId = normalized,
+                        intermittentIntentionSelected = true,
                     ),
             ),
         )
@@ -330,10 +352,21 @@ class AppRepository internal constructor(
         }
 
     fun startIntermittentFast(now: Instant = Instant.now()) {
+        startIntermittentFastWithIntention(intentionId = null, now = now)
+    }
+
+    fun startIntermittentFastWithIntention(
+        intentionId: String? = null,
+        now: Instant = Instant.now(),
+    ) {
         val current = state.value
         if (current.activeIntermittentFast != null) {
             return
         }
+        val normalizedIntentionId =
+            normalizedIntentionId(
+                intentionId ?: current.launchFunnelSnapshot.selectedIntermittentIntentionId,
+            )
 
         persist(
             current.copy(
@@ -341,14 +374,27 @@ class AppRepository internal constructor(
                     ActiveIntermittentFast(
                         startIso = now.toString(),
                         targetHours = current.intermittentPresetHours,
+                        intentionId = normalizedIntentionId,
+                    ),
+                launchFunnelSnapshot =
+                    current.launchFunnelSnapshot.copy(
+                        selectedIntermittentIntentionId = normalizedIntentionId,
+                        intermittentIntentionSelected = true,
                     ),
             ),
         )
     }
 
     fun endIntermittentFast(now: Instant = Instant.now()) {
+        endIntermittentFastWithReview(reviewNote = null, now = now)
+    }
+
+    fun endIntermittentFastWithReview(
+        reviewNote: String? = null,
+        now: Instant = Instant.now(),
+    ) {
         val current = state.value
-        val endedState = current.endIntermittentFast(now)
+        val endedState = current.endIntermittentFast(now, reviewNote)
         if (endedState != null) {
             persist(endedState)
         }
@@ -368,6 +414,7 @@ class AppRepository internal constructor(
                 ActiveIntermittentFast(
                     startIso = it,
                     targetHours = boundedPresetHours(targetHours),
+                    intentionId = storedState.activeIntermittentFast?.intentionId,
                 )
             }
         val endedState =
@@ -411,24 +458,41 @@ class AppRepository internal constructor(
     }
 
     fun flushForTesting() {
+        val snapshot = state.value.toStorageSnapshot()
+        val version = writeVersion.incrementAndGet()
         runBlocking(Dispatchers.IO) {
-            storage.writeSnapshot(state.value.toStorageSnapshot())
+            writeSnapshotIfLatest(version, snapshot)
         }
     }
 
     private fun persist(nextState: DashboardState) {
         val syncedState = nextState.copy(lastSyncDateIso = Instant.now().toString())
+        val snapshot = syncedState.toStorageSnapshot()
+        val version = writeVersion.incrementAndGet()
         state.value = syncedState
         scope.launch {
-            storage.writeSnapshot(syncedState.toStorageSnapshot())
+            writeSnapshotIfLatest(version, snapshot)
         }
     }
 
     private fun persistBlocking(nextState: DashboardState) {
         val syncedState = nextState.copy(lastSyncDateIso = Instant.now().toString())
+        val snapshot = syncedState.toStorageSnapshot()
+        val version = writeVersion.incrementAndGet()
         state.value = syncedState
-        runBlocking {
-            storage.writeSnapshot(syncedState.toStorageSnapshot())
+        runBlocking(Dispatchers.IO) {
+            writeSnapshotIfLatest(version, snapshot)
+        }
+    }
+
+    private suspend fun writeSnapshotIfLatest(
+        version: Long,
+        snapshot: AppStorageSnapshot,
+    ) {
+        writeMutex.withLock {
+            if (version == writeVersion.get()) {
+                storage.writeSnapshot(snapshot)
+            }
         }
     }
 }
@@ -571,42 +635,62 @@ fun buildOnboardingState(state: DashboardState): OnboardingState =
         isCompleted = state.launchFunnelSnapshot.completedOnboardingAtIso != null,
         currentStep =
             when {
+                state.launchFunnelSnapshot.completedOnboardingAtIso != null -> 5
                 !state.launchFunnelSnapshot.independentAppNoticeAcknowledged -> 1
-                state.launchFunnelSnapshot.selectedRegion != state.settings.regionProfile -> 2
-                state.launchFunnelSnapshot.selectedReminderTier == ReminderTier.MINIMAL -> 3
-                state.launchFunnelSnapshot.completedOnboardingAtIso == null -> 4
-                else -> 4
+                !state.launchFunnelSnapshot.regionSelected ||
+                    state.launchFunnelSnapshot.selectedRegion != state.settings.regionProfile -> 2
+                !state.launchFunnelSnapshot.reminderTierSelected -> 3
+                !state.launchFunnelSnapshot.intermittentIntentionSelected -> 4
+                else -> 5
             },
-        totalSteps = 4,
+        totalSteps = 5,
         noticeAcknowledged = state.launchFunnelSnapshot.independentAppNoticeAcknowledged,
         selectedRegion = state.launchFunnelSnapshot.selectedRegion,
+        regionSelected =
+            state.launchFunnelSnapshot.regionSelected ||
+                state.launchFunnelSnapshot.completedOnboardingAtIso != null,
         selectedReminderTier = state.launchFunnelSnapshot.selectedReminderTier,
+        reminderTierSelected =
+            state.launchFunnelSnapshot.reminderTierSelected ||
+                state.launchFunnelSnapshot.completedOnboardingAtIso != null,
         dailyQuoteReminderEnabled = state.launchFunnelSnapshot.dailyQuoteReminderEnabled,
         dailyQuoteReminderHour = state.launchFunnelSnapshot.dailyQuoteReminderHour,
         dailyQuoteReminderMinute = state.launchFunnelSnapshot.dailyQuoteReminderMinute,
+        selectedIntermittentIntentionId = state.launchFunnelSnapshot.selectedIntermittentIntentionId,
+        intermittentIntentionSelected = state.launchFunnelSnapshot.intermittentIntentionSelected,
         hasFullBirthDate = state.settings.hasFullBirthDate,
     )
 
 fun buildSetupProgressState(state: DashboardState): SetupProgressState {
     val birthProfileComplete = state.settings.hasFullBirthDate
     val independentNoticeAcknowledged = state.launchFunnelSnapshot.independentAppNoticeAcknowledged
-    val regionSelected = state.launchFunnelSnapshot.selectedRegion == state.settings.regionProfile
-    val reminderTierSelected = state.launchFunnelSnapshot.selectedReminderTier != ReminderTier.MINIMAL
     val onboardingCompleted = state.launchFunnelSnapshot.completedOnboardingAtIso != null
+    val regionSelected =
+        (
+            state.launchFunnelSnapshot.regionSelected &&
+                state.launchFunnelSnapshot.selectedRegion == state.settings.regionProfile
+        ) ||
+            onboardingCompleted
+    val reminderTierSelected =
+        state.launchFunnelSnapshot.reminderTierSelected || onboardingCompleted
+    val intermittentIntentionSelected =
+        state.launchFunnelSnapshot.intermittentIntentionSelected || onboardingCompleted
     val completedSteps =
         listOf(
             independentNoticeAcknowledged,
             regionSelected,
             reminderTierSelected,
+            intermittentIntentionSelected,
             onboardingCompleted,
         ).count { it }
     return SetupProgressState(
         completedSteps = completedSteps,
-        totalSteps = 4,
+        totalSteps = 5,
         birthProfileComplete = birthProfileComplete,
         independentNoticeAcknowledged = independentNoticeAcknowledged,
         regionSelected = regionSelected,
         reminderTierSelected = reminderTierSelected,
+        intermittentIntentionSelected = intermittentIntentionSelected,
         onboardingCompleted = onboardingCompleted,
     )
 }
@@ -710,103 +794,6 @@ object AppContainer {
     }
 }
 
-internal fun boundedPresetHours(hours: Int): Int =
-    hours
-        .coerceAtLeast(MIN_INTERMITTENT_PRESET_HOURS)
-        .coerceAtMost(MAX_INTERMITTENT_PRESET_HOURS)
-
-internal fun DashboardState.saveIntermittentSchedule(
-    scheduleId: String?,
-    name: String,
-    startHour: Int,
-    weekdays: Set<Int>,
-): DashboardState {
-    val normalizedWeekdays =
-        weekdays
-            .filter { it in 1..7 }
-            .sorted()
-    require(normalizedWeekdays.isNotEmpty()) { "Select at least one weekday for the schedule." }
-
-    val normalizedHour = startHour.coerceIn(0, 23)
-    val trimmedName = name.trim()
-    val targetHours = intermittentPresetHours
-    val existingIndex = schedules.indexOfFirst { it.id == scheduleId }
-
-    return if (existingIndex >= 0) {
-        val existingPlan = schedules[existingIndex]
-        val updatedPlan =
-            existingPlan.copy(
-                name = trimmedName.ifEmpty { "Plan ${existingIndex + 1}" },
-                targetHours = targetHours,
-                startHour = normalizedHour,
-                weekdays = normalizedWeekdays,
-            )
-        copy(
-            schedules = schedules.toMutableList().apply { this[existingIndex] = updatedPlan },
-            activeIntermittentScheduleId = updatedPlan.id,
-        )
-    } else {
-        val newPlan =
-            IntermittentSchedulePlan(
-                id = UUID.randomUUID().toString(),
-                name = trimmedName.ifEmpty { "Plan ${schedules.size + 1}" },
-                targetHours = targetHours,
-                startHour = normalizedHour,
-                weekdays = normalizedWeekdays,
-            )
-        copy(
-            schedules = schedules + newPlan,
-            activeIntermittentScheduleId = newPlan.id,
-        )
-    }
-}
-
-internal fun DashboardState.deleteIntermittentSchedule(scheduleId: String): DashboardState {
-    val updatedSchedules = schedules.filterNot { it.id == scheduleId }
-    val nextActiveScheduleId =
-        when {
-            activeIntermittentScheduleId != scheduleId -> activeIntermittentScheduleId
-            updatedSchedules.isEmpty() -> null
-            else -> updatedSchedules.first().id
-        }
-    return copy(
-        schedules = updatedSchedules,
-        activeIntermittentScheduleId = nextActiveScheduleId,
-    )
-}
-
-internal fun DashboardState.applyIntermittentSchedule(scheduleId: String): DashboardState {
-    val plan =
-        schedules.firstOrNull { it.id == scheduleId }
-            ?: error("The selected schedule no longer exists.")
-    return copy(
-        intermittentPresetHours = boundedPresetHours(plan.targetHours),
-        activeIntermittentScheduleId = plan.id,
-    )
-}
-
-private fun DashboardState.endIntermittentFast(now: Instant): DashboardState? =
-    activeIntermittentFast
-        ?.let { activeFast ->
-            parseCompletedFast(activeFast, now)?.let { session ->
-                copy(
-                    intermittentSessions =
-                        (listOf(session) + intermittentSessions).take(MAX_STORED_INTERMITTENT_SESSIONS),
-                    activeIntermittentFast = null,
-                )
-            }
-        }
-
-internal fun resolveEndedFastState(
-    liveState: DashboardState,
-    storedState: DashboardState,
-    fallbackActiveFast: ActiveIntermittentFast? = null,
-    now: Instant,
-): DashboardState? =
-    liveState.endIntermittentFast(now)
-        ?: storedState.endIntermittentFast(now)
-        ?: fallbackActiveFast?.let { liveState.copy(activeIntermittentFast = it).endIntermittentFast(now) }
-
 fun DashboardState.buildWidgetSnapshot(now: Instant = Instant.now()): WidgetSnapshot {
     val today = now.atZone(ZoneId.systemDefault()).toLocalDate()
     val todayKey = today.toString()
@@ -841,22 +828,3 @@ fun defaultReminderTier(): ReminderTier =
     )
 
 fun defaultPremiumCatalog(): SubscriptionOfferCatalog = SubscriptionOfferCatalog.catholicFasting
-
-private fun parseCompletedFast(
-    activeFast: ActiveIntermittentFast,
-    now: Instant,
-): IntermittentFastSession? =
-    runCatching { Instant.parse(activeFast.startIso) }
-        .getOrNull()
-        ?.takeIf(now::isAfter)
-        ?.let { start ->
-            val durationInSeconds = now.epochSecond - start.epochSecond
-            val completedTarget = durationInSeconds >= activeFast.targetHours * 3600L
-            IntermittentFastSession(
-                id = UUID.randomUUID().toString(),
-                startIso = activeFast.startIso,
-                endIso = now.toString(),
-                targetHours = activeFast.targetHours,
-                completedTarget = completedTarget,
-            )
-        }

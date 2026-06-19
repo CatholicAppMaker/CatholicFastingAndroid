@@ -19,6 +19,7 @@ import com.kevpierce.catholicfasting.core.billing.BillingState
 import com.kevpierce.catholicfasting.core.data.AppContainer
 import com.kevpierce.catholicfasting.core.model.AppDeepLinks
 import com.kevpierce.catholicfasting.core.model.CompletionStatus
+import com.kevpierce.catholicfasting.core.model.IntermittentFastIntention
 import com.kevpierce.catholicfasting.core.model.ObservanceObligation
 import com.kevpierce.catholicfasting.core.model.RegionProfile
 import com.kevpierce.catholicfasting.core.model.ReminderTier
@@ -61,13 +62,15 @@ class PersistenceRecreateInstrumentationTest {
         repository.setIndependentAppNoticeAcknowledged(true)
         repository.setSelectedRegion(RegionProfile.CANADA)
         repository.setReminderTier(ReminderTier.GUIDED)
+        repository.setIntermittentIntention(IntermittentFastIntention.MERCY.name)
         repository.completeOnboarding(Instant.parse("2026-03-13T00:00:00Z"))
         repository.flushForTesting()
 
         waitForReloadedState("completed guided Canada onboarding") {
             it.launchFunnelSnapshot.completedOnboardingAtIso != null &&
                 it.launchFunnelSnapshot.selectedRegion == RegionProfile.CANADA &&
-                it.launchFunnelSnapshot.selectedReminderTier == ReminderTier.GUIDED
+                it.launchFunnelSnapshot.selectedReminderTier == ReminderTier.GUIDED &&
+                it.launchFunnelSnapshot.selectedIntermittentIntentionId == IntermittentFastIntention.MERCY.name
         }
 
         composeRule.setContent {
@@ -90,10 +93,14 @@ class PersistenceRecreateInstrumentationTest {
         }
 
         clickText(context.getString(TrackerR.string.tracker_start_fast))
-        waitForLiveState("active fast visible after start") { it.activeIntermittentFast != null }
+        waitForLiveState("active fast visible after start") {
+            it.activeIntermittentFast?.intentionId == IntermittentFastIntention.PRAYER.name
+        }
         assertText(context.getString(TrackerR.string.tracker_fast_in_progress))
         AppContainer.repository.flushForTesting()
-        waitForReloadedState("active fast stored after start") { it.activeIntermittentFast != null }
+        waitForReloadedState("active fast stored after start") {
+            it.activeIntermittentFast?.intentionId == IntermittentFastIntention.PRAYER.name
+        }
 
         AppContainer.repository.cancelIntermittentFast()
         AppContainer.repository.flushForTesting()
@@ -242,6 +249,7 @@ class PersistenceRecreateInstrumentationTest {
         repository.setIndependentAppNoticeAcknowledged(true)
         repository.setSelectedRegion(RegionProfile.US)
         repository.setReminderTier(ReminderTier.BALANCED)
+        repository.setIntermittentIntention(IntermittentFastIntention.PRAYER.name)
         repository.completeOnboarding(Instant.parse("2026-03-13T00:00:00Z"))
         repository.flushForTesting()
         waitForReloadedState("completed onboarding seed stored") {

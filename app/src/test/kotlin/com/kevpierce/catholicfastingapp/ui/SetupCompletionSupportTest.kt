@@ -11,12 +11,13 @@ class SetupCompletionSupportTest {
             SetupCompletionState.from(
                 setupProgressState =
                     SetupProgressState(
-                        completedSteps = 4,
-                        totalSteps = 4,
+                        completedSteps = 5,
+                        totalSteps = 5,
                         birthProfileComplete = false,
                         independentNoticeAcknowledged = true,
                         regionSelected = true,
                         reminderTierSelected = true,
+                        intermittentIntentionSelected = true,
                         onboardingCompleted = false,
                     ),
                 notificationPermissionGranted = false,
@@ -34,11 +35,12 @@ class SetupCompletionSupportTest {
                 setupProgressState =
                     SetupProgressState(
                         completedSteps = 2,
-                        totalSteps = 4,
+                        totalSteps = 5,
                         birthProfileComplete = false,
                         independentNoticeAcknowledged = true,
                         regionSelected = true,
                         reminderTierSelected = false,
+                        intermittentIntentionSelected = true,
                         onboardingCompleted = false,
                     ),
                 notificationPermissionGranted = false,
@@ -55,12 +57,13 @@ class SetupCompletionSupportTest {
             SetupCompletionState.from(
                 setupProgressState =
                     SetupProgressState(
-                        completedSteps = 4,
-                        totalSteps = 4,
+                        completedSteps = 5,
+                        totalSteps = 5,
                         birthProfileComplete = true,
                         independentNoticeAcknowledged = true,
                         regionSelected = true,
                         reminderTierSelected = true,
+                        intermittentIntentionSelected = true,
                         onboardingCompleted = false,
                     ),
                 notificationPermissionGranted = false,
@@ -77,12 +80,13 @@ class SetupCompletionSupportTest {
             SetupCompletionState.from(
                 setupProgressState =
                     SetupProgressState(
-                        completedSteps = 4,
-                        totalSteps = 4,
+                        completedSteps = 5,
+                        totalSteps = 5,
                         birthProfileComplete = true,
                         independentNoticeAcknowledged = true,
                         regionSelected = true,
                         reminderTierSelected = true,
+                        intermittentIntentionSelected = true,
                         onboardingCompleted = false,
                     ),
                 notificationPermissionGranted = true,
@@ -100,11 +104,12 @@ class SetupCompletionSupportTest {
                 setupProgressState =
                     SetupProgressState(
                         completedSteps = 1,
-                        totalSteps = 4,
+                        totalSteps = 5,
                         birthProfileComplete = false,
                         independentNoticeAcknowledged = true,
                         regionSelected = false,
                         reminderTierSelected = true,
+                        intermittentIntentionSelected = true,
                         onboardingCompleted = false,
                     ),
                 notificationPermissionGranted = false,

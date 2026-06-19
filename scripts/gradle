@@ -1,0 +1,19 @@
+#!/usr/bin/env sh
+set -eu
+
+repo_root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+
+if [ -d /opt/homebrew/opt/openjdk@21 ]; then
+  export JAVA_HOME=${JAVA_HOME:-/opt/homebrew/opt/openjdk@21}
+elif [ -d "/Applications/Android Studio.app/Contents/jbr/Contents/Home" ]; then
+  export JAVA_HOME=${JAVA_HOME:-/Applications/Android Studio.app/Contents/jbr/Contents/Home}
+fi
+
+export GRADLE_USER_HOME=${GRADLE_USER_HOME:-"$repo_root/.gradle-codex"}
+export GRADLE_OPTS="${GRADLE_OPTS:-} -Dorg.gradle.native=false -Dorg.gradle.vfs.watch=false"
+
+if [ -x /opt/homebrew/bin/gradle ]; then
+  exec /opt/homebrew/bin/gradle "$@"
+fi
+
+exec "$repo_root/.local-tools/gradle-9.4.1/bin/gradle" "$@"

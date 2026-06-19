@@ -6,6 +6,8 @@
     <string name="guidance_label_travel">Voyage</string>
     <string name="guidance_label_social_meal">Repas social</string>
     <string name="guidance_label_medical_recovery">Récupération médicale</string>
+    <string name="guidance_accessibility_selected">Sélectionné</string>
+    <string name="guidance_accessibility_not_selected">Non sélectionné</string>
     <string name="guidance_avoid_value">Éviter : %1$s</string>
     <string name="guidance_permitted_value">Permis : %1$s</string>
     <string name="guidance_meal_pattern_value">Rythme des repas : %1$s</string>

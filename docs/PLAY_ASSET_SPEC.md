@@ -4,9 +4,9 @@ This document is the source of truth for Google Play submission visuals and the 
 
 Use this alongside:
 
-- [docs/PLAY_SUBMISSION_RUNBOOK.md](/Users/kevpierce/Desktop/CFAAnrdoid/docs/PLAY_SUBMISSION_RUNBOOK.md)
-- [docs/FIRST_PLAY_SUBMISSION.md](/Users/kevpierce/Desktop/CFAAnrdoid/docs/FIRST_PLAY_SUBMISSION.md)
-- [docs/ANDROID_DESIGN.md](/Users/kevpierce/Desktop/CFAAnrdoid/docs/ANDROID_DESIGN.md)
+- [docs/PLAY_SUBMISSION_RUNBOOK.md](docs/PLAY_SUBMISSION_RUNBOOK.md)
+- [docs/FIRST_PLAY_SUBMISSION.md](docs/FIRST_PLAY_SUBMISSION.md)
+- [docs/ANDROID_DESIGN.md](docs/ANDROID_DESIGN.md)
 
 ## Non-Negotiable Asset Rules
 

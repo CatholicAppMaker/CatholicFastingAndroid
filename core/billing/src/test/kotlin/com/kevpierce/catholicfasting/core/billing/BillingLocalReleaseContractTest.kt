@@ -34,17 +34,8 @@ class BillingLocalReleaseContractTest {
     }
 
     @Test
-    fun tipProductQueriesUseStableInAppProductIds() {
-        assertThat(tipProducts())
-            .containsExactly(
-                "com.kevpierce.catholicfasting.tip.small",
-                "com.kevpierce.catholicfasting.tip.medium",
-                "com.kevpierce.catholicfasting.tip.large",
-            ).inOrder()
-
-        tipProducts().forEach { productId ->
-            assertThat(inAppProductQuery(productId)).isNotNull()
-        }
+    fun supportTipProductsStayOutOfTheFirstAndroidReleaseCatalog() {
+        assertThat(tipProducts()).isEmpty()
     }
 
     @Test

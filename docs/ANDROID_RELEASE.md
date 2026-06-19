@@ -11,15 +11,15 @@ Use this repo flow for a Play-ready signed Android bundle.
 ## Build commands
 
 - Cleanup gate:
-  - `JAVA_HOME='/Applications/Android Studio.app/Contents/jbr/Contents/Home' ANDROID_SDK_ROOT="$HOME/Library/Android/sdk" ./.local-tools/gradle-9.4.1/bin/gradle --no-daemon ktlintCheck detekt lint testDebugUnitTest`
+  - `ANDROID_SDK_ROOT="$HOME/Library/Android/sdk" ./scripts/gradle --no-daemon ktlintCheck detekt lint testDebugUnitTest`
 - Targeted connected release gate:
-  - `JAVA_HOME='/Applications/Android Studio.app/Contents/jbr/Contents/Home' ANDROID_SDK_ROOT="$HOME/Library/Android/sdk" ./.local-tools/gradle-9.4.1/bin/gradle --no-daemon app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.kevpierce.catholicfastingapp.ReleaseRoutingInstrumentationTest,com.kevpierce.catholicfastingapp.PrivacyLocalizationInstrumentationTest`
+  - `ANDROID_SDK_ROOT="$HOME/Library/Android/sdk" ./scripts/gradle --no-daemon app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.kevpierce.catholicfastingapp.ReleaseRoutingInstrumentationTest,com.kevpierce.catholicfastingapp.PrivacyLocalizationInstrumentationTest`
 - Expanded connected parity gate:
-  - `JAVA_HOME='/Applications/Android Studio.app/Contents/jbr/Contents/Home' ANDROID_SDK_ROOT="$HOME/Library/Android/sdk" ./.local-tools/gradle-9.4.1/bin/gradle --no-daemon app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.kevpierce.catholicfastingapp.ExpandedReleaseUiInstrumentationTest`
+  - `ANDROID_SDK_ROOT="$HOME/Library/Android/sdk" ./scripts/gradle --no-daemon app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.kevpierce.catholicfastingapp.ExpandedReleaseUiInstrumentationTest,com.kevpierce.catholicfastingapp.LocalizationResourcesInstrumentationTest`
 - Full connected gate:
-  - `JAVA_HOME='/Applications/Android Studio.app/Contents/jbr/Contents/Home' ANDROID_SDK_ROOT="$HOME/Library/Android/sdk" ./.local-tools/gradle-9.4.1/bin/gradle --no-daemon app:connectedDebugAndroidTest`
+  - `ANDROID_SDK_ROOT="$HOME/Library/Android/sdk" ./scripts/gradle --no-daemon app:connectedDebugAndroidTest`
 - Signed Play bundle:
-  - `JAVA_HOME='/Applications/Android Studio.app/Contents/jbr/Contents/Home' ANDROID_SDK_ROOT="$HOME/Library/Android/sdk" ./.local-tools/gradle-9.4.1/bin/gradle --no-daemon :app:bundleRelease`
+  - `ANDROID_SDK_ROOT="$HOME/Library/Android/sdk" ./scripts/gradle --no-daemon :app:bundleRelease`
 
 ## Local-only 9/10 confidence gate
 
@@ -29,11 +29,11 @@ states, Android-native manifest/package configuration, notification receivers,
 widgets, shortcuts, deep links, cold launch/recreate, and persisted app state.
 
 - Warning-fail cleanup gate:
-  - `JAVA_HOME='/Applications/Android Studio.app/Contents/jbr/Contents/Home' ANDROID_SDK_ROOT="$HOME/Library/Android/sdk" ./.local-tools/gradle-9.4.1/bin/gradle --no-daemon --warning-mode fail ktlintCheck detekt lint testDebugUnitTest`
+  - `ANDROID_SDK_ROOT="$HOME/Library/Android/sdk" ./scripts/gradle --no-daemon --warning-mode fail ktlintCheck detekt lint testDebugUnitTest`
 - Targeted local-only 9/10 connected gate:
-  - `JAVA_HOME='/Applications/Android Studio.app/Contents/jbr/Contents/Home' ANDROID_SDK_ROOT="$HOME/Library/Android/sdk" ./.local-tools/gradle-9.4.1/bin/gradle --no-daemon --warning-mode fail app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.kevpierce.catholicfastingapp.PremiumBillingStateInstrumentationTest,com.kevpierce.catholicfastingapp.PersistenceRecreateInstrumentationTest,com.kevpierce.catholicfastingapp.ReleaseRoutingInstrumentationTest`
+  - `ANDROID_SDK_ROOT="$HOME/Library/Android/sdk" ./scripts/gradle --no-daemon --warning-mode fail app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.kevpierce.catholicfastingapp.PremiumBillingStateInstrumentationTest,com.kevpierce.catholicfastingapp.PersistenceRecreateInstrumentationTest,com.kevpierce.catholicfastingapp.ReleaseRoutingInstrumentationTest,com.kevpierce.catholicfastingapp.LocalizationResourcesInstrumentationTest`
 - Full warning-fail connected gate:
-  - `JAVA_HOME='/Applications/Android Studio.app/Contents/jbr/Contents/Home' ANDROID_SDK_ROOT="$HOME/Library/Android/sdk" ./.local-tools/gradle-9.4.1/bin/gradle --no-daemon --warning-mode fail app:connectedDebugAndroidTest`
+  - `ANDROID_SDK_ROOT="$HOME/Library/Android/sdk" ./scripts/gradle --no-daemon --warning-mode fail app:connectedDebugAndroidTest`
 - Dead-test scan:
   - `find app/src/androidTest app/src/test core feature -path '*/build' -prune -o -name '*.kt' -print | xargs rg -n '@Ignore|@Disabled|Assume\.|assumeTrue|assumeFalse'`
 
@@ -48,17 +48,22 @@ rating the release upward.
   - `app/build/outputs/bundle/release/app-release.aab`
 - R8 deobfuscation mapping:
   - `app/build/outputs/mapping/release/mapping.txt`
-- Native debug symbols:
+- Native debug symbols, if Gradle generates a native symbol archive for the build:
   - `app/build/outputs/native-debug-symbols/release/native-debug-symbols.zip`
 
-Upload the mapping and native-symbol files in Play Console when the release review
-page asks for deobfuscation or native debug symbols. They make crash and ANR
-reports more readable without changing user-facing behavior.
+Upload `mapping.txt` in Play Console when the release review page asks for a
+deobfuscation file. Upload native debug symbols only if the
+`native-debug-symbols.zip` file exists for the current build. These files make
+crash and ANR reports more readable without changing user-facing behavior.
 
 ## Pre-upload checks
 
 - Confirm the final checklist in `PROJECT_CHECKLIST.md` is fully checked.
+- Confirm `docs/ANDROID_IOS_45_PARITY_MATRIX.md` still matches the approved iOS
+  4.5 phone scope and Android closed-test decisions.
 - Confirm `docs/PHONE_RELEASE_VALIDATION.md` is fully checked.
 - Confirm the Play listing and privacy policy still match the current local-only scope with no backup/export/import flows.
+- Confirm support tips remain excluded from the Android 1.0 Play catalog unless
+  a later release explicitly reintroduces them.
 - Bump `versionCode` and `versionName` before the final release candidate build.
 - Verify the release bundle is signed with the upload key, not the debug key.

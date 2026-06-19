@@ -110,11 +110,14 @@
     <string name="onboarding_quote_reminder_on">Rappel de citation activé</string>
     <string name="onboarding_quote_reminder_off">Rappel de citation désactivé</string>
     <string name="onboarding_hour_value">%1$d:00</string>
+    <string name="onboarding_intention_title">Première intention de jeûne</string>
+    <string name="onboarding_intention_body">Choisissez la raison qui accompagnera votre premier jeûne suivi dans Aujourd\'hui et Suivre le jeûne.</string>
+    <string name="onboarding_intention_pending">Sélectionnez une intention avant de terminer la configuration.</string>
     <string name="onboarding_premium_title">Aperçu Premium</string>
     <string name="onboarding_premium_body">Premium ajoute la planification saisonnière, l\'accompagnement de reprise, les recommandations de rappels et des outils de réflexion privée sans changer le modèle de confiance local d\'abord.</string>
     <string name="onboarding_quote_card_value">« %1$s » — %2$s</string>
     <string name="onboarding_finish">Terminer la configuration</string>
-    <string name="onboarding_finish_blocked">Terminer la configuration se débloque lorsque la confiance, la région et le rythme des rappels sont définis.</string>
+    <string name="onboarding_finish_blocked">La fin de la configuration se débloque lorsque la confiance, la région, le rythme des rappels et la première intention sont définis.</string>
     <string name="onboarding_notification_permission_needed">L\'autorisation de notification est encore nécessaire si vous voulez recevoir des rappels sur ce téléphone.</string>
     <string name="onboarding_request_notification_permission">Autoriser les notifications de rappel</string>
     <string name="status_schedule_saved">%1$s enregistré localement.</string>

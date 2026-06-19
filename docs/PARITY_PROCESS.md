@@ -3,7 +3,7 @@
 ## Source of Truth
 
 - iOS app location: `/Users/kevpierce/Desktop/CatholicFastingApp`
-- Android app location: `/Users/kevpierce/Desktop/CFAAnrdoid`
+- Android app location: `.`
 
 The iOS app is the product and behavior reference for:
 
@@ -49,7 +49,7 @@ Prefer Android-native behavior for:
 1. Check iOS behavior before porting parity-sensitive work.
 2. Implement the Android-native version of that behavior.
 3. Run the Android cleanup gate.
-4. Update `/Users/kevpierce/Desktop/CFAAnrdoid/PROJECT_CHECKLIST.md`.
+4. Update `PROJECT_CHECKLIST.md`.
 5. Note any intentional Android divergence in commit messages or PR descriptions.
 
 ## Definition of a Good Android Checkpoint

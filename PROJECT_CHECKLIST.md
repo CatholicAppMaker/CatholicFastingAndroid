@@ -9,6 +9,16 @@
 - [x] Fresh-install release validation on phone flows
 
 ## Current Working Passes
+- [x] Android/iOS 5.0 Companion parity matrix created for phone outcomes
+- [x] Companion snapshot model and rule engine added for Today rule, live fast, formation, recovery, and next action
+- [x] Tracker intention continuity added for active and completed intermittent fast sessions
+- [x] Today renders Companion-first hierarchy before existing Android dashboard content
+- [x] Track Fast supports intention selection, active intention display, review note, and latest recap
+- [x] Onboarding includes first fasting intention before setup can finish
+- [x] Compose UI tests cover Today companion action routing and Track Fast intention/recap interaction
+- [x] Connected fresh-install test covers reminder tier plus first-intention onboarding payoff
+- [ ] Visual-regression tool selected only if it provides a real record/verify gate; previous screenshot wiring removed as churn
+- [ ] Screenshot baselines recorded for Today companion, Track Fast states, and onboarding intention step after tool selection
 - [x] Fresh install reaches onboarding instead of stale app state
 - [x] Independent app notice acknowledgement is persisted
 - [x] Onboarding completion stays blocked until required setup is complete
@@ -43,6 +53,8 @@
 - [x] Design-system UI tests now cover onboarding, Today, Premium, Guidance, Calendar, Tracker, Settings, and the More hub on device
 - [x] Android UI token decisions documented alongside the higher-level design doc
 - [x] Final phone release validation sweep completed without blocker regressions
+- [x] iOS 4.5 phone parity matrix documented for Android closed-test scope
+- [x] Support-tip products excluded from Android 1.0 closed-test catalog and UI
 
 ## Code Cleanup Gate
 - [x] `ktlintCheck`

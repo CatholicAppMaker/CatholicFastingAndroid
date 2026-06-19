@@ -8,6 +8,13 @@
     <string name="tracker_control_center">Centro de control del ayuno intermitente</string>
     <string name="tracker_no_active_fast">No hay un ayuno activo. Elige un objetivo y comienza cuando estes listo.</string>
     <string name="tracker_fast_in_progress">Ayuno en curso</string>
+    <string name="tracker_intention_title">Intención del ayuno</string>
+    <string name="tracker_intention_value">Intención: %1$s</string>
+    <string name="tracker_latest_recap_title">Último resumen del ayuno</string>
+    <string name="tracker_recap_duration_value">%1$s h registradas hacia un objetivo de %2$d h.</string>
+    <string name="tracker_review_note_label">Nota de revisión</string>
+    <string name="tracker_review_note_supporting">Nota opcional guardada con esta sesión completada.</string>
+    <string name="tracker_review_note_value">Nota de revisión: %1$s</string>
     <string name="tracker_started_value">Inicio: %1$s</string>
     <string name="tracker_elapsed_value">Tiempo transcurrido: %1$s</string>
     <plurals name="tracker_target_hours_value">
@@ -60,4 +67,6 @@
     <string name="tracker_weekday_fri">Vie</string>
     <string name="tracker_weekday_sat">Sab</string>
     <string name="tracker_weekday_unknown">?</string>
+    <string name="tracker_accessibility_selected">Seleccionado</string>
+    <string name="tracker_accessibility_not_selected">No seleccionado</string>
 </resources>

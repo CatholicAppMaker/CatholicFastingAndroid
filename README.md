@@ -21,16 +21,38 @@ The iOS app remains the behavioral reference for parity-sensitive logic, but And
 
 ## Project Workflow
 
-See [docs/PARITY_PROCESS.md](/Users/kevpierce/Desktop/CFAAnrdoid/docs/PARITY_PROCESS.md) for the working agreement between the Android and iOS apps.
+See [docs/PARITY_PROCESS.md](docs/PARITY_PROCESS.md) for the working agreement between the Android and iOS apps.
+
+## Local Tooling
+
+This workspace has a repo-local Gradle wrapper for command-line runs that are
+sensitive to local macOS runtime differences:
+
+```bash
+./scripts/gradle --no-daemon --version
+```
+
+`./scripts/gradle` uses Homebrew OpenJDK 21 when available, keeps Gradle state
+in this repo's ignored `.gradle-codex/` directory, and disables Gradle native
+services/file watching for macOS 27 compatibility.
+
+Design and style passes use the repo-local Impeccable context loader:
+
+```bash
+./scripts/run-impeccable-context.sh
+```
+
+`PRODUCT.md` and `DESIGN.md` are committed at the repo root so Impeccable can
+load Android-specific product, brand, typography, spacing, and seasonal-tone
+rules before a design review.
 
 ## Cleanup Gate
 
 Run this before checkpoint commits and after substantial implementation passes:
 
 ```bash
-JAVA_HOME='/Applications/Android Studio.app/Contents/jbr/Contents/Home' \
 ANDROID_SDK_ROOT="$HOME/Library/Android/sdk" \
-./.local-tools/gradle-9.4.1/bin/gradle --no-daemon \
+./scripts/gradle --no-daemon \
   -Dkotlin.compiler.execution.strategy=in-process \
   ktlintCheck detekt lint testDebugUnitTest
 ```
@@ -43,19 +65,19 @@ For release-candidate validation, also run the connected Android gates from
 
 The current implementation checklist lives in:
 
-- `/Users/kevpierce/Desktop/CFAAnrdoid/PROJECT_CHECKLIST.md`
+- `PROJECT_CHECKLIST.md`
 
 Phone validation status lives in:
 
-- `/Users/kevpierce/Desktop/CFAAnrdoid/docs/PHONE_RELEASE_VALIDATION.md`
+- `docs/PHONE_RELEASE_VALIDATION.md`
 
 ## Release Docs
 
 For release build and store-ops work, use:
 
-- [docs/ANDROID_RELEASE.md](/Users/kevpierce/Desktop/CFAAnrdoid/docs/ANDROID_RELEASE.md)
-- [docs/ANDROID_DESIGN.md](/Users/kevpierce/Desktop/CFAAnrdoid/docs/ANDROID_DESIGN.md)
-- [docs/ANDROID_UI_TOKENS.md](/Users/kevpierce/Desktop/CFAAnrdoid/docs/ANDROID_UI_TOKENS.md)
-- [docs/PLAY_CONSOLE_RELEASE_CHECKLIST.md](/Users/kevpierce/Desktop/CFAAnrdoid/docs/PLAY_CONSOLE_RELEASE_CHECKLIST.md)
-- [docs/PLAY_LISTING_COPY.md](/Users/kevpierce/Desktop/CFAAnrdoid/docs/PLAY_LISTING_COPY.md)
-- [docs/PRIVACY_POLICY.md](/Users/kevpierce/Desktop/CFAAnrdoid/docs/PRIVACY_POLICY.md)
+- [docs/ANDROID_RELEASE.md](docs/ANDROID_RELEASE.md)
+- [docs/ANDROID_DESIGN.md](docs/ANDROID_DESIGN.md)
+- [docs/ANDROID_UI_TOKENS.md](docs/ANDROID_UI_TOKENS.md)
+- [docs/PLAY_CONSOLE_RELEASE_CHECKLIST.md](docs/PLAY_CONSOLE_RELEASE_CHECKLIST.md)
+- [docs/PLAY_LISTING_COPY.md](docs/PLAY_LISTING_COPY.md)
+- [docs/PRIVACY_POLICY.md](docs/PRIVACY_POLICY.md)

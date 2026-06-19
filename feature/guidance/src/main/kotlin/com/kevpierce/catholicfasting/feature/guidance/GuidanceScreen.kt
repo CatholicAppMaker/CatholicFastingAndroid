@@ -19,6 +19,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import com.kevpierce.catholicfasting.core.model.GuidanceScenario
 import com.kevpierce.catholicfasting.core.model.RuleBundleAudit
 import com.kevpierce.catholicfasting.core.model.RuleSettings
@@ -135,10 +138,17 @@ private fun ScenarioChipRow(
         horizontalArrangement = Arrangement.spacedBy(spacing),
     ) {
         GuidanceScenario.entries.forEach { entry ->
+            val label = entry.localizedLabel()
+            val selectedState = guidanceSelectedStateDescription(scenario == entry)
             FilterChip(
                 selected = scenario == entry,
                 onClick = { onScenarioChange(entry) },
-                label = { Text(entry.localizedLabel()) },
+                modifier =
+                    Modifier.semantics {
+                        contentDescription = label
+                        stateDescription = selectedState
+                    },
+                label = { Text(label) },
             )
         }
     }
@@ -171,6 +181,16 @@ private fun GuidanceDetailItems(
         )
     }
 }
+
+@Composable
+private fun guidanceSelectedStateDescription(selected: Boolean): String =
+    stringResource(
+        if (selected) {
+            R.string.guidance_accessibility_selected
+        } else {
+            R.string.guidance_accessibility_not_selected
+        },
+    )
 
 @Composable
 private fun BulletSubsection(

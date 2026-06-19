@@ -2,6 +2,7 @@ package com.kevpierce.catholicfastingapp.ui
 
 import com.google.common.truth.Truth.assertThat
 import com.kevpierce.catholicfasting.core.model.AppDeepLinks
+import com.kevpierce.catholicfasting.core.model.CompanionActionDestination
 import org.junit.Test
 
 class AppRouteResolverTest {
@@ -104,5 +105,21 @@ class AppRouteResolverTest {
                     moreSection = MoreSection.SUPPORT_PREMIUM,
                 ),
             )
+    }
+
+    @Test
+    fun companionActionsMapToAndroidDestinations() {
+        assertThat(appRouteFor(CompanionActionDestination.TODAY))
+            .isEqualTo(AppLaunchDestination(TopLevelDestination.TODAY))
+        assertThat(appRouteFor(CompanionActionDestination.FASTING_DAYS))
+            .isEqualTo(AppLaunchDestination(TopLevelDestination.FASTING_DAYS))
+        assertThat(appRouteFor(CompanionActionDestination.TRACK_FAST))
+            .isEqualTo(AppLaunchDestination(TopLevelDestination.TRACK_FAST))
+        assertThat(appRouteFor(CompanionActionDestination.GUIDANCE))
+            .isEqualTo(AppLaunchDestination(TopLevelDestination.MORE, MoreSection.GUIDANCE_RULES))
+        assertThat(appRouteFor(CompanionActionDestination.SETUP))
+            .isEqualTo(AppLaunchDestination(TopLevelDestination.MORE, MoreSection.SETUP_REMINDERS))
+        assertThat(appRouteFor(CompanionActionDestination.PREMIUM))
+            .isEqualTo(AppLaunchDestination(TopLevelDestination.MORE, MoreSection.SUPPORT_PREMIUM))
     }
 }

@@ -108,11 +108,14 @@
     <string name="onboarding_quote_reminder_on">Quote reminder on</string>
     <string name="onboarding_quote_reminder_off">Quote reminder off</string>
     <string name="onboarding_hour_value">%1$d:00</string>
+    <string name="onboarding_intention_title">First fasting intention</string>
+    <string name="onboarding_intention_body">Choose the reason your first tracked fast should carry into Today and Track Fast.</string>
+    <string name="onboarding_intention_pending">Select an intention before finishing setup.</string>
     <string name="onboarding_premium_title">Premium preview</string>
     <string name="onboarding_premium_body">Premium adds season planning, recovery guidance, reminders recommendations, and private reflection tools without changing the local-first trust model.</string>
     <string name="onboarding_quote_card_value">“%1$s” — %2$s</string>
     <string name="onboarding_finish">Finish setup</string>
-    <string name="onboarding_finish_blocked">Finish setup unlocks after trust, region, and reminder rhythm are set.</string>
+    <string name="onboarding_finish_blocked">Finish setup unlocks after trust, region, reminder rhythm, and first intention are set.</string>
     <string name="onboarding_notification_permission_needed">Notification permission is still needed if you want reminder delivery on this phone.</string>
     <string name="onboarding_request_notification_permission">Allow reminder notifications</string>
     <string name="status_schedule_saved">Saved %1$s locally.</string>

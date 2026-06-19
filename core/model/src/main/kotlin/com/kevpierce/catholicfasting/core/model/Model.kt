@@ -211,13 +211,164 @@ data class IntermittentFastSession(
     val endIso: String,
     val targetHours: Int,
     val completedTarget: Boolean,
+    val intentionId: String? = null,
+    val reviewNote: String? = null,
 )
 
 @Serializable
 data class ActiveIntermittentFast(
     val startIso: String,
     val targetHours: Int,
+    val intentionId: String? = null,
 )
+
+@Serializable
+enum class IntermittentFastIntention(
+    val label: String,
+    val detail: String,
+) {
+    PERSONAL_DISCIPLINE(
+        label = "Personal discipline",
+        detail = "Keep this fast focused on steady discipline without pressure.",
+    ),
+    PRAYER(
+        label = "Prayer",
+        detail = "Offer this fast with a concrete prayer intention.",
+    ),
+    MERCY(
+        label = "Mercy",
+        detail = "Pair the fast with charity, patience, or a work of mercy.",
+    ),
+    PENANCE(
+        label = "Penance",
+        detail = "Use this as a voluntary penance when health and duty allow.",
+    ),
+}
+
+@Serializable
+data class IntermittentFastSessionRecap(
+    val durationHours: Double,
+    val targetHours: Int,
+    val completedTarget: Boolean,
+    val title: String,
+    val encouragement: String,
+    val suggestedNextAction: String,
+    val intentionId: String? = null,
+    val reviewNote: String? = null,
+)
+
+@Serializable
+enum class CompanionActionDestination {
+    TODAY,
+    FASTING_DAYS,
+    TRACK_FAST,
+    GUIDANCE,
+    SETUP,
+    PREMIUM,
+}
+
+@Serializable
+enum class CompanionActionPriority {
+    LOW,
+    NORMAL,
+    HIGH,
+}
+
+@Serializable
+data class CompanionNextAction(
+    val id: String,
+    val title: String,
+    val detail: String,
+    val destination: CompanionActionDestination,
+    val priority: CompanionActionPriority = CompanionActionPriority.NORMAL,
+    val requiresPremium: Boolean = false,
+)
+
+@Serializable
+data class CompanionRuleDecision(
+    val obligationLine: String,
+    val rationale: String,
+    val sourceLine: String,
+    val todayTitles: List<String> = emptyList(),
+    val hasMandatoryObservance: Boolean = false,
+)
+
+@Serializable
+data class CompanionLiveFastState(
+    val progress: FastProgressState,
+    val activeStartIso: String? = null,
+    val targetHours: Int? = null,
+    val intentionId: String? = null,
+    val latestSessionRecap: IntermittentFastSessionRecap? = null,
+)
+
+@Serializable
+data class CompanionFormationState(
+    val seasonLabel: String,
+    val journeyTitle: String,
+    val nextJourneyActionTitle: String,
+    val nextJourneyActionDetail: String,
+    val completionSummary: String,
+    val recoverySummary: String? = null,
+    val currentStreak: Int = 0,
+    val premiumUnlocked: Boolean = false,
+)
+
+@Serializable
+data class CompanionSnapshot(
+    val generatedAtIso: String,
+    val ruleDecision: CompanionRuleDecision,
+    val liveFast: CompanionLiveFastState,
+    val nextRequiredObservance: Observance? = null,
+    val formation: CompanionFormationState,
+    val primaryAction: CompanionNextAction,
+    val secondaryActions: List<CompanionNextAction> = emptyList(),
+)
+
+@Serializable
+sealed class FastProgressState {
+    abstract val title: String
+    abstract val detail: String
+
+    @Serializable
+    data class Inactive(
+        override val title: String = "No active fast",
+        override val detail: String = "Choose an intention and begin when ready.",
+    ) : FastProgressState()
+
+    @Serializable
+    data class Active(
+        val elapsedSeconds: Long,
+        val remainingSeconds: Long,
+        val targetHours: Int,
+        val progress: Float,
+        override val title: String = "Fast in progress",
+        override val detail: String = "Keep the intention steady and sustainable.",
+    ) : FastProgressState()
+
+    @Serializable
+    data class TargetReached(
+        val elapsedSeconds: Long,
+        val targetHours: Int,
+        override val title: String = "Target reached",
+        override val detail: String = "End when prudent, or continue with care.",
+    ) : FastProgressState()
+
+    @Serializable
+    data class EatingWindow(
+        val latestRecap: IntermittentFastSessionRecap,
+        val windowRemainingSeconds: Long,
+        override val title: String = "Eating window",
+        override val detail: String = "Recover gently before the next fast.",
+    ) : FastProgressState()
+
+    @Serializable
+    data class CompletedRecap(
+        val recap: IntermittentFastSessionRecap,
+        override val title: String = recap.title,
+        override val detail: String = recap.encouragement,
+    ) : FastProgressState()
+}
 
 @Serializable
 data class IntermittentSchedulePlan(
@@ -623,13 +774,17 @@ data class SyncSnapshot(
 data class OnboardingState(
     val isCompleted: Boolean = false,
     val currentStep: Int = 1,
-    val totalSteps: Int = 4,
+    val totalSteps: Int = 5,
     val noticeAcknowledged: Boolean = false,
     val selectedRegion: RegionProfile = RegionProfile.US,
+    val regionSelected: Boolean = false,
     val selectedReminderTier: ReminderTier = ReminderTier.BALANCED,
+    val reminderTierSelected: Boolean = false,
     val dailyQuoteReminderEnabled: Boolean = false,
     val dailyQuoteReminderHour: Int = 8,
     val dailyQuoteReminderMinute: Int = 0,
+    val selectedIntermittentIntentionId: String = IntermittentFastIntention.PERSONAL_DISCIPLINE.name,
+    val intermittentIntentionSelected: Boolean = false,
     val hasFullBirthDate: Boolean = false,
 )
 
@@ -641,6 +796,7 @@ data class SetupProgressState(
     val independentNoticeAcknowledged: Boolean,
     val regionSelected: Boolean,
     val reminderTierSelected: Boolean,
+    val intermittentIntentionSelected: Boolean,
     val onboardingCompleted: Boolean,
 )
 
@@ -755,10 +911,14 @@ data class LaunchFunnelSnapshot(
     val completedOnboardingAtIso: String? = null,
     val independentAppNoticeAcknowledged: Boolean = false,
     val selectedRegion: RegionProfile = RegionProfile.US,
+    val regionSelected: Boolean = false,
     val selectedReminderTier: ReminderTier = ReminderTier.BALANCED,
+    val reminderTierSelected: Boolean = false,
     val dailyQuoteReminderEnabled: Boolean = false,
     val dailyQuoteReminderHour: Int = 8,
     val dailyQuoteReminderMinute: Int = 0,
+    val selectedIntermittentIntentionId: String = IntermittentFastIntention.PERSONAL_DISCIPLINE.name,
+    val intermittentIntentionSelected: Boolean = false,
     val firstActionCompletedAtIso: String? = null,
     val paywallSeenAtIso: String? = null,
     val paywallViewCount: Int = 0,

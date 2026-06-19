@@ -6,6 +6,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import com.kevpierce.catholicfasting.core.data.AppContainer
+import com.kevpierce.catholicfasting.core.model.IntermittentFastIntention
 import com.kevpierce.catholicfastingapp.notifications.NotificationActionReceiver
 import org.junit.Before
 import org.junit.Test
@@ -29,7 +30,10 @@ class NotificationActionInstrumentationTest {
         val repository = AppContainer.repository
         val start = Instant.now().minus(Duration.ofHours(25))
         repository.setIntermittentPresetHours(4)
-        repository.startIntermittentFast(now = start)
+        repository.startIntermittentFastWithIntention(
+            intentionId = IntermittentFastIntention.PENANCE.name,
+            now = start,
+        )
 
         NotificationActionReceiver().onReceive(
             context,
@@ -44,6 +48,8 @@ class NotificationActionInstrumentationTest {
         assertThat(dashboardState.activeIntermittentFast).isNull()
         assertThat(dashboardState.intermittentSessions).isNotEmpty()
         assertThat(dashboardState.intermittentSessions.first().completedTarget).isTrue()
+        assertThat(dashboardState.intermittentSessions.first().intentionId)
+            .isEqualTo(IntermittentFastIntention.PENANCE.name)
     }
 
     @Test

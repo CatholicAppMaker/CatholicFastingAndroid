@@ -16,7 +16,8 @@ internal data class SetupCompletionState(
                 canCompleteOnboarding =
                     setupProgressState.independentNoticeAcknowledged &&
                         setupProgressState.regionSelected &&
-                        setupProgressState.reminderTierSelected,
+                        setupProgressState.reminderTierSelected &&
+                        setupProgressState.intermittentIntentionSelected,
                 shouldPromptForNotificationPermission =
                     notificationPermissionSupported &&
                         !notificationPermissionGranted &&

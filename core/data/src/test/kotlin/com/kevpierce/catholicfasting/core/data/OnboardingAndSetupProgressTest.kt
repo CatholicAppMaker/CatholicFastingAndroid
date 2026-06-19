@@ -1,6 +1,7 @@
 package com.kevpierce.catholicfasting.core.data
 
 import com.google.common.truth.Truth.assertThat
+import com.kevpierce.catholicfasting.core.model.IntermittentFastIntention
 import com.kevpierce.catholicfasting.core.model.LaunchFunnelSnapshot
 import com.kevpierce.catholicfasting.core.model.RegionProfile
 import com.kevpierce.catholicfasting.core.model.ReminderTier
@@ -39,6 +40,7 @@ class OnboardingAndSetupProgressTest {
                             startedAtIso = "2026-03-13T00:00:00Z",
                             independentAppNoticeAcknowledged = true,
                             selectedRegion = RegionProfile.US,
+                            regionSelected = true,
                             selectedReminderTier = ReminderTier.BALANCED,
                         ),
                 ),
@@ -46,6 +48,27 @@ class OnboardingAndSetupProgressTest {
 
         assertThat(onboardingState.currentStep).isEqualTo(2)
         assertThat(onboardingState.selectedRegion).isEqualTo(RegionProfile.US)
+    }
+
+    @Test
+    fun onboardingStateMovesToRegionStepWhenDefaultRegionHasNotBeenConfirmed() {
+        val onboardingState =
+            buildOnboardingState(
+                sampleState(
+                    launchFunnelSnapshot =
+                        LaunchFunnelSnapshot(
+                            startedAtIso = "2026-03-13T00:00:00Z",
+                            independentAppNoticeAcknowledged = true,
+                            selectedRegion = RegionProfile.US,
+                            regionSelected = false,
+                            selectedReminderTier = ReminderTier.BALANCED,
+                        ),
+                ),
+            )
+
+        assertThat(onboardingState.currentStep).isEqualTo(2)
+        assertThat(onboardingState.selectedRegion).isEqualTo(RegionProfile.US)
+        assertThat(onboardingState.regionSelected).isFalse()
     }
 
     @Test
@@ -58,6 +81,7 @@ class OnboardingAndSetupProgressTest {
                             startedAtIso = "2026-03-13T00:00:00Z",
                             independentAppNoticeAcknowledged = true,
                             selectedRegion = RegionProfile.US,
+                            regionSelected = true,
                             selectedReminderTier = ReminderTier.MINIMAL,
                         ),
                 ),
@@ -65,6 +89,29 @@ class OnboardingAndSetupProgressTest {
 
         assertThat(onboardingState.currentStep).isEqualTo(3)
         assertThat(onboardingState.selectedReminderTier).isEqualTo(ReminderTier.MINIMAL)
+        assertThat(onboardingState.reminderTierSelected).isFalse()
+    }
+
+    @Test
+    fun onboardingStateMovesToReminderStepWhenDefaultTierHasNotBeenSelected() {
+        val onboardingState =
+            buildOnboardingState(
+                sampleState(
+                    launchFunnelSnapshot =
+                        LaunchFunnelSnapshot(
+                            startedAtIso = "2026-03-13T00:00:00Z",
+                            independentAppNoticeAcknowledged = true,
+                            selectedRegion = RegionProfile.US,
+                            regionSelected = true,
+                            selectedReminderTier = ReminderTier.BALANCED,
+                            reminderTierSelected = false,
+                        ),
+                ),
+            )
+
+        assertThat(onboardingState.currentStep).isEqualTo(3)
+        assertThat(onboardingState.selectedReminderTier).isEqualTo(ReminderTier.BALANCED)
+        assertThat(onboardingState.reminderTierSelected).isFalse()
     }
 
     @Test
@@ -85,21 +132,26 @@ class OnboardingAndSetupProgressTest {
                             completedOnboardingAtIso = "2026-03-13T00:10:00Z",
                             independentAppNoticeAcknowledged = true,
                             selectedRegion = RegionProfile.CANADA,
+                            regionSelected = true,
                             selectedReminderTier = ReminderTier.GUIDED,
+                            reminderTierSelected = true,
+                            selectedIntermittentIntentionId = IntermittentFastIntention.PRAYER.name,
+                            intermittentIntentionSelected = true,
                         ),
                 ),
             )
 
-        assertThat(progress.completedSteps).isEqualTo(4)
+        assertThat(progress.completedSteps).isEqualTo(5)
         assertThat(progress.birthProfileComplete).isTrue()
         assertThat(progress.independentNoticeAcknowledged).isTrue()
         assertThat(progress.regionSelected).isTrue()
         assertThat(progress.reminderTierSelected).isTrue()
+        assertThat(progress.intermittentIntentionSelected).isTrue()
         assertThat(progress.onboardingCompleted).isTrue()
     }
 
     @Test
-    fun setupProgressLeavesReminderStepIncompleteForMinimalTier() {
+    fun setupProgressLeavesReminderStepIncompleteWhenTierHasNotBeenSelected() {
         val progress =
             buildSetupProgressState(
                 sampleState(
@@ -108,7 +160,9 @@ class OnboardingAndSetupProgressTest {
                             startedAtIso = "2026-03-13T00:00:00Z",
                             independentAppNoticeAcknowledged = true,
                             selectedRegion = RegionProfile.US,
-                            selectedReminderTier = ReminderTier.MINIMAL,
+                            regionSelected = true,
+                            selectedReminderTier = ReminderTier.BALANCED,
+                            reminderTierSelected = false,
                         ),
                 ),
             )
@@ -119,7 +173,7 @@ class OnboardingAndSetupProgressTest {
     }
 
     @Test
-    fun onboardingStateStaysOnCompletionStepAfterSetupChoicesAreDone() {
+    fun onboardingStateMovesToIntentionStepAfterReminderRhythm() {
         val onboardingState =
             buildOnboardingState(
                 sampleState(
@@ -128,12 +182,40 @@ class OnboardingAndSetupProgressTest {
                             startedAtIso = "2026-03-13T00:00:00Z",
                             independentAppNoticeAcknowledged = true,
                             selectedRegion = RegionProfile.US,
+                            regionSelected = true,
                             selectedReminderTier = ReminderTier.GUIDED,
+                            reminderTierSelected = true,
                         ),
                 ),
             )
 
         assertThat(onboardingState.currentStep).isEqualTo(4)
+        assertThat(onboardingState.intermittentIntentionSelected).isFalse()
+        assertThat(onboardingState.isCompleted).isFalse()
+    }
+
+    @Test
+    fun onboardingStateMovesToCompletionStepAfterIntentionIsSelected() {
+        val onboardingState =
+            buildOnboardingState(
+                sampleState(
+                    launchFunnelSnapshot =
+                        LaunchFunnelSnapshot(
+                            startedAtIso = "2026-03-13T00:00:00Z",
+                            independentAppNoticeAcknowledged = true,
+                            selectedRegion = RegionProfile.US,
+                            regionSelected = true,
+                            selectedReminderTier = ReminderTier.GUIDED,
+                            reminderTierSelected = true,
+                            selectedIntermittentIntentionId = IntermittentFastIntention.MERCY.name,
+                            intermittentIntentionSelected = true,
+                        ),
+                ),
+            )
+
+        assertThat(onboardingState.currentStep).isEqualTo(5)
+        assertThat(onboardingState.selectedIntermittentIntentionId)
+            .isEqualTo(IntermittentFastIntention.MERCY.name)
         assertThat(onboardingState.isCompleted).isFalse()
     }
 
@@ -153,8 +235,9 @@ class OnboardingAndSetupProgressTest {
                 ),
             )
 
-        assertThat(onboardingState.currentStep).isEqualTo(4)
+        assertThat(onboardingState.currentStep).isEqualTo(5)
         assertThat(onboardingState.isCompleted).isTrue()
+        assertThat(onboardingState.regionSelected).isTrue()
     }
 
     private fun sampleState(
@@ -164,7 +247,9 @@ class OnboardingAndSetupProgressTest {
                 startedAtIso = "2026-03-13T00:00:00Z",
                 independentAppNoticeAcknowledged = true,
                 selectedRegion = RegionProfile.US,
+                regionSelected = true,
                 selectedReminderTier = ReminderTier.BALANCED,
+                reminderTierSelected = true,
             ),
     ): DashboardState =
         DashboardState(

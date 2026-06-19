@@ -51,10 +51,11 @@ Use this flow if you already have the verified Google Play developer account but
    - `app/build/outputs/bundle/release/app-release.aab`
 2. Keep the generated diagnostic artifacts available for Play warnings:
    - `app/build/outputs/mapping/release/mapping.txt`
-   - `app/build/outputs/native-debug-symbols/release/native-debug-symbols.zip`
+   - `app/build/outputs/native-debug-symbols/release/native-debug-symbols.zip`, if Gradle generates it
 3. Create a new production or required testing-track release.
 4. Upload the `.aab`.
-5. Upload `mapping.txt` and `native-debug-symbols.zip` if Play asks for them.
+5. Upload `mapping.txt` if Play asks for deobfuscation. Upload
+   `native-debug-symbols.zip` only if the current build generated it.
 6. Add concise first-release notes.
 7. Wait for Play to process the artifact.
 8. Review:

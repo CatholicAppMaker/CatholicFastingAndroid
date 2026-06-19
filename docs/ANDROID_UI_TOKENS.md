@@ -2,7 +2,7 @@
 
 This document is the concrete token companion to:
 
-- `/Users/kevpierce/Desktop/CFAAnrdoid/docs/ANDROID_DESIGN.md`
+- `docs/ANDROID_DESIGN.md`
 
 Use it when implementing or reviewing Android UI styling decisions.
 
@@ -94,7 +94,7 @@ Accents are not allowed on:
 
 The token layer currently lives in:
 
-- `/Users/kevpierce/Desktop/CFAAnrdoid/core/ui`
+- `core/ui`
 
 Key types:
 

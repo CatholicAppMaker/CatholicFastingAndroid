@@ -2,6 +2,7 @@ package com.kevpierce.catholicfasting.core.data
 
 import com.google.common.truth.Truth.assertThat
 import com.kevpierce.catholicfasting.core.model.CompletionStatus
+import com.kevpierce.catholicfasting.core.model.IntermittentFastIntention
 import com.kevpierce.catholicfasting.core.model.RegionProfile
 import com.kevpierce.catholicfasting.core.model.ReminderTier
 import com.kevpierce.catholicfasting.core.model.RuleSettings
@@ -39,6 +40,7 @@ class RepositoryMutationContractTest {
 
         assertThat(repository.dashboardState.value.settings.regionProfile).isEqualTo(RegionProfile.CANADA)
         assertThat(repository.dashboardState.value.launchFunnelSnapshot.selectedRegion).isEqualTo(RegionProfile.CANADA)
+        assertThat(repository.dashboardState.value.launchFunnelSnapshot.regionSelected).isTrue()
     }
 
     @Test
@@ -71,6 +73,7 @@ class RepositoryMutationContractTest {
 
         assertThat(repository.dashboardState.value.settings.regionProfile).isEqualTo(RegionProfile.CANADA)
         assertThat(repository.dashboardState.value.launchFunnelSnapshot.selectedRegion).isEqualTo(RegionProfile.CANADA)
+        assertThat(repository.dashboardState.value.launchFunnelSnapshot.regionSelected).isTrue()
     }
 
     @Test
@@ -81,6 +84,17 @@ class RepositoryMutationContractTest {
 
         assertThat(repository.dashboardState.value.launchFunnelSnapshot.dailyQuoteReminderEnabled).isTrue()
         assertThat(repository.dashboardState.value.launchFunnelSnapshot.selectedReminderTier).isEqualTo(ReminderTier.BALANCED)
+        assertThat(repository.dashboardState.value.launchFunnelSnapshot.reminderTierSelected).isFalse()
+    }
+
+    @Test
+    fun reminderTierSelectionMarksReminderRhythmComplete() {
+        val repository = repository()
+
+        repository.setReminderTier(ReminderTier.GUIDED)
+
+        assertThat(repository.dashboardState.value.launchFunnelSnapshot.selectedReminderTier).isEqualTo(ReminderTier.GUIDED)
+        assertThat(repository.dashboardState.value.launchFunnelSnapshot.reminderTierSelected).isTrue()
     }
 
     @Test
@@ -270,16 +284,23 @@ class RepositoryMutationContractTest {
     fun endFastStoresCompletedSessionAndClearsActiveFast() {
         val repository = repository()
 
-        repository.startIntermittentFast(Instant.parse("2026-03-13T08:00:00Z"))
-        repository.endIntermittentFast(Instant.parse("2026-03-14T01:00:00Z"))
+        repository.startIntermittentFastWithIntention(
+            intentionId = IntermittentFastIntention.MERCY.name,
+            now = Instant.parse("2026-03-13T08:00:00Z"),
+        )
+        repository.endIntermittentFastWithReview(
+            reviewNote = "Shared the evening meal calmly.",
+            now = Instant.parse("2026-03-14T01:00:00Z"),
+        )
 
         assertThat(repository.dashboardState.value.activeIntermittentFast).isNull()
         assertThat(repository.dashboardState.value.intermittentSessions).hasSize(1)
-        assertThat(
+        val session =
             repository.dashboardState.value.intermittentSessions
                 .first()
-                .completedTarget,
-        ).isTrue()
+        assertThat(session.completedTarget).isTrue()
+        assertThat(session.intentionId).isEqualTo(IntermittentFastIntention.MERCY.name)
+        assertThat(session.reviewNote).isEqualTo("Shared the evening meal calmly.")
     }
 
     @Test
@@ -306,6 +327,11 @@ class RepositoryMutationContractTest {
 
         assertThat(ended).isTrue()
         assertThat(repository.dashboardState.value.intermittentSessions).hasSize(1)
+        val session =
+            repository.dashboardState.value.intermittentSessions
+                .first()
+        assertThat(session.intentionId).isNull()
+        assertThat(session.reviewNote).isNull()
     }
 
     @Test

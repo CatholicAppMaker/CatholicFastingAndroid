@@ -110,11 +110,14 @@
     <string name="onboarding_quote_reminder_on">Recordatorio de cita activo</string>
     <string name="onboarding_quote_reminder_off">Recordatorio de cita inactivo</string>
     <string name="onboarding_hour_value">%1$d:00</string>
+    <string name="onboarding_intention_title">Primera intención de ayuno</string>
+    <string name="onboarding_intention_body">Elige el motivo que acompañará tu primer ayuno registrado en Hoy y Registrar Ayuno.</string>
+    <string name="onboarding_intention_pending">Selecciona una intención antes de terminar la configuración.</string>
     <string name="onboarding_premium_title">Vista previa premium</string>
     <string name="onboarding_premium_body">Premium agrega planificacion de temporada, guia de recuperacion, recomendaciones de recordatorios y herramientas privadas de reflexion sin cambiar el modelo local-first.</string>
     <string name="onboarding_quote_card_value">"%1$s" — %2$s</string>
     <string name="onboarding_finish">Terminar configuracion</string>
-    <string name="onboarding_finish_blocked">La configuracion final se activa cuando confianza, region y ritmo de recordatorios ya están definidos.</string>
+    <string name="onboarding_finish_blocked">Terminar la configuración se habilita cuando confianza, región, ritmo de recordatorios y primera intención están definidos.</string>
     <string name="onboarding_notification_permission_needed">Todavia se necesita el permiso de notificaciones si quieres recibir recordatorios en este telefono.</string>
     <string name="onboarding_request_notification_permission">Permitir notificaciones de recordatorio</string>
     <string name="status_schedule_saved">Se guardo %1$s localmente.</string>

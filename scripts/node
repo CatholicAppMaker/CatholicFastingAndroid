@@ -1,0 +1,15 @@
+#!/usr/bin/env sh
+set -eu
+
+if command -v node >/dev/null 2>&1; then
+  exec node "$@"
+fi
+
+CODEX_NODE="/Users/kevpierce/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node"
+
+if [ -x "$CODEX_NODE" ]; then
+  exec "$CODEX_NODE" "$@"
+fi
+
+echo "Node is required. Install node or make the bundled Codex runtime available." >&2
+exit 127

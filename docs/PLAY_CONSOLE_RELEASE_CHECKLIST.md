@@ -29,6 +29,7 @@ Use this checklist in order for the first public Android release.
   - `cfa_premium_yearly_v3`
   - `cfa_premium_monthly_v3`
 - Confirm every Play product ID is 40 characters or fewer and matches app code exactly
+- Confirm no support-tip in-app products are marketed or required for Android 1.0 closed testing
 - Confirm testers can install the same package from Play
 - Publish from the production release only after all review warnings are cleared or consciously accepted
 

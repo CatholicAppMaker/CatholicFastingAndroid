@@ -1,5 +1,12 @@
 <resources>
     <string name="today_title">Hoy</string>
+    <string name="today_companion_title">Compañero de hoy</string>
+    <string name="today_companion_formation_value">Formación de %1$s: %2$s</string>
+    <string name="today_companion_active_fast_value">Ayuno activo: %1$s transcurrido, %2$s restante.</string>
+    <string name="today_companion_target_reached_value">Objetivo alcanzado después de %1$s.</string>
+    <string name="today_companion_recap_value">%1$s: %2$s</string>
+    <string name="today_companion_eating_window_value">Ventana de comida: recupérate con calma durante %1$s.</string>
+    <string name="today_companion_intention_value">%1$s Intención: %2$s.</string>
     <string name="today_default_detail">Usa hoy para revisar el proximo día obligatorio y mantener una regla de vida estable.</string>
     <string name="today_no_observance">No hay observancia hoy</string>
     <string name="today_quote_value">"%1$s"</string>

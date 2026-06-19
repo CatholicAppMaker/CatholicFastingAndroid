@@ -244,8 +244,8 @@ For this app, Figma should be treated as:
 
 It should not replace:
 
-- `/Users/kevpierce/Desktop/CFAAnrdoid/docs/PARITY_PROCESS.md`
-- `/Users/kevpierce/Desktop/CFAAnrdoid/PROJECT_CHECKLIST.md`
+- `docs/PARITY_PROCESS.md`
+- `PROJECT_CHECKLIST.md`
 - the Kotlin models/rules/tests
 
 ## Current Recommendation
