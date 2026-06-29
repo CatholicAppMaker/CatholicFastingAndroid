@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -154,9 +155,59 @@ fun CatholicFastingTheme(content: @Composable () -> Unit) {
 
 private fun appColorScheme(darkTheme: Boolean) =
     if (darkTheme) {
-        darkColorScheme()
+        darkColorScheme(
+            primary = Color(0xFFD0BDE6),
+            onPrimary = Color(0xFF38254C),
+            primaryContainer = Color(0xFF4F3B64),
+            onPrimaryContainer = Color(0xFFF0E3FF),
+            secondary = Color(0xFFD4C3A0),
+            onSecondary = Color(0xFF392F1B),
+            secondaryContainer = Color(0xFF51462F),
+            onSecondaryContainer = Color(0xFFF2E1BB),
+            tertiary = Color(0xFFADCFAE),
+            onTertiary = Color(0xFF1E3622),
+            tertiaryContainer = Color(0xFF354D38),
+            onTertiaryContainer = Color(0xFFC9EBC9),
+            background = Color(0xFF151318),
+            onBackground = Color(0xFFE8E1E8),
+            surface = Color(0xFF1C191F),
+            onSurface = Color(0xFFE8E1E8),
+            surfaceVariant = Color(0xFF4A454D),
+            onSurfaceVariant = Color(0xFFCEC4D0),
+            outline = Color(0xFF978E9A),
+            outlineVariant = Color(0xFF4A454D),
+            error = Color(0xFFFFB4AB),
+            onError = Color(0xFF690005),
+            errorContainer = Color(0xFF93000A),
+            onErrorContainer = Color(0xFFFFDAD6),
+        )
     } else {
-        lightColorScheme()
+        lightColorScheme(
+            primary = Color(0xFF67517E),
+            onPrimary = Color(0xFFFDF8FF),
+            primaryContainer = Color(0xFFEEDBFF),
+            onPrimaryContainer = Color(0xFF221036),
+            secondary = Color(0xFF6A5D3E),
+            onSecondary = Color(0xFFFFFAEE),
+            secondaryContainer = Color(0xFFF2E1BB),
+            onSecondaryContainer = Color(0xFF231A06),
+            tertiary = Color(0xFF4D7D57),
+            onTertiary = Color(0xFFF7FFF6),
+            tertiaryContainer = Color(0xFFCFE9D1),
+            onTertiaryContainer = Color(0xFF0A2A12),
+            background = Color(0xFFFFFBFE),
+            onBackground = Color(0xFF1E1A20),
+            surface = Color(0xFFFFFBFE),
+            onSurface = Color(0xFF1E1A20),
+            surfaceVariant = Color(0xFFE9E0EA),
+            onSurfaceVariant = Color(0xFF4A454D),
+            outline = Color(0xFF7B747F),
+            outlineVariant = Color(0xFFCCC3CE),
+            error = Color(0xFFBA1A1A),
+            onError = Color(0xFFFFFBFF),
+            errorContainer = Color(0xFFFFDAD6),
+            onErrorContainer = Color(0xFF410002),
+        )
     }
 
 private fun materialTypography(): Typography {
@@ -223,17 +274,17 @@ private fun catholicFastingSpacing() =
 
 private fun catholicFastingCardDefaults(spacing: CatholicFastingSpacing) =
     CatholicFastingCardDefaults(
-        cornerRadius = 24.dp,
+        cornerRadius = 16.dp,
         borderWidth = 1.dp,
-        contentSpacing = spacing.xSmall,
+        contentSpacing = spacing.small,
         contentPadding = spacing.medium,
     )
 
 private fun catholicFastingShape() =
     CatholicFastingShape(
-        cardRadius = 24.dp,
+        cardRadius = 16.dp,
         controlRadius = 12.dp,
-        sheetRadius = 28.dp,
+        sheetRadius = 24.dp,
     )
 
 private fun catholicFastingElevation() =

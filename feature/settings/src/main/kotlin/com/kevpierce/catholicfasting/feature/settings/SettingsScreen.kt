@@ -5,19 +5,22 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
-import androidx.compose.ui.unit.dp
 import com.kevpierce.catholicfasting.core.model.AscensionObservance
 import com.kevpierce.catholicfasting.core.model.CalendarMode
 import com.kevpierce.catholicfasting.core.model.FridayOutsideLentMode
@@ -38,7 +41,8 @@ fun SettingsScreen(
     Column(
         modifier =
             modifier
-                .fillMaxWidth()
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
                 .padding(spacing.medium),
         verticalArrangement = Arrangement.spacedBy(spacing.medium),
     ) {
@@ -57,8 +61,10 @@ private fun SettingsForm(
     settings: RuleSettings,
     onSettingsChange: (RuleSettings) -> Unit,
 ) {
+    val spacing = CatholicFastingThemeValues.spacing
+
     Column(
-        verticalArrangement = Arrangement.spacedBy(12.dp),
+        verticalArrangement = Arrangement.spacedBy(spacing.medium),
     ) {
         SettingsEnumSections(
             settings = settings,
@@ -148,12 +154,15 @@ private fun <T> SettingsEnumSection(
     labelFor: @Composable (T) -> String,
     onSelect: (T) -> Unit,
 ) {
+    val spacing = CatholicFastingThemeValues.spacing
+
     Text(title, style = CatholicFastingThemeValues.typography.supporting)
     EnumChips(
         options = options,
         selected = selected,
         labelFor = labelFor,
         onSelect = onSelect,
+        modifier = Modifier.padding(top = spacing.xxSmall),
     )
 }
 
@@ -178,11 +187,18 @@ private fun ToggleRow(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
 ) {
+    val spacing = CatholicFastingThemeValues.spacing
+
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
+        horizontalArrangement = Arrangement.spacedBy(spacing.medium),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(title)
+        Text(
+            text = title,
+            modifier = Modifier.weight(1f),
+            style = CatholicFastingThemeValues.typography.body,
+        )
         Switch(
             checked = checked,
             onCheckedChange = onCheckedChange,
@@ -197,10 +213,14 @@ private fun <T> EnumChips(
     selected: T,
     labelFor: @Composable (T) -> String,
     onSelect: (T) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
+    val spacing = CatholicFastingThemeValues.spacing
+
     FlowRow(
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(spacing.xSmall),
+        verticalArrangement = Arrangement.spacedBy(spacing.xSmall),
     ) {
         options.forEach { option ->
             val label = labelFor(option)

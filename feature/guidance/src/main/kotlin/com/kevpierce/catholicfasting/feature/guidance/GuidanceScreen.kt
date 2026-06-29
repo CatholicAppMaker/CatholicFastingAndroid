@@ -1,11 +1,9 @@
 package com.kevpierce.catholicfasting.feature.guidance
 
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -128,14 +126,16 @@ private fun FoodGuidanceCard(
 }
 
 @Composable
+@OptIn(ExperimentalLayoutApi::class)
 private fun ScenarioChipRow(
     spacing: androidx.compose.ui.unit.Dp,
     scenario: GuidanceScenario,
     onScenarioChange: (GuidanceScenario) -> Unit,
 ) {
-    Row(
-        modifier = Modifier.horizontalScroll(rememberScrollState()),
+    FlowRow(
+        modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(spacing),
+        verticalArrangement = Arrangement.spacedBy(spacing),
     ) {
         GuidanceScenario.entries.forEach { entry ->
             val label = entry.localizedLabel()
