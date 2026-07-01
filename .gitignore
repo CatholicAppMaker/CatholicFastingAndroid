@@ -11,6 +11,7 @@ captures/
 local.properties
 
 # Local tooling
+CODEX_MEMORY.md
 
 # Impeccable local live-session artifacts
 .impeccable-live/
