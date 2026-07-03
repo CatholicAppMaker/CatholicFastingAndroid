@@ -9,11 +9,32 @@ elif [ -d "/Applications/Android Studio.app/Contents/jbr/Contents/Home" ]; then
   export JAVA_HOME=${JAVA_HOME:-/Applications/Android Studio.app/Contents/jbr/Contents/Home}
 fi
 
+if [ -d "$HOME/Library/Android/sdk" ]; then
+  export ANDROID_HOME=${ANDROID_HOME:-"$HOME/Library/Android/sdk"}
+  export ANDROID_SDK_ROOT=${ANDROID_SDK_ROOT:-"$ANDROID_HOME"}
+fi
+
 export GRADLE_USER_HOME=${GRADLE_USER_HOME:-"$repo_root/.gradle-codex"}
 export GRADLE_OPTS="${GRADLE_OPTS:-} -Dorg.gradle.native=false -Dorg.gradle.vfs.watch=false"
 
-if [ -x /opt/homebrew/bin/gradle ]; then
-  exec /opt/homebrew/bin/gradle "$@"
+gradle_version=9.4.1
+gradle_dir="$repo_root/.local-tools/gradle-$gradle_version"
+gradle_bin="$gradle_dir/bin/gradle"
+gradle_zip="$repo_root/.local-tools/gradle-$gradle_version-bin.zip"
+gradle_sha256=2ab2958f2a1e51120c326cad6f385153bb11ee93b3c216c5fccebfdfbb7ec6cb
+
+if [ ! -x "$gradle_bin" ]; then
+  mkdir -p "$repo_root/.local-tools"
+  curl -fsSL -o "$gradle_zip" "https://services.gradle.org/distributions/gradle-$gradle_version-bin.zip"
+  actual_sha256=$(shasum -a 256 "$gradle_zip" | awk '{print $1}')
+  if [ "$actual_sha256" != "$gradle_sha256" ]; then
+    echo "Gradle $gradle_version checksum mismatch." >&2
+    echo "Expected: $gradle_sha256" >&2
+    echo "Actual:   $actual_sha256" >&2
+    exit 1
+  fi
+  unzip -q "$gradle_zip" -d "$repo_root/.local-tools"
+  rm -f "$gradle_zip"
 fi
 
-exec "$repo_root/.local-tools/gradle-9.4.1/bin/gradle" "$@"
+exec "$gradle_bin" "$@"
