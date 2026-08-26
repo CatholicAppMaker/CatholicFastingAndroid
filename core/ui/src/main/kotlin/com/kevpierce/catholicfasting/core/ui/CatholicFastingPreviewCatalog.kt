@@ -84,3 +84,26 @@ private fun CatholicFastingDesignSystemPreviewCatalogLight() {
 private fun CatholicFastingDesignSystemPreviewCatalogLargeFont() {
     CatholicFastingDesignSystemPreviewCatalog()
 }
+
+@Preview(
+    name = "Design system catalog - compact 2x font",
+    widthDp = 320,
+    heightDp = 1400,
+    fontScale = 2f,
+    showBackground = true,
+)
+@Composable
+private fun CatholicFastingDesignSystemPreviewCatalogCompactLargeFont() {
+    CatholicFastingDesignSystemPreviewCatalog()
+}
+
+@Preview(
+    name = "Design system catalog - tablet",
+    widthDp = 600,
+    heightDp = 1400,
+    showBackground = true,
+)
+@Composable
+private fun CatholicFastingDesignSystemPreviewCatalogTablet() {
+    CatholicFastingDesignSystemPreviewCatalog()
+}

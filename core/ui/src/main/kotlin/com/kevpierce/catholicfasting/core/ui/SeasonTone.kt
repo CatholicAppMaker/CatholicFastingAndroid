@@ -65,37 +65,37 @@ private fun lightSeasonTone(season: LiturgicalSeason) =
     when (season) {
         LiturgicalSeason.LENT ->
             SeasonTone(
-                containerColor = Color(0xFFF4EFF9),
-                contentColor = Color(0xFF2F2340),
-                borderColor = Color(0xFFC6B5DA),
-                accentColor = Color(0xFF6F528C),
+                containerColor = Color(0xFFF7F1F5),
+                contentColor = Color(0xFF4D315E),
+                borderColor = Color(0xFFC8B9C9),
+                accentColor = Color(0xFF6B4776),
             )
         LiturgicalSeason.ADVENT ->
             SeasonTone(
-                containerColor = Color(0xFFEEF3FA),
-                contentColor = Color(0xFF243149),
-                borderColor = Color(0xFFBCCBE0),
-                accentColor = Color(0xFF49688E),
+                containerColor = Color(0xFFF5F1F6),
+                contentColor = Color(0xFF4F3866),
+                borderColor = Color(0xFFC5B8CC),
+                accentColor = Color(0xFF674F77),
             )
         LiturgicalSeason.CHRISTMAS ->
             SeasonTone(
-                containerColor = Color(0xFFFFF7E9),
-                contentColor = Color(0xFF47371A),
-                borderColor = Color(0xFFE1CFA5),
-                accentColor = Color(0xFF9A772A),
+                containerColor = Color(0xFFFBF5E8),
+                contentColor = Color(0xFF6B292B),
+                borderColor = Color(0xFFD8C6A1),
+                accentColor = Color(0xFF8B5D25),
             )
         LiturgicalSeason.EASTER ->
             SeasonTone(
-                containerColor = Color(0xFFFFF1EA),
-                contentColor = Color(0xFF4A2D21),
-                borderColor = Color(0xFFE6C1AE),
-                accentColor = Color(0xFFB66B45),
+                containerColor = Color(0xFFFBF7E9),
+                contentColor = Color(0xFF6E4F1A),
+                borderColor = Color(0xFFD5C9A6),
+                accentColor = Color(0xFF8B6B24),
             )
         LiturgicalSeason.ORDINARY ->
             SeasonTone(
-                containerColor = Color(0xFFEEF8F0),
-                contentColor = Color(0xFF1F3A27),
-                borderColor = Color(0xFFBAD7C0),
-                accentColor = Color(0xFF4D7D57),
+                containerColor = Color(0xFFF5F5E8),
+                contentColor = Color(0xFF2E573B),
+                borderColor = Color(0xFFB4C2AA),
+                accentColor = Color(0xFF496F51),
             )
     }

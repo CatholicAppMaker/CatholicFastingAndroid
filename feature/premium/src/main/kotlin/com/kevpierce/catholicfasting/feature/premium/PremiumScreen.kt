@@ -11,6 +11,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import com.kevpierce.catholicfasting.core.billing.BillingState
 import com.kevpierce.catholicfasting.core.model.FastingPlanningData
 import com.kevpierce.catholicfasting.core.model.ReflectionJournalEntry
@@ -33,6 +34,8 @@ data class PremiumWorkspaceActions(
     val onSaveReflection: (String, String) -> String,
 )
 
+const val PREMIUM_LIST_TEST_TAG = "premium-list"
+
 @Composable
 fun PremiumScreen(
     billingState: BillingState,
@@ -45,7 +48,10 @@ fun PremiumScreen(
     val seasonTone = rememberSeasonTone(workspaceState.premiumSnapshot.season)
 
     LazyColumn(
-        modifier = modifier.padding(CatholicFastingThemeValues.spacing.medium),
+        modifier =
+            modifier
+                .padding(CatholicFastingThemeValues.spacing.medium)
+                .testTag(PREMIUM_LIST_TEST_TAG),
         verticalArrangement = Arrangement.spacedBy(CatholicFastingThemeValues.spacing.small),
     ) {
         billingHeaderItems(

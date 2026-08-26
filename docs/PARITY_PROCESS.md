@@ -68,3 +68,11 @@ Use separate repos, but shared product discipline:
 - treat iOS as the behavioral reference
 - keep Android release-quality on its own terms
 - prefer explicit parity notes over silent drift
+
+## Test Parity
+
+Match user-visible contracts, not test topology or raw test counts. Port a test
+when it protects behavior shared by both products, then use the platform's
+native test layer for the implementation: XCTest and StoreKit on Apple;
+Compose, intents, notifications, widgets, WorkManager, and Play Billing on
+Android. iPad and Mac coverage does not create an Android phone requirement.

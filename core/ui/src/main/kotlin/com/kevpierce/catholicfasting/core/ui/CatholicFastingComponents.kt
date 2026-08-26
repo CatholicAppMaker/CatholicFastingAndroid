@@ -20,6 +20,7 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -28,8 +29,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun CatholicFastingScreenTitle(
@@ -41,6 +45,46 @@ fun CatholicFastingScreenTitle(
         style = CatholicFastingThemeValues.typography.screenTitle,
         modifier = modifier.semantics { heading() },
     )
+}
+
+@Composable
+fun CatholicFastingEyebrow(
+    text: String,
+    modifier: Modifier = Modifier,
+    color: Color = MaterialTheme.colorScheme.primary,
+) {
+    Text(
+        text = text.uppercase(),
+        style =
+            CatholicFastingThemeValues.typography.utility.copy(
+                fontWeight = FontWeight.Bold,
+                letterSpacing = androidx.compose.ui.unit.TextUnit.Unspecified,
+            ),
+        color = color,
+        modifier = modifier,
+    )
+}
+
+@Composable
+fun CatholicFastingSeasonBadge(
+    label: String,
+    tone: SeasonTone,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(50),
+        color = tone.containerColor,
+        contentColor = tone.accentColor,
+        border = BorderStroke(1.dp, tone.borderColor),
+        tonalElevation = CatholicFastingThemeValues.elevation.flat,
+    ) {
+        Text(
+            text = label,
+            style = CatholicFastingThemeValues.typography.utility.copy(fontWeight = FontWeight.Bold),
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 7.dp),
+        )
+    }
 }
 
 @Composable
@@ -80,6 +124,10 @@ fun CatholicFastingSectionCard(
                 color = tone?.borderColor ?: MaterialTheme.colorScheme.outlineVariant,
             ),
         shape = RoundedCornerShape(cardDefaults.cornerRadius),
+        elevation =
+            CardDefaults.cardElevation(
+                defaultElevation = CatholicFastingThemeValues.elevation.raised,
+            ),
     ) {
         CompositionLocalProvider(
             LocalContentColor provides

@@ -88,8 +88,10 @@ internal fun buildAppSupportState(
     context: Context,
     state: com.kevpierce.catholicfasting.core.data.DashboardState,
     premiumUnlocked: Boolean,
+    now: Instant,
+    today: LocalDate,
 ): AppSupportState =
-    premiumSnapshot(state).let { snapshot ->
+    premiumSnapshot(state, today).let { snapshot ->
         val locale = currentContentLocale()
         val seasonalPack =
             SeasonalContentPackCatalog.pack(
@@ -107,11 +109,13 @@ internal fun buildAppSupportState(
                     settings = state.settings,
                     premiumSnapshot = snapshot,
                     premiumUnlocked = premiumUnlocked,
+                    today = today,
+                    now = now,
                 ),
             seasonProgramActions =
                 PremiumSeasonProgramEngine.actions(
                     program = state.premiumCompanionState.seasonProgram,
-                    week = seasonProgramWeek(state.premiumCompanionState.seasonProgramStartIso),
+                    week = seasonProgramWeek(state.premiumCompanionState.seasonProgramStartIso, now),
                 ),
             fastPrepGuidance =
                 PremiumFastPrepGuidanceEngine.prepAndRefeed(
@@ -123,42 +127,48 @@ internal fun buildAppSupportState(
             setupProgressState = buildSetupProgressState(state),
             reminderCenterState = buildReminderCenterState(state),
             storageDiagnosticsState = buildStorageDiagnosticsState(state),
-            seasonalHeroState = buildSeasonalHeroState(),
+            seasonalHeroState = buildSeasonalHeroState(locale = Locale.getDefault(), today = today),
             ruleBundleAudit = ObservanceCalculator.ruleBundleAudit(),
             contentLocale = locale,
             seasonalContentPack = seasonalPack,
             dailyFormationLine =
                 SeasonalContentSupport.dailyFormationLine(
                     pack = seasonalPack,
-                    date = LocalDate.now(),
+                    date = today,
                 ),
             dailyQuote =
                 SeasonalContentSupport.dailyQuote(
                     season = snapshot.season,
                     pack = seasonalPack,
-                    date = LocalDate.now(),
+                    date = today,
                 ),
             devotionalGallery = SacredImageryCatalog.fastingGallery,
             setupProgressSummary = setupProgressSummary(context, state),
             yearPlanSummary = yearPlanSummary(context, state),
-            weeklyRecap = weeklyRecap(context, state),
-            streakMessage = streakMessage(context, state),
+            weeklyRecap = weeklyRecap(context, state, today),
+            streakMessage = streakMessage(context, state, today),
         )
     }
 
-private fun premiumSnapshot(state: com.kevpierce.catholicfasting.core.data.DashboardState): PremiumSnapshot =
+private fun premiumSnapshot(
+    state: com.kevpierce.catholicfasting.core.data.DashboardState,
+    today: LocalDate,
+): PremiumSnapshot =
     PremiumSnapshotEngine.build(
         observances = state.observances,
         statusesById = state.statusesById,
         sessions = state.intermittentSessions,
         settings = state.settings,
         companionState = state.premiumCompanionState,
-        today = LocalDate.now(),
+        today = today,
     )
 
-private fun seasonProgramWeek(startIso: String): Int {
+private fun seasonProgramWeek(
+    startIso: String,
+    now: Instant,
+): Int {
     val startedAt = runCatching { Instant.parse(startIso) }.getOrNull() ?: return 1
-    val days = ChronoUnit.DAYS.between(startedAt, Instant.now())
+    val days = ChronoUnit.DAYS.between(startedAt, now).coerceAtLeast(0L)
     return (days / 7L).toInt() + 1
 }
 
@@ -207,13 +217,14 @@ private fun yearPlanSummary(
 private fun weeklyRecap(
     context: Context,
     state: com.kevpierce.catholicfasting.core.data.DashboardState,
+    today: LocalDate,
 ): String {
-    val weekStart = LocalDate.now().minusDays(6)
+    val weekStart = today.minusDays(6)
     val weeklyActionable =
         state.observances.filter {
             val date = LocalDate.parse(it.date)
             date >= weekStart &&
-                date <= LocalDate.now() &&
+                date <= today &&
                 it.obligation != com.kevpierce.catholicfasting.core.model.ObservanceObligation.NOT_APPLICABLE
         }
     val completed =
@@ -235,10 +246,11 @@ private fun weeklyRecap(
 private fun streakMessage(
     context: Context,
     state: com.kevpierce.catholicfasting.core.data.DashboardState,
+    today: LocalDate,
 ): String {
     val streak =
         state.observances
-            .filter { LocalDate.parse(it.date) <= LocalDate.now() }
+            .filter { LocalDate.parse(it.date) <= today }
             .sortedByDescending { it.date }
             .takeWhile { state.statusesById[it.id]?.countsTowardProgress == true }
             .count()

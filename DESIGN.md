@@ -2,26 +2,30 @@
 name: Catholic Fasting Android
 description: Native Android Catholic fasting guidance with restrained seasonal tone, Material clarity, and local-first beta polish.
 colors:
-  lent-light-container: "#F4EFF9"
-  lent-light-content: "#2F2340"
-  lent-light-border: "#C6B5DA"
-  lent-light-accent: "#6F528C"
-  advent-light-container: "#EEF3FA"
-  advent-light-content: "#243149"
-  advent-light-border: "#BCCBE0"
-  advent-light-accent: "#49688E"
-  christmas-light-container: "#FFF7E9"
-  christmas-light-content: "#47371A"
-  christmas-light-border: "#E1CFA5"
-  christmas-light-accent: "#9A772A"
-  easter-light-container: "#FFF1EA"
-  easter-light-content: "#4A2D21"
-  easter-light-border: "#E6C1AE"
-  easter-light-accent: "#B66B45"
-  ordinary-light-container: "#EEF8F0"
-  ordinary-light-content: "#1F3A27"
-  ordinary-light-border: "#BAD7C0"
-  ordinary-light-accent: "#4D7D57"
+  canvas-light: "#FBF9F1"
+  surface-light: "#FFFDF7"
+  ink-light: "#171411"
+  antique-brass: "#7D5E1E"
+  lent-light-container: "#F7F1F5"
+  lent-light-content: "#4D315E"
+  lent-light-border: "#C8B9C9"
+  lent-light-accent: "#6B4776"
+  advent-light-container: "#F5F1F6"
+  advent-light-content: "#4F3866"
+  advent-light-border: "#C5B8CC"
+  advent-light-accent: "#674F77"
+  christmas-light-container: "#FBF5E8"
+  christmas-light-content: "#6B292B"
+  christmas-light-border: "#D8C6A1"
+  christmas-light-accent: "#8B5D25"
+  easter-light-container: "#FBF7E9"
+  easter-light-content: "#6E4F1A"
+  easter-light-border: "#D5C9A6"
+  easter-light-accent: "#8B6B24"
+  ordinary-light-container: "#F5F5E8"
+  ordinary-light-content: "#2E573B"
+  ordinary-light-border: "#B4C2AA"
+  ordinary-light-accent: "#496F51"
   lent-dark-container: "#3C3248"
   lent-dark-content: "#F1E9F9"
   lent-dark-border: "#8D72A8"
@@ -74,7 +78,7 @@ Figma supports implementation; it does not override shipped product behavior, ru
 
 ## Visual Direction
 
-The Android app should feel calm, reverent, practical, native, and trustworthy. It should not feel like generic wellness software or a loud productivity tracker. Use restrained seasonal color, close-at-hand citations, readable Material structure, and editorial warmth only where it helps prayerful attention.
+The Android app should feel calm, reverent, practical, native, and trustworthy. It should not feel like generic wellness software or a loud productivity tracker. Use a warm vellum canvas, ink-first typography, restrained seasonal color, close-at-hand citations, readable Material structure, and editorial warmth only where it helps prayerful attention. The Apple app is the family resemblance reference for tone and hierarchy; Android keeps Material navigation, controls, dark theme support, and platform behavior.
 
 ## Typography
 

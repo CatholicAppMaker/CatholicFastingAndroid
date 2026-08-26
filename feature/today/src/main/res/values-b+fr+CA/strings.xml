@@ -17,6 +17,7 @@
     <string name="today_label_season_easter">Pâques</string>
     <string name="today_label_season_ordinary">Temps ordinaire</string>
     <string name="today_year_plan_title">Aperçu du plan annuel</string>
+    <string name="today_journey_snapshot_title">Votre parcours</string>
     <string name="today_personal_insights_title">Repères personnels</string>
     <string name="today_action_value">Action : %1$s</string>
     <string name="today_season_motivation_value">%1$s • %2$s</string>

@@ -724,7 +724,7 @@ fun buildSeasonalHeroState(): SeasonalHeroState =
         today = LocalDate.now(),
     )
 
-internal fun buildSeasonalHeroState(
+fun buildSeasonalHeroState(
     locale: Locale,
     today: LocalDate,
 ): SeasonalHeroState {

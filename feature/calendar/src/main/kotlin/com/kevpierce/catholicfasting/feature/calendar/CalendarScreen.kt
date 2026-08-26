@@ -1,7 +1,6 @@
 package com.kevpierce.catholicfasting.feature.calendar
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,8 +18,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import com.kevpierce.catholicfasting.core.model.CalendarWindow
@@ -43,6 +42,7 @@ fun CalendarScreen(
     statusesById: Map<String, CompletionStatus>,
     fridayNotesById: Map<String, String>,
     premiumSnapshot: PremiumSnapshot,
+    today: LocalDate,
     onStatusChange: (String, CompletionStatus) -> Unit,
     onFridayNoteChange: (String, String) -> Unit,
     modifier: Modifier = Modifier,
@@ -54,53 +54,73 @@ fun CalendarScreen(
     var sortOrder by rememberSaveable { mutableStateOf(ObservanceSortOrder.CHRONOLOGICAL) }
     val visibleObservances =
         remember(observances, statusesById, query, filter, window, sortOrder) {
-            ObservanceQueryEngine.filter(
-                observances = observances,
-                query = query,
-                filter = filter,
-                window = window,
-                sortOrder = sortOrder,
-                statusesById = statusesById,
-                now = LocalDate.now(),
-            )
+            filterVisibleObservances(observances, statusesById, query, filter, window, sortOrder, today)
         }
 
-    Column(
+    LazyColumn(
         modifier =
             modifier
                 .fillMaxSize()
-                .padding(spacing.medium),
+                .padding(spacing.medium)
+                .testTag(CALENDAR_LIST_TEST_TAG),
         verticalArrangement = Arrangement.spacedBy(spacing.small),
     ) {
-        CatholicFastingScreenTitle(stringResource(R.string.calendar_title))
-        AnalyticsSummaryCard(premiumSnapshot)
-        OutlinedTextField(
-            value = query,
-            onValueChange = { query = it },
-            modifier = Modifier.fillMaxWidth(),
-            label = { Text(stringResource(R.string.calendar_search_label)) },
-        )
-        CalendarFilters(
-            filter = filter,
-            window = window,
-            sortOrder = sortOrder,
-            onFilterChange = { filter = it },
-            onWindowChange = { window = it },
-            onSortOrderChange = { sortOrder = it },
-        )
-        LazyColumn(verticalArrangement = Arrangement.spacedBy(spacing.xSmall)) {
-            items(visibleObservances.take(36), key = { it.id }) { observance ->
-                ObservanceCard(
-                    observance = observance,
-                    selectedStatus = statusesById[observance.id] ?: CompletionStatus.NOT_STARTED,
-                    fridayNote = fridayNotesById[observance.id].orEmpty(),
-                    onStatusChange = onStatusChange,
-                    onFridayNoteChange = onFridayNoteChange,
-                )
-            }
+        item(key = "calendar-title") {
+            CatholicFastingScreenTitle(stringResource(R.string.calendar_title))
+        }
+        item(key = "calendar-analytics") {
+            AnalyticsSummaryCard(premiumSnapshot)
+        }
+        item(key = "calendar-search") {
+            OutlinedTextField(
+                value = query,
+                onValueChange = { query = it },
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text(stringResource(R.string.calendar_search_label)) },
+            )
+        }
+        item(key = "calendar-filters") {
+            CalendarFilters(
+                filter = filter,
+                window = window,
+                sortOrder = sortOrder,
+                onFilterChange = { filter = it },
+                onWindowChange = { window = it },
+                onSortOrderChange = { sortOrder = it },
+            )
+        }
+        items(visibleObservances.take(36), key = { it.id }) { observance ->
+            ObservanceCard(
+                observance = observance,
+                selectedStatus = statusesById[observance.id] ?: CompletionStatus.NOT_STARTED,
+                fridayNote = fridayNotesById[observance.id].orEmpty(),
+                onStatusChange = onStatusChange,
+                onFridayNoteChange = onFridayNoteChange,
+            )
         }
     }
 }
+
+const val CALENDAR_LIST_TEST_TAG = "calendar-observance-list"
+
+private fun filterVisibleObservances(
+    observances: List<Observance>,
+    statusesById: Map<String, CompletionStatus>,
+    query: String,
+    filter: ObservanceFilter,
+    window: CalendarWindow,
+    sortOrder: ObservanceSortOrder,
+    today: LocalDate,
+): List<Observance> =
+    ObservanceQueryEngine.filter(
+        observances = observances,
+        query = query,
+        filter = filter,
+        window = window,
+        sortOrder = sortOrder,
+        statusesById = statusesById,
+        now = today,
+    )
 
 @Composable
 private fun AnalyticsSummaryCard(premiumSnapshot: PremiumSnapshot) {
@@ -276,7 +296,6 @@ private fun CalendarSelectableChip(
         onClick = onClick,
         modifier =
             Modifier.semantics {
-                contentDescription = label
                 stateDescription = selectedState
             },
         label = { Text(label) },

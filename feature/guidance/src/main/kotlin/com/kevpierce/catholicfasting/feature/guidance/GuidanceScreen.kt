@@ -17,7 +17,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import com.kevpierce.catholicfasting.core.model.GuidanceScenario
@@ -28,7 +27,7 @@ import com.kevpierce.catholicfasting.core.rules.FoodGuidanceEngine
 import com.kevpierce.catholicfasting.core.ui.CatholicFastingScreenTitle
 import com.kevpierce.catholicfasting.core.ui.CatholicFastingSectionCard
 import com.kevpierce.catholicfasting.core.ui.CatholicFastingThemeValues
-import com.kevpierce.catholicfasting.core.ui.SacredImageryCard
+import com.kevpierce.catholicfasting.core.ui.SacredImageryRail
 
 @Composable
 fun GuidanceScreen(
@@ -65,7 +64,7 @@ fun GuidanceScreen(
             settings = settings,
             ruleBundleAudit = ruleBundleAudit,
         )
-        SacredGalleryCard(devotionalGallery)
+        SacredGallerySection(devotionalGallery)
     }
 }
 
@@ -145,7 +144,6 @@ private fun ScenarioChipRow(
                 onClick = { onScenarioChange(entry) },
                 modifier =
                     Modifier.semantics {
-                        contentDescription = label
                         stateDescription = selectedState
                     },
                 label = { Text(label) },
@@ -244,24 +242,11 @@ private fun RuleAuditCard(
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun SacredGalleryCard(devotionalGallery: List<SacredImageryItem>) {
-    val spacing = CatholicFastingThemeValues.spacing
-
-    CatholicFastingSectionCard(title = stringResource(R.string.guidance_symbol_gallery_title)) {
-        Text(
-            stringResource(R.string.guidance_symbol_gallery_intro),
-            style = CatholicFastingThemeValues.typography.body,
-        )
-        FlowRow(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(spacing.xSmall),
-            verticalArrangement = Arrangement.spacedBy(spacing.xSmall),
-        ) {
-            devotionalGallery.forEach { item ->
-                SacredImageryCard(item = item)
-            }
-        }
-    }
+private fun SacredGallerySection(devotionalGallery: List<SacredImageryItem>) {
+    SacredImageryRail(
+        title = stringResource(R.string.guidance_symbol_gallery_title),
+        intro = stringResource(R.string.guidance_symbol_gallery_intro),
+        imagery = devotionalGallery,
+    )
 }

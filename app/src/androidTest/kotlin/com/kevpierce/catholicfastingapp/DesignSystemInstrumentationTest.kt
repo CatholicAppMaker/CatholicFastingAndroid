@@ -1,13 +1,24 @@
 package com.kevpierce.catholicfastingapp
 
 import android.content.Context
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performScrollToIndex
+import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeUp
 import androidx.test.core.app.ApplicationProvider
@@ -29,12 +40,23 @@ import com.kevpierce.catholicfasting.core.rules.SacredImageryCatalog
 import com.kevpierce.catholicfasting.core.rules.SeasonalContentPackCatalog
 import com.kevpierce.catholicfasting.core.rules.SeasonalContentSupport
 import com.kevpierce.catholicfasting.core.ui.CatholicFastingTheme
+import com.kevpierce.catholicfasting.core.ui.SacredImageryRail
 import com.kevpierce.catholicfasting.feature.calendar.CalendarScreen
 import com.kevpierce.catholicfasting.feature.guidance.GuidanceScreen
+import com.kevpierce.catholicfasting.feature.premium.PREMIUM_LIST_TEST_TAG
 import com.kevpierce.catholicfasting.feature.premium.PremiumScreen
 import com.kevpierce.catholicfasting.feature.premium.PremiumWorkspaceActions
 import com.kevpierce.catholicfasting.feature.premium.PremiumWorkspaceUiState
 import com.kevpierce.catholicfasting.feature.settings.SettingsScreen
+import com.kevpierce.catholicfasting.feature.today.TODAY_COMPANION_TEST_TAG
+import com.kevpierce.catholicfasting.feature.today.TODAY_GALLERY_TEST_TAG
+import com.kevpierce.catholicfasting.feature.today.TODAY_HEADER_TEST_TAG
+import com.kevpierce.catholicfasting.feature.today.TODAY_JOURNEY_TEST_TAG
+import com.kevpierce.catholicfasting.feature.today.TODAY_LIST_TEST_TAG
+import com.kevpierce.catholicfasting.feature.today.TODAY_NOTICE_TEST_TAG
+import com.kevpierce.catholicfasting.feature.today.TODAY_OBSERVANCE_TEST_TAG
+import com.kevpierce.catholicfasting.feature.today.TODAY_RECOVERY_TEST_TAG
+import com.kevpierce.catholicfasting.feature.today.TODAY_SEASONAL_FORMATION_TEST_TAG
 import com.kevpierce.catholicfasting.feature.today.TodayScreen
 import com.kevpierce.catholicfasting.feature.today.TodayUiState
 import com.kevpierce.catholicfasting.feature.tracker.TrackerActions
@@ -45,6 +67,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.time.Instant
 import java.time.LocalDate
 import com.kevpierce.catholicfasting.feature.calendar.R as CalendarR
 import com.kevpierce.catholicfasting.feature.guidance.R as GuidanceR
@@ -109,12 +132,91 @@ class DesignSystemInstrumentationTest {
             }
         }
 
-        composeRule.onAllNodesWithText(context.getString(TodayR.string.today_title)).assertCountEquals(1)
-        composeRule.onAllNodesWithText(seasonalPack.campaignTitle).assertCountEquals(1)
-        composeRule.onAllNodesWithText(context.getString(TodayR.string.today_year_plan_title)).assertCountEquals(1)
-        composeRule.onAllNodesWithText(context.getString(TodayR.string.today_personal_insights_title)).assertCountEquals(1)
-        composeRule.onAllNodesWithText(context.getString(TodayR.string.today_devotional_gallery_title)).assertCountEquals(1)
-        composeRule.onAllNodesWithText(context.getString(TodayR.string.today_important_notice_title)).assertCountEquals(1)
+        val orderedSectionTags =
+            listOf(
+                TODAY_HEADER_TEST_TAG,
+                TODAY_COMPANION_TEST_TAG,
+                TODAY_OBSERVANCE_TEST_TAG,
+                TODAY_SEASONAL_FORMATION_TEST_TAG,
+                TODAY_JOURNEY_TEST_TAG,
+                TODAY_RECOVERY_TEST_TAG,
+                TODAY_GALLERY_TEST_TAG,
+                TODAY_NOTICE_TEST_TAG,
+            )
+        val todayList = composeRule.onNodeWithTag(TODAY_LIST_TEST_TAG)
+        orderedSectionTags.forEachIndexed { index, sectionTag ->
+            todayList.performScrollToIndex(index)
+            composeRule.onNodeWithTag(sectionTag).assertIsDisplayed()
+        }
+        listOf(
+            context.getString(TodayR.string.today_title),
+            seasonalPack.campaignTitle,
+            context.getString(TodayR.string.today_year_plan_title),
+            context.getString(TodayR.string.today_personal_insights_title),
+            context.getString(TodayR.string.today_devotional_gallery_title),
+            context.getString(TodayR.string.today_important_notice_title),
+        ).forEach { text ->
+            todayList.performScrollToNode(hasText(text))
+            composeRule.onAllNodesWithText(text).assertCountEquals(1)
+        }
+    }
+
+    @Test
+    fun sacredImageryRailExposesEachTileAsOneCoherentSemanticNode() {
+        val item = SacredImageryCatalog.fastingGallery.first()
+
+        composeRule.setContent {
+            CatholicFastingTheme {
+                SacredImageryRail(
+                    title = "Prayer gallery",
+                    imagery = listOf(item),
+                )
+            }
+        }
+
+        composeRule
+            .onAllNodesWithContentDescription("${item.title}. ${item.subtitle}")
+            .assertCountEquals(1)
+    }
+
+    @Test
+    fun guidanceChipKeepsMaterialRoleWithoutRedundantDescription() {
+        composeRule.setContent {
+            CatholicFastingTheme {
+                GuidanceScreen(
+                    settings = RuleSettings(),
+                    ruleBundleAudit = ObservanceCalculator.ruleBundleAudit(),
+                )
+            }
+        }
+
+        val guidanceChip = composeRule.onNodeWithText(context.getString(GuidanceR.string.guidance_label_normal_day))
+        guidanceChip.assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Role))
+        assertThat(
+            guidanceChip.fetchSemanticsNode().config.contains(SemanticsProperties.ContentDescription),
+        ).isFalse()
+    }
+
+    @Test
+    fun navigationItemKeepsMaterialRoleWithoutRedundantDescription() {
+        AppContainer.resetForTesting(context)
+        AppContainer.repository.setIndependentAppNoticeAcknowledged(true)
+        AppContainer.repository.setSelectedRegion(com.kevpierce.catholicfasting.core.model.RegionProfile.US)
+        AppContainer.repository.setReminderTier(com.kevpierce.catholicfasting.core.model.ReminderTier.BALANCED)
+        AppContainer.repository.setIntermittentIntention(IntermittentFastIntention.PRAYER.name)
+        AppContainer.repository.completeOnboarding(Instant.parse("2026-02-18T13:00:00Z"))
+        AppContainer.repository.flushForTesting()
+        composeRule.setContent {
+            CatholicFastingTheme {
+                CatholicFastingApp(initialDeepLink = com.kevpierce.catholicfasting.core.model.AppDeepLinks.TODAY)
+            }
+        }
+
+        val navigationItem = composeRule.onNodeWithText(context.getString(R.string.nav_fasting_days))
+        navigationItem.assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Role))
+        assertThat(
+            navigationItem.fetchSemanticsNode().config.contains(SemanticsProperties.ContentDescription),
+        ).isFalse()
     }
 
     @Test
@@ -161,8 +263,14 @@ class DesignSystemInstrumentationTest {
             }
         }
 
-        composeRule.onAllNodesWithText(context.getString(TodayR.string.today_companion_title)).assertCountEquals(1)
-        composeRule.onNodeWithText("Begin an intentional fast").performClick()
+        val companionTitle = context.getString(TodayR.string.today_companion_title)
+        composeRule.onNodeWithTag(TODAY_LIST_TEST_TAG).performScrollToNode(hasTestTag(TODAY_COMPANION_TEST_TAG))
+        composeRule.onAllNodesWithText(companionTitle, ignoreCase = true).assertCountEquals(1)
+        composeRule
+            .onNodeWithText("Begin an intentional fast")
+            .performScrollTo()
+            .assertIsDisplayed()
+            .performClick()
         composeRule.runOnIdle {
             assertThat(selectedDestination).isEqualTo(CompanionActionDestination.TRACK_FAST)
         }
@@ -216,14 +324,30 @@ class DesignSystemInstrumentationTest {
             }
         }
 
-        composeRule.onAllNodesWithText(context.getString(PremiumR.string.premium_title)).assertCountEquals(1)
-        composeRule.onAllNodesWithText(context.getString(PremiumR.string.premium_subscriptions_title)).assertCountEquals(1)
+        val premiumList = composeRule.onNodeWithTag(PREMIUM_LIST_TEST_TAG)
+        val premiumTitle = context.getString(PremiumR.string.premium_title)
+        premiumList.performScrollToNode(hasText(premiumTitle))
+        composeRule.onAllNodesWithText(premiumTitle).assertCountEquals(1)
+        val subscriptionsTitle = context.getString(PremiumR.string.premium_subscriptions_title)
+        premiumList.performScrollToNode(hasText(subscriptionsTitle))
+        composeRule.onAllNodesWithText(subscriptionsTitle).assertCountEquals(1)
         composeRule.onAllNodesWithText(context.getString(PremiumR.string.premium_support_tips_title)).assertCountEquals(0)
-        composeRule.onAllNodesWithText(context.getString(PremiumR.string.premium_planning_export_title)).assertCountEquals(1)
-        composeRule.onRoot().performTouchInput { swipeUp() }
-        composeRule.onAllNodesWithText(context.getString(PremiumR.string.premium_analytics_recovery_title)).assertCountEquals(1)
-        composeRule.onRoot().performTouchInput { swipeUp() }
-        composeRule.onAllNodesWithText(context.getString(PremiumR.string.premium_reflection_journal_title)).assertCountEquals(1)
+        val guidedJourneyTitle = context.getString(PremiumR.string.premium_guided_journey_title)
+        premiumList.performScrollToNode(hasText(guidedJourneyTitle))
+        composeRule.onAllNodesWithText(guidedJourneyTitle).assertCountEquals(1)
+        composeRule
+            .onAllNodesWithText(
+                context.getString(PremiumR.string.premium_planning_export_title),
+                ignoreCase = true,
+            ).assertCountEquals(1)
+        listOf(
+            PremiumR.string.premium_analytics_recovery_title,
+            PremiumR.string.premium_reflection_journal_title,
+        ).forEach { resourceId ->
+            val text = context.getString(resourceId)
+            premiumList.performScrollToNode(hasText(text))
+            composeRule.onAllNodesWithText(text).assertCountEquals(1)
+        }
     }
 
     @Test
@@ -258,6 +382,7 @@ class DesignSystemInstrumentationTest {
                     statusesById = state.statusesById,
                     fridayNotesById = state.fridayNotesById,
                     premiumSnapshot = premiumSnapshot(),
+                    today = LocalDate.now(),
                     onStatusChange = { _, _ -> },
                     onFridayNoteChange = { _, _ -> },
                 )
@@ -297,6 +422,7 @@ class DesignSystemInstrumentationTest {
                                     week = 1,
                                 ),
                         ),
+                    now = Instant.parse("2026-02-18T13:00:00Z"),
                     actions =
                         TrackerActions(
                             onPresetHoursChange = {},
@@ -347,6 +473,7 @@ class DesignSystemInstrumentationTest {
                                 ),
                             seasonProgramActions = emptyList(),
                         ),
+                    now = Instant.parse("2026-02-18T13:00:00Z"),
                     actions =
                         TrackerActions(
                             onPresetHoursChange = {},

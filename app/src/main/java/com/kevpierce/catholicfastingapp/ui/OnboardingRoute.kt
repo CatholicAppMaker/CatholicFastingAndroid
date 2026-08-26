@@ -14,8 +14,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import com.kevpierce.catholicfasting.core.model.FridayOutsideLentMode
@@ -29,6 +27,8 @@ import com.kevpierce.catholicfasting.core.rules.PremiumSnapshot
 import com.kevpierce.catholicfasting.core.ui.CatholicFastingThemeValues
 import com.kevpierce.catholicfasting.core.ui.rememberSeasonTone
 import com.kevpierce.catholicfastingapp.R
+import java.time.Instant
+import java.time.LocalDate
 
 @Composable
 internal fun OnboardingRoute(
@@ -36,10 +36,19 @@ internal fun OnboardingRoute(
     repository: com.kevpierce.catholicfasting.core.data.AppRepository,
     billingState: com.kevpierce.catholicfasting.core.billing.BillingState,
     notificationPermissionActions: NotificationPermissionActions,
+    now: Instant,
+    today: LocalDate,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
-    val supportState = buildAppSupportState(context, state, billingState.premiumUnlocked)
+    val supportState =
+        buildAppSupportState(
+            context = context,
+            state = state,
+            premiumUnlocked = billingState.premiumUnlocked,
+            now = now,
+            today = today,
+        )
     val onboardingState = supportState.onboardingState
     val completionState =
         SetupCompletionState.from(
@@ -59,42 +68,14 @@ internal fun OnboardingRoute(
             onboardingState = onboardingState,
             setupProgressSummary = supportState.setupProgressSummary,
         )
-        when (onboardingState.currentStep) {
-            1 ->
-                OnboardingNoticeCard(
-                    noticeAcknowledged = onboardingState.noticeAcknowledged,
-                    onNoticeAcknowledgedChange = repository::setIndependentAppNoticeAcknowledged,
-                )
-
-            2 ->
-                OnboardingProfileSection(
-                    state = state,
-                    repository = repository,
-                )
-
-            3 ->
-                OnboardingReminderCard(
-                    onboardingState = onboardingState,
-                    reminderCenterState = supportState.reminderCenterState,
-                    notificationPermissionGranted = notificationPermissionActions.granted,
-                    onRequestNotificationPermission = notificationPermissionActions.requestPermission,
-                    onReminderTierChange = repository::setReminderTier,
-                    onDailyQuoteReminderEnabledChange = repository::setDailyQuoteReminderEnabled,
-                    onDailyQuoteReminderTimeChange = repository::setDailyQuoteReminderTime,
-                )
-
-            4 ->
-                OnboardingIntentionCard(
-                    onboardingState = onboardingState,
-                    onIntentionSelected = repository::setIntermittentIntention,
-                )
-
-            else ->
-                OnboardingPremiumCard(
-                    seasonalHeroState = supportState.seasonalHeroState,
-                    premiumSnapshot = supportState.premiumSnapshot,
-                )
-        }
+        OnboardingStepContent(
+            currentStep = onboardingState.currentStep,
+            onboardingState = onboardingState,
+            state = state,
+            repository = repository,
+            supportState = supportState,
+            notificationPermissionActions = notificationPermissionActions,
+        )
         OnboardingFinishSection(
             completionState = completionState,
             onCompleteOnboarding = repository::completeOnboarding,
@@ -103,21 +84,53 @@ internal fun OnboardingRoute(
 }
 
 @Composable
-private fun OnboardingProfileSection(
+private fun OnboardingStepContent(
+    currentStep: Int,
+    onboardingState: OnboardingState,
     state: com.kevpierce.catholicfasting.core.data.DashboardState,
     repository: com.kevpierce.catholicfasting.core.data.AppRepository,
+    supportState: AppSupportState,
+    notificationPermissionActions: NotificationPermissionActions,
 ) {
-    OnboardingProfileCard(
-        state = state,
-        onRegionSelected = repository::setSelectedRegion,
-        onFridayModeSelected = { mode ->
-            repository.updateSettings(
-                state.settings.copy(
-                    fridayOutsideLentMode = mode,
-                ),
+    when (currentStep) {
+        1 ->
+            OnboardingNoticeCard(
+                noticeAcknowledged = onboardingState.noticeAcknowledged,
+                onNoticeAcknowledgedChange = repository::setIndependentAppNoticeAcknowledged,
             )
-        },
-    )
+
+        2 ->
+            OnboardingProfileCard(
+                state = state,
+                onRegionSelected = repository::setSelectedRegion,
+                onFridayModeSelected = { mode ->
+                    repository.updateSettings(state.settings.copy(fridayOutsideLentMode = mode))
+                },
+            )
+
+        3 ->
+            OnboardingReminderCard(
+                onboardingState = onboardingState,
+                reminderCenterState = supportState.reminderCenterState,
+                notificationPermissionGranted = notificationPermissionActions.granted,
+                onRequestNotificationPermission = notificationPermissionActions.requestPermission,
+                onReminderTierChange = repository::setReminderTier,
+                onDailyQuoteReminderEnabledChange = repository::setDailyQuoteReminderEnabled,
+                onDailyQuoteReminderTimeChange = repository::setDailyQuoteReminderTime,
+            )
+
+        4 ->
+            OnboardingIntentionCard(
+                onboardingState = onboardingState,
+                onIntentionSelected = repository::setIntermittentIntention,
+            )
+
+        else ->
+            OnboardingPremiumCard(
+                seasonalHeroState = supportState.seasonalHeroState,
+                premiumSnapshot = supportState.premiumSnapshot,
+            )
+    }
 }
 
 @Composable
@@ -240,12 +253,7 @@ private fun RegionProfileChipRow(
                     Modifier
                         .testTag(REGION_CHIP_TEST_TAG_PREFIX + region.name)
                         .semantics {
-                            contentDescription = regionLabel
                             stateDescription = regionStateDescription
-                            onClick {
-                                onRegionSelected(region)
-                                true
-                            }
                         },
             )
         }
@@ -268,7 +276,6 @@ private fun FridayOutsideLentModeChipRow(
                 label = { Text(modeLabel) },
                 modifier =
                     Modifier.semantics {
-                        contentDescription = modeLabel
                         stateDescription = modeStateDescription
                     },
             )

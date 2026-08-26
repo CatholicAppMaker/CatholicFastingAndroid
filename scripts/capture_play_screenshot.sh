@@ -41,6 +41,7 @@ esac
 
 mkdir -p "$(dirname "$output_file")"
 
+"$adb_bin" -s "$serial" shell am force-stop "$package_name"
 "$adb_bin" -s "$serial" shell am start -W -a android.intent.action.VIEW -d "$deeplink" "$package_name" >/dev/null
 sleep 2
 "$adb_bin" -s "$serial" exec-out screencap -p >"$output_file"

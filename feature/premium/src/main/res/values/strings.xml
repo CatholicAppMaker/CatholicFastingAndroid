@@ -49,6 +49,7 @@
     <string name="premium_reflection_body_label">Write a short reflection</string>
     <string name="premium_save_reflection">Save reflection</string>
     <string name="premium_planning_export_title">Planning summary</string>
+    <string name="premium_guided_journey_title">Your guided seasonal journey</string>
     <string name="premium_label_season_advent">Advent</string>
     <string name="premium_label_season_christmas">Christmas</string>
     <string name="premium_label_season_lent">Lent</string>

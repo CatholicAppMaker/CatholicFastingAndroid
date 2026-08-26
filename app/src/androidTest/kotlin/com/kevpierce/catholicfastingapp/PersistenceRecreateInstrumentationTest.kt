@@ -187,6 +187,7 @@ class PersistenceRecreateInstrumentationTest {
                     statusesById = state.statusesById,
                     fridayNotesById = state.fridayNotesById,
                     premiumSnapshot = premiumSnapshot,
+                    today = LocalDate.now(),
                     onStatusChange = AppContainer.repository::setStatus,
                     onFridayNoteChange = AppContainer.repository::setFridayNote,
                 )

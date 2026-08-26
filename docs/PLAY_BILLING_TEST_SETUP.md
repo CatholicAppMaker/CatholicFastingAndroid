@@ -28,3 +28,23 @@ Use this checklist before validating premium purchase and restore behavior.
 - Restore/refresh reflects the Play account state.
 - Pending purchases stay locked with clear messaging.
 - Manage-subscription opens the Play subscriptions page.
+
+## Validation record
+
+Keep this record pending until the release build is installed from a Play test
+track with a licensed tester. An adb-installed build or injected entitlement
+does not satisfy this gate.
+
+| Field | Result |
+| --- | --- |
+| Validation status | PENDING |
+| App version / version code | PENDING |
+| Play track | PENDING |
+| Test date | PENDING |
+| Tester account type | Licensed tester, not yet verified |
+| Product IDs | `cfa_premium_yearly_v3`, `cfa_premium_monthly_v3` |
+| Real catalog and prices | PENDING |
+| Checkout launch | PENDING |
+| Pending-purchase lock | PENDING |
+| Entitlement refresh / restore | PENDING |
+| Manage Subscription routing | PENDING |

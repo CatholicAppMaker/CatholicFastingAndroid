@@ -10,6 +10,7 @@ import com.kevpierce.catholicfasting.feature.tracker.TrackerActions
 import com.kevpierce.catholicfasting.feature.tracker.TrackerScreen
 import com.kevpierce.catholicfasting.feature.tracker.TrackerUiState
 import com.kevpierce.catholicfastingapp.R
+import java.time.Instant
 
 internal fun completionSummary(
     context: Context,
@@ -28,11 +29,13 @@ internal fun TrackFastDestination(
     state: com.kevpierce.catholicfasting.core.data.DashboardState,
     repository: com.kevpierce.catholicfasting.core.data.AppRepository,
     supportState: AppSupportState,
+    now: Instant,
     modifier: Modifier = Modifier,
 ) {
     TrackerScreen(
         uiState = trackerUiState(state, supportState),
         actions = trackerActions(repository, LocalResources.current),
+        now = now,
         modifier = modifier,
     )
 }

@@ -2,6 +2,8 @@ package com.kevpierce.catholicfastingapp.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -13,8 +15,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import com.kevpierce.catholicfasting.core.model.IntermittentFastIntention
@@ -181,13 +181,18 @@ private fun ReminderCenterCard(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 internal fun ReminderTierChipRow(
     selectedTier: ReminderTier,
     reminderTierSelected: Boolean,
     onReminderTierChange: (ReminderTier) -> Unit,
 ) {
-    RowWithScroll {
+    val spacing = CatholicFastingThemeValues.spacing
+    FlowRow(
+        horizontalArrangement = Arrangement.spacedBy(spacing.xSmall),
+        verticalArrangement = Arrangement.spacedBy(spacing.xSmall),
+    ) {
         ReminderTier.entries.forEach { tier ->
             val tierLabel = tier.localizedLabel()
             val selected = reminderTierSelected && selectedTier == tier
@@ -200,12 +205,7 @@ internal fun ReminderTierChipRow(
                     Modifier
                         .testTag(REMINDER_TIER_CHIP_TEST_TAG_PREFIX + tier.name)
                         .semantics {
-                            contentDescription = tierLabel
                             stateDescription = tierStateDescription
-                            onClick {
-                                onReminderTierChange(tier)
-                                true
-                            }
                         },
             )
         }
@@ -229,12 +229,7 @@ internal fun IntentionChipRow(
                     Modifier
                         .testTag(INTERMITTENT_INTENTION_CHIP_TEST_TAG_PREFIX + intention.name)
                         .semantics {
-                            contentDescription = intention.label
                             stateDescription = intentionStateDescription
-                            onClick {
-                                onIntentionSelected(intention.name)
-                                true
-                            }
                         },
             )
         }
@@ -279,7 +274,6 @@ internal fun QuoteReminderControls(
                     label = { Text(hourLabel) },
                     modifier =
                         Modifier.semantics {
-                            contentDescription = hourLabel
                             stateDescription = hourStateDescription
                         },
                 )
@@ -304,7 +298,6 @@ internal fun BooleanChoiceRow(
                 label = { Text(label) },
                 modifier =
                     Modifier.semantics {
-                        contentDescription = label
                         stateDescription = optionStateDescription
                     },
             )

@@ -7,7 +7,12 @@
     <string name="tracker_bullet_value">• %1$s</string>
     <string name="tracker_control_center">Intermittent fast control center</string>
     <string name="tracker_no_active_fast">No active fast. Choose a target and begin when ready.</string>
+    <string name="tracker_ready_title">Ready for the next fast</string>
     <string name="tracker_fast_in_progress">Fast in progress</string>
+    <string name="tracker_remaining">Remaining</string>
+    <string name="tracker_hours_short_value">%1$d h</string>
+    <string name="tracker_minutes_short_value">%1$d min</string>
+    <string name="tracker_progress_accessibility">%1$s remaining of %2$d hours; %3$s elapsed.</string>
     <string name="tracker_intention_title">Fasting intention</string>
     <string name="tracker_intention_value">Intention: %1$s</string>
     <string name="tracker_latest_recap_title">Latest fast recap</string>

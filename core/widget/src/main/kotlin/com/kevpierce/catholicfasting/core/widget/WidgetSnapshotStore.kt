@@ -19,6 +19,18 @@ private val jsonCodec =
 
 private val snapshotKey = stringPreferencesKey("widget_snapshot_v1")
 
+internal fun decodeWidgetSnapshotOrDefault(
+    encoded: String?,
+    defaultSnapshot: WidgetSnapshot,
+): WidgetSnapshot {
+    if (encoded == null) {
+        return defaultSnapshot
+    }
+    return runCatching {
+        jsonCodec.decodeFromString(WidgetSnapshot.serializer(), encoded)
+    }.getOrDefault(defaultSnapshot)
+}
+
 object WidgetSnapshotStore {
     suspend fun persist(
         context: Context,
@@ -35,12 +47,8 @@ object WidgetSnapshotStore {
     }
 
     suspend fun read(context: Context): WidgetSnapshot {
-        val encoded = context.widgetDataStore.data.first()[snapshotKey] ?: return defaultSnapshot(context)
-        return runCatching {
-            jsonCodec.decodeFromString(WidgetSnapshot.serializer(), encoded)
-        }.getOrElse {
-            defaultSnapshot(context)
-        }
+        val encoded = context.widgetDataStore.data.first()[snapshotKey]
+        return decodeWidgetSnapshotOrDefault(encoded, defaultSnapshot(context))
     }
 
     private fun defaultSnapshot(context: Context): WidgetSnapshot =

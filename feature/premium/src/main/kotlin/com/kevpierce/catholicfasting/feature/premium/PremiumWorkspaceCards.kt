@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.kevpierce.catholicfasting.core.model.FastingPlanningData
 import com.kevpierce.catholicfasting.core.rules.PremiumSnapshot
+import com.kevpierce.catholicfasting.core.ui.CatholicFastingEyebrow
 import com.kevpierce.catholicfasting.core.ui.CatholicFastingSectionCard
 import com.kevpierce.catholicfasting.core.ui.CatholicFastingThemeValues
 import com.kevpierce.catholicfasting.core.ui.SeasonTone
@@ -56,10 +57,14 @@ internal fun WorkspaceSummaryCard(
     seasonTone: SeasonTone,
 ) {
     WorkspaceCard(
-        title = stringResource(R.string.premium_planning_export_title),
+        title = stringResource(R.string.premium_guided_journey_title),
         tone = seasonTone,
         heroTitle = true,
     ) {
+        CatholicFastingEyebrow(
+            text = stringResource(R.string.premium_planning_export_title),
+            color = seasonTone.accentColor,
+        )
         Text(
             stringResource(R.string.premium_season_value, premiumSnapshot.season.localizedLabel()),
             style = CatholicFastingThemeValues.typography.body,

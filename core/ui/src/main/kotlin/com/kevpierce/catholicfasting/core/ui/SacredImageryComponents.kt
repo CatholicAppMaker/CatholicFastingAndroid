@@ -4,23 +4,28 @@ package com.kevpierce.catholicfasting.core.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.kevpierce.catholicfasting.core.model.SacredImageryItem
 
@@ -66,8 +71,7 @@ fun SacredImageryCard(
     Card(
         modifier =
             modifier
-                .width(206.dp)
-                .semantics {
+                .clearAndSetSemantics {
                     contentDescription = "${item.title}. ${item.subtitle}"
                 },
         colors =
@@ -85,15 +89,58 @@ fun SacredImageryCard(
                     painter = painterResource(drawableRes),
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
+                    alignment =
+                        if (item.assetName == "SacredPurpleVeil") {
+                            Alignment.CenterStart
+                        } else {
+                            Alignment.Center
+                        },
                     modifier =
                         Modifier
                             .fillMaxWidth()
-                            .height(116.dp)
+                            .aspectRatio(16f / 9f)
                             .clip(RoundedCornerShape(14.dp)),
                 )
             }
             Text(item.title, style = CatholicFastingThemeValues.typography.sectionTitle)
             Text(item.subtitle, style = CatholicFastingThemeValues.typography.supporting)
+        }
+    }
+}
+
+@Composable
+fun SacredImageryRail(
+    title: String,
+    imagery: List<SacredImageryItem>,
+    modifier: Modifier = Modifier,
+    intro: String? = null,
+) {
+    val spacing = CatholicFastingThemeValues.spacing
+
+    CatholicFastingSection(
+        title = title,
+        modifier = modifier,
+    ) {
+        intro?.let { copy ->
+            Text(copy, style = CatholicFastingThemeValues.typography.body)
+        }
+        BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+            val itemWidth = (maxWidth - spacing.large * 2).coerceAtLeast(0.dp).coerceAtMost(320.dp)
+            LazyRow(
+                modifier = Modifier.fillMaxWidth(),
+                contentPadding = PaddingValues(end = spacing.medium),
+                horizontalArrangement = Arrangement.spacedBy(spacing.xSmall),
+            ) {
+                items(
+                    items = imagery,
+                    key = SacredImageryItem::id,
+                ) { item ->
+                    SacredImageryCard(
+                        item = item,
+                        modifier = Modifier.width(itemWidth),
+                    )
+                }
+            }
         }
     }
 }

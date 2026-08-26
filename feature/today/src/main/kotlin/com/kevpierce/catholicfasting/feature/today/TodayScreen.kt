@@ -7,18 +7,23 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.material3.Button
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import com.kevpierce.catholicfasting.core.model.CatholicFastingQuote
 import com.kevpierce.catholicfasting.core.model.CompanionNextAction
 import com.kevpierce.catholicfasting.core.model.CompanionSnapshot
@@ -28,10 +33,13 @@ import com.kevpierce.catholicfasting.core.model.Observance
 import com.kevpierce.catholicfasting.core.model.SacredImageryItem
 import com.kevpierce.catholicfasting.core.model.SeasonalContentPack
 import com.kevpierce.catholicfasting.core.rules.PremiumSnapshot
+import com.kevpierce.catholicfasting.core.ui.CatholicFastingEyebrow
 import com.kevpierce.catholicfasting.core.ui.CatholicFastingScreenTitle
+import com.kevpierce.catholicfasting.core.ui.CatholicFastingSeasonBadge
+import com.kevpierce.catholicfasting.core.ui.CatholicFastingSection
 import com.kevpierce.catholicfasting.core.ui.CatholicFastingSectionCard
 import com.kevpierce.catholicfasting.core.ui.CatholicFastingThemeValues
-import com.kevpierce.catholicfasting.core.ui.SacredImageryCard
+import com.kevpierce.catholicfasting.core.ui.SacredImageryRail
 import com.kevpierce.catholicfasting.core.ui.SeasonTone
 import com.kevpierce.catholicfasting.core.ui.rememberSeasonTone
 
@@ -52,55 +60,117 @@ data class TodayUiState(
 )
 
 const val TODAY_COMPANION_ACTION_TEST_TAG_PREFIX = "today-companion-action-"
+const val TODAY_LIST_TEST_TAG = "today-content-list"
+const val TODAY_HEADER_TEST_TAG = "today-section-header"
+const val TODAY_COMPANION_TEST_TAG = "today-section-companion"
+const val TODAY_OBSERVANCE_TEST_TAG = "today-section-observance"
+const val TODAY_SEASONAL_FORMATION_TEST_TAG = "today-section-seasonal-formation"
+const val TODAY_JOURNEY_TEST_TAG = "today-section-journey"
+const val TODAY_RECOVERY_TEST_TAG = "today-section-recovery"
+const val TODAY_GALLERY_TEST_TAG = "today-section-gallery"
+const val TODAY_NOTICE_TEST_TAG = "today-section-notice"
 
 @Composable
 fun TodayScreen(
     uiState: TodayUiState,
-    onCompanionAction: (CompanionNextAction) -> Unit = {},
     modifier: Modifier = Modifier,
+    onCompanionAction: (CompanionNextAction) -> Unit = {},
 ) {
     val todayDetail =
         uiState.todayObservance?.detail ?: stringResource(R.string.today_default_detail)
     val spacing = CatholicFastingThemeValues.spacing
+    val seasonTone = rememberSeasonTone(uiState.premiumSnapshot.season)
 
-    Column(
-        modifier =
-            modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(spacing.medium),
+    LazyColumn(
+        modifier = modifier.fillMaxSize().testTag(TODAY_LIST_TEST_TAG),
+        contentPadding = PaddingValues(spacing.medium),
         verticalArrangement = Arrangement.spacedBy(spacing.medium),
     ) {
-        TodayContent(
+        todayContent(
             uiState = uiState,
             todayDetail = todayDetail,
+            seasonTone = seasonTone,
             onCompanionAction = onCompanionAction,
         )
     }
 }
 
-@Composable
-private fun ColumnScope.TodayContent(
+private fun LazyListScope.todayContent(
     uiState: TodayUiState,
     todayDetail: String,
+    seasonTone: SeasonTone,
     onCompanionAction: (CompanionNextAction) -> Unit,
 ) {
-    val seasonTone = rememberSeasonTone(uiState.premiumSnapshot.season)
+    item(key = TODAY_HEADER_TEST_TAG) {
+        TodaySectionItem(TODAY_HEADER_TEST_TAG) {
+            TodayHeader(uiState = uiState, seasonTone = seasonTone)
+        }
+    }
+    item(key = TODAY_COMPANION_TEST_TAG) {
+        TodaySectionItem(TODAY_COMPANION_TEST_TAG) {
+            CompanionCard(
+                snapshot = uiState.companionSnapshot,
+                seasonTone = seasonTone,
+                onCompanionAction = onCompanionAction,
+            )
+        }
+    }
+    item(key = TODAY_OBSERVANCE_TEST_TAG) {
+        TodaySectionItem(TODAY_OBSERVANCE_TEST_TAG) {
+            ObservanceSummaryCard(uiState, todayDetail)
+        }
+    }
+    item(key = TODAY_SEASONAL_FORMATION_TEST_TAG) {
+        TodaySectionItem(TODAY_SEASONAL_FORMATION_TEST_TAG) {
+            SeasonalFormationCard(uiState, seasonTone)
+        }
+    }
+    item(key = TODAY_JOURNEY_TEST_TAG) {
+        TodaySectionItem(TODAY_JOURNEY_TEST_TAG) {
+            JourneySnapshotSection(uiState, seasonTone)
+        }
+    }
+    item(key = TODAY_RECOVERY_TEST_TAG) {
+        TodaySectionItem(TODAY_RECOVERY_TEST_TAG) {
+            RecoveryCoachCard(uiState)
+        }
+    }
+    item(key = TODAY_GALLERY_TEST_TAG) {
+        TodaySectionItem(TODAY_GALLERY_TEST_TAG) {
+            DevotionalGalleryCard(uiState)
+        }
+    }
+    item(key = TODAY_NOTICE_TEST_TAG) {
+        TodaySectionItem(TODAY_NOTICE_TEST_TAG) {
+            NoticeCard(uiState)
+        }
+    }
+}
 
-    CatholicFastingScreenTitle(stringResource(R.string.today_title))
-    CompanionCard(
-        snapshot = uiState.companionSnapshot,
-        seasonTone = seasonTone,
-        onCompanionAction = onCompanionAction,
-    )
-    ObservanceSummaryCard(uiState, todayDetail)
-    SeasonalFormationCard(uiState, seasonTone)
-    YearPlanCard(uiState)
-    PersonalInsightsCard(uiState)
-    SeasonPlanCard(uiState, seasonTone)
-    RecoveryCoachCard(uiState)
-    DevotionalGalleryCard(uiState)
-    NoticeCard(uiState)
+@Composable
+private fun TodaySectionItem(
+    testTag: String,
+    content: @Composable () -> Unit,
+) {
+    Column(modifier = Modifier.testTag(testTag)) { content() }
+}
+
+@Composable
+private fun TodayHeader(
+    uiState: TodayUiState,
+    seasonTone: SeasonTone,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        CatholicFastingScreenTitle(stringResource(R.string.today_title))
+        CatholicFastingSeasonBadge(
+            label = uiState.premiumSnapshot.season.localizedLabel(),
+            tone = seasonTone,
+        )
+    }
 }
 
 @Composable
@@ -110,13 +180,16 @@ private fun CompanionCard(
     onCompanionAction: (CompanionNextAction) -> Unit,
 ) {
     TodayCard(
-        title = stringResource(R.string.today_companion_title),
+        title = snapshot.ruleDecision.obligationLine,
         tone = seasonTone,
         heroTitle = true,
     ) {
-        Text(snapshot.ruleDecision.obligationLine, style = CatholicFastingThemeValues.typography.sectionTitle)
+        CatholicFastingEyebrow(
+            text = stringResource(R.string.today_companion_title),
+            color = seasonTone.accentColor,
+        )
         Text(snapshot.ruleDecision.rationale, style = CatholicFastingThemeValues.typography.body)
-        Text(snapshot.ruleDecision.sourceLine, style = CatholicFastingThemeValues.typography.utility)
+        HorizontalDivider(color = seasonTone.borderColor.copy(alpha = 0.72f))
         LiveFastLine(snapshot)
         Text(
             text = snapshot.formation.recoverySummary ?: snapshot.formation.completionSummary,
@@ -136,6 +209,7 @@ private fun CompanionCard(
             secondaryActions = snapshot.secondaryActions,
             onCompanionAction = onCompanionAction,
         )
+        Text(snapshot.ruleDecision.sourceLine, style = CatholicFastingThemeValues.typography.utility)
     }
 }
 
@@ -191,22 +265,27 @@ private fun CompanionActionButtons(
     onCompanionAction: (CompanionNextAction) -> Unit,
 ) {
     val spacing = CatholicFastingThemeValues.spacing
-    FlowRow(
-        horizontalArrangement = Arrangement.spacedBy(spacing.xSmall),
-        verticalArrangement = Arrangement.spacedBy(spacing.xSmall),
-    ) {
+    Column(verticalArrangement = Arrangement.spacedBy(spacing.xSmall)) {
         Button(
             onClick = { onCompanionAction(primaryAction) },
-            modifier = Modifier.testTag(TODAY_COMPANION_ACTION_TEST_TAG_PREFIX + primaryAction.id),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .testTag(TODAY_COMPANION_ACTION_TEST_TAG_PREFIX + primaryAction.id),
         ) {
             Text(primaryAction.title)
         }
-        secondaryActions.take(2).forEach { action ->
-            OutlinedButton(
-                onClick = { onCompanionAction(action) },
-                modifier = Modifier.testTag(TODAY_COMPANION_ACTION_TEST_TAG_PREFIX + action.id),
-            ) {
-                Text(action.title)
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(spacing.xSmall),
+            verticalArrangement = Arrangement.spacedBy(spacing.xSmall),
+        ) {
+            secondaryActions.take(2).forEach { action ->
+                OutlinedButton(
+                    onClick = { onCompanionAction(action) },
+                    modifier = Modifier.testTag(TODAY_COMPANION_ACTION_TEST_TAG_PREFIX + action.id),
+                ) {
+                    Text(action.title)
+                }
             }
         }
     }
@@ -232,7 +311,7 @@ private fun ObservanceSummaryCard(
     uiState: TodayUiState,
     todayDetail: String,
 ) {
-    TodayCard(title = uiState.todayObservance?.title ?: stringResource(R.string.today_no_observance)) {
+    TodaySection(title = uiState.todayObservance?.title ?: stringResource(R.string.today_no_observance)) {
         Text(todayDetail, style = CatholicFastingThemeValues.typography.body)
         Text(
             uiState.completionSummary,
@@ -272,35 +351,36 @@ private fun SeasonalFormationCard(
 }
 
 @Composable
-private fun YearPlanCard(uiState: TodayUiState) {
-    TodayCard(title = stringResource(R.string.today_year_plan_title)) {
+private fun JourneySnapshotSection(
+    uiState: TodayUiState,
+    seasonTone: SeasonTone,
+) {
+    TodaySection(title = stringResource(R.string.today_journey_snapshot_title)) {
+        Text(
+            text = stringResource(R.string.today_year_plan_title),
+            style = CatholicFastingThemeValues.typography.sectionTitle,
+            modifier = Modifier.semantics { heading() },
+        )
         Text(uiState.yearPlanSummary, style = CatholicFastingThemeValues.typography.body)
         Text(uiState.weeklyRecap, style = CatholicFastingThemeValues.typography.supporting)
         Text(uiState.setupProgressSummary, style = CatholicFastingThemeValues.typography.supporting)
-    }
-}
-
-@Composable
-private fun PersonalInsightsCard(uiState: TodayUiState) {
-    TodayCard(title = stringResource(R.string.today_personal_insights_title)) {
+        Text(
+            text = stringResource(R.string.today_personal_insights_title),
+            style = CatholicFastingThemeValues.typography.sectionTitle,
+            modifier = Modifier.semantics { heading() },
+        )
         Text(uiState.streakMessage, style = CatholicFastingThemeValues.typography.body)
         Text(uiState.premiumSnapshot.motivationLine, style = CatholicFastingThemeValues.typography.supporting)
         Text(
             uiState.premiumSnapshot.reminderRecommendation.summaryLine,
             style = CatholicFastingThemeValues.typography.supporting,
         )
-    }
-}
-
-@Composable
-private fun SeasonPlanCard(
-    uiState: TodayUiState,
-    seasonTone: SeasonTone,
-) {
-    TodayCard(
-        title = uiState.premiumSnapshot.seasonPlan.titleLine,
-        tone = seasonTone,
-    ) {
+        Text(
+            text = uiState.premiumSnapshot.seasonPlan.titleLine,
+            style = CatholicFastingThemeValues.typography.sectionTitle,
+            color = seasonTone.accentColor,
+            modifier = Modifier.semantics { heading() },
+        )
         Text(
             text =
                 stringResource(
@@ -345,33 +425,38 @@ private fun RecoveryCoachCard(uiState: TodayUiState) {
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun DevotionalGalleryCard(uiState: TodayUiState) {
-    val spacing = CatholicFastingThemeValues.spacing
-
-    TodayCard(title = stringResource(R.string.today_devotional_gallery_title)) {
-        FlowRow(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(spacing.xSmall),
-            verticalArrangement = Arrangement.spacedBy(spacing.xSmall),
-        ) {
-            uiState.devotionalGallery.take(6).forEach { item ->
-                SacredImageryCard(item = item)
-            }
-        }
-    }
+    SacredImageryRail(
+        title = stringResource(R.string.today_devotional_gallery_title),
+        imagery = uiState.devotionalGallery.take(6),
+    )
 }
 
 @Composable
 private fun NoticeCard(uiState: TodayUiState) {
-    TodayCard(title = stringResource(R.string.today_important_notice_title)) {
+    TodaySection(title = stringResource(R.string.today_important_notice_title)) {
         Text(uiState.noticeSummary, style = CatholicFastingThemeValues.typography.body)
         Text(
             stringResource(R.string.today_notice_body),
             style = CatholicFastingThemeValues.typography.utility,
         )
     }
+}
+
+@Composable
+private fun TodaySection(
+    title: String,
+    tone: SeasonTone? = null,
+    heroTitle: Boolean = false,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    CatholicFastingSection(
+        title = title,
+        tone = tone,
+        heroTitle = heroTitle,
+        content = content,
+    )
 }
 
 private fun formatDuration(seconds: Long): String {

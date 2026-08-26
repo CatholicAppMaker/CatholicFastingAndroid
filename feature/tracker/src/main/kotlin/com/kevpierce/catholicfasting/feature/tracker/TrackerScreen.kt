@@ -13,6 +13,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
@@ -23,6 +24,7 @@ import com.kevpierce.catholicfasting.core.model.IntermittentSchedulePlan
 import com.kevpierce.catholicfasting.core.rules.PremiumSnapshot
 import com.kevpierce.catholicfasting.core.ui.CatholicFastingScreenTitle
 import com.kevpierce.catholicfasting.core.ui.CatholicFastingThemeValues
+import java.time.Instant
 
 data class TrackerUiState(
     val schedules: List<IntermittentSchedulePlan>,
@@ -52,12 +54,15 @@ const val TRACKER_INTENTION_TEST_TAG_PREFIX = "tracker-intention-"
 const val TRACKER_REVIEW_NOTE_TEST_TAG = "tracker-review-note"
 const val TRACKER_START_FAST_TEST_TAG = "tracker-start-fast"
 const val TRACKER_END_FAST_TEST_TAG = "tracker-end-fast"
+const val TRACKER_PROGRESS_TEST_TAG = "tracker-progress"
+const val TRACKER_LIST_TEST_TAG = "tracker-list"
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun TrackerScreen(
     uiState: TrackerUiState,
     actions: TrackerActions,
+    now: Instant,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -85,6 +90,7 @@ fun TrackerScreen(
         presetInput = presetInput,
         selectedIntentionId = selectedIntentionId,
         reviewNote = reviewNote,
+        now = now,
         onPresetInputChange = { presetInput = it },
         onIntentionSelected = { selectedIntentionId = it },
         onReviewNoteChange = { reviewNote = it },
@@ -102,6 +108,7 @@ private fun TrackerScreenBody(
     presetInput: String,
     selectedIntentionId: String,
     reviewNote: String,
+    now: Instant,
     onPresetInputChange: (String) -> Unit,
     onIntentionSelected: (String) -> Unit,
     onReviewNoteChange: (String) -> Unit,
@@ -109,7 +116,11 @@ private fun TrackerScreenBody(
     modifier: Modifier,
 ) {
     LazyColumn(
-        modifier = modifier.fillMaxSize().padding(CatholicFastingThemeValues.spacing.medium),
+        modifier =
+            modifier
+                .fillMaxSize()
+                .padding(CatholicFastingThemeValues.spacing.medium)
+                .testTag(TRACKER_LIST_TEST_TAG),
         verticalArrangement = Arrangement.spacedBy(CatholicFastingThemeValues.spacing.medium),
     ) {
         item { TrackerTitle() }
@@ -120,6 +131,7 @@ private fun TrackerScreenBody(
                 presetInput = presetInput,
                 selectedIntentionId = selectedIntentionId,
                 reviewNote = reviewNote,
+                now = now,
                 onPresetInputChange = onPresetInputChange,
                 onIntentionSelected = onIntentionSelected,
                 onReviewNoteChange = onReviewNoteChange,
@@ -150,6 +162,7 @@ private fun TrackerActiveFastSection(
     presetInput: String,
     selectedIntentionId: String,
     reviewNote: String,
+    now: Instant,
     onPresetInputChange: (String) -> Unit,
     onIntentionSelected: (String) -> Unit,
     onReviewNoteChange: (String) -> Unit,
@@ -161,6 +174,7 @@ private fun TrackerActiveFastSection(
         presetInput = presetInput,
         selectedIntentionId = selectedIntentionId,
         reviewNote = reviewNote,
+        now = now,
         onPresetInputChange = { next ->
             onPresetInputChange(next)
             next.toIntOrNull()?.let(actions.onPresetHoursChange)

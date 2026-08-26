@@ -29,4 +29,6 @@ dependencies {
     implementation(libs.androidx.glance.appwidget)
     implementation(libs.compose.material3)
     implementation(libs.kotlinx.serialization.json)
+    testImplementation(libs.junit4)
+    testImplementation(libs.truth)
 }

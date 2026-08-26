@@ -17,6 +17,7 @@
     <string name="today_label_season_easter">Easter</string>
     <string name="today_label_season_ordinary">Ordinary Time</string>
     <string name="today_year_plan_title">Year Plan Snapshot</string>
+    <string name="today_journey_snapshot_title">Your journey</string>
     <string name="today_personal_insights_title">Personal Insights</string>
     <string name="today_action_value">Action: %1$s</string>
     <string name="today_season_motivation_value">%1$s • %2$s</string>

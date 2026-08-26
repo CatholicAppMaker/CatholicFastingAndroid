@@ -3,10 +3,16 @@
 package com.kevpierce.catholicfastingapp
 
 import android.content.Context
+import androidx.compose.ui.semantics.ProgressBarRangeInfo
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.click
+import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
@@ -14,7 +20,8 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
-import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.performScrollToNode
+import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeUp
 import androidx.test.core.app.ApplicationProvider
@@ -46,15 +53,19 @@ import com.kevpierce.catholicfasting.core.rules.SeasonalContentSupport
 import com.kevpierce.catholicfasting.core.ui.CatholicFastingTheme
 import com.kevpierce.catholicfasting.feature.calendar.CalendarScreen
 import com.kevpierce.catholicfasting.feature.guidance.GuidanceScreen
+import com.kevpierce.catholicfasting.feature.premium.PREMIUM_LIST_TEST_TAG
 import com.kevpierce.catholicfasting.feature.premium.PremiumScreen
 import com.kevpierce.catholicfasting.feature.premium.PremiumWorkspaceActions
 import com.kevpierce.catholicfasting.feature.premium.PremiumWorkspaceUiState
 import com.kevpierce.catholicfasting.feature.settings.SettingsScreen
 import com.kevpierce.catholicfasting.feature.today.TODAY_COMPANION_ACTION_TEST_TAG_PREFIX
+import com.kevpierce.catholicfasting.feature.today.TODAY_COMPANION_TEST_TAG
+import com.kevpierce.catholicfasting.feature.today.TODAY_LIST_TEST_TAG
 import com.kevpierce.catholicfasting.feature.today.TodayScreen
 import com.kevpierce.catholicfasting.feature.today.TodayUiState
 import com.kevpierce.catholicfasting.feature.tracker.TRACKER_END_FAST_TEST_TAG
 import com.kevpierce.catholicfasting.feature.tracker.TRACKER_INTENTION_TEST_TAG_PREFIX
+import com.kevpierce.catholicfasting.feature.tracker.TRACKER_PROGRESS_TEST_TAG
 import com.kevpierce.catholicfasting.feature.tracker.TRACKER_REVIEW_NOTE_TEST_TAG
 import com.kevpierce.catholicfasting.feature.tracker.TRACKER_START_FAST_TEST_TAG
 import com.kevpierce.catholicfasting.feature.tracker.TrackerActions
@@ -314,7 +325,8 @@ class ExpandedReleaseUiInstrumentationTest {
         }
 
         assertText(context.getString(TodayR.string.today_title))
-        assertText(context.getString(TodayR.string.today_companion_title))
+        composeRule.onNodeWithTag(TODAY_LIST_TEST_TAG).performScrollToNode(hasTestTag(TODAY_COMPANION_TEST_TAG))
+        assertText(context.getString(TodayR.string.today_companion_title), ignoreCase = true)
     }
 
     @Test
@@ -322,14 +334,14 @@ class ExpandedReleaseUiInstrumentationTest {
         setTodayScreen()
 
         assertText(context.getString(TodayR.string.today_title))
-        assertText(context.getString(TodayR.string.today_year_plan_title))
+        assertTextInLazyList(TODAY_LIST_TEST_TAG, context.getString(TodayR.string.today_year_plan_title))
     }
 
     @Test
     fun todayDirectScreenShowsPersonalInsights() {
         setTodayScreen()
 
-        assertText(context.getString(TodayR.string.today_personal_insights_title))
+        assertTextInLazyList(TODAY_LIST_TEST_TAG, context.getString(TodayR.string.today_personal_insights_title))
     }
 
     @Test
@@ -412,16 +424,36 @@ class ExpandedReleaseUiInstrumentationTest {
 
     @Test
     fun trackerDirectScreenShowsActiveFastControls() {
+        val now = Instant.parse("2026-02-18T16:00:00Z")
         setTrackerScreen(
             activeFast =
                 ActiveIntermittentFast(
-                    startIso = Instant.now().minusSeconds(3600).toString(),
+                    startIso = now.minusSeconds(4 * 3600L).toString(),
                     targetHours = 16,
                 ),
+            now = now,
         )
 
         assertText(context.getString(TrackerR.string.tracker_fast_in_progress))
         assertText(context.getString(TrackerR.string.tracker_end_fast))
+        composeRule
+            .onNodeWithTag(TRACKER_PROGRESS_TEST_TAG)
+            .assert(
+                SemanticsMatcher.expectValue(
+                    SemanticsProperties.ProgressBarRangeInfo,
+                    ProgressBarRangeInfo(0.25f, 0f..1f),
+                ),
+            ).assert(
+                SemanticsMatcher.expectValue(
+                    SemanticsProperties.StateDescription,
+                    context.getString(
+                        TrackerR.string.tracker_progress_accessibility,
+                        "12h 0m",
+                        16,
+                        "4h 0m",
+                    ),
+                ),
+            )
     }
 
     @Test
@@ -464,15 +496,22 @@ class ExpandedReleaseUiInstrumentationTest {
             actions = trackerActions(onEndFast = { endedReviewNote = it }),
         )
 
+        val reviewNote = "Kept the Friday fast prayerfully."
         composeRule
             .onNodeWithTag(TRACKER_REVIEW_NOTE_TEST_TAG)
-            .performTextInput("Kept the Friday fast prayerfully.")
+            .performTextReplacement(reviewNote)
+        composeRule.waitUntil(timeoutMillis = 10_000L) {
+            composeRule.onAllNodesWithText(reviewNote).fetchSemanticsNodes().isNotEmpty()
+        }
         composeRule
             .onNodeWithTag(TRACKER_END_FAST_TEST_TAG)
+            .performScrollTo()
+            .assertIsDisplayed()
+            .assertIsEnabled()
             .performClick()
 
         composeRule.runOnIdle {
-            assertThat(endedReviewNote).isEqualTo("Kept the Friday fast prayerfully.")
+            assertThat(endedReviewNote).isEqualTo(reviewNote)
         }
     }
 
@@ -616,7 +655,8 @@ class ExpandedReleaseUiInstrumentationTest {
     fun premiumScreenShowsPlanningSummary() {
         setPremiumScreen(unlocked = true, includeCatalogOffers = false)
 
-        assertText(context.getString(PremiumR.string.premium_planning_export_title))
+        assertTextInLazyList(PREMIUM_LIST_TEST_TAG, context.getString(PremiumR.string.premium_guided_journey_title))
+        assertText(context.getString(PremiumR.string.premium_planning_export_title), ignoreCase = true)
     }
 
     @Test
@@ -710,6 +750,7 @@ class ExpandedReleaseUiInstrumentationTest {
                     statusesById = state.statusesById,
                     fridayNotesById = state.fridayNotesById,
                     premiumSnapshot = premiumSnapshot(),
+                    today = LocalDate.now(),
                     onStatusChange = { _, _ -> },
                     onFridayNoteChange = { _, _ -> },
                 )
@@ -722,6 +763,7 @@ class ExpandedReleaseUiInstrumentationTest {
         sessions: List<IntermittentFastSession> = emptyList(),
         latestRecap: IntermittentFastSessionRecap? = null,
         actions: TrackerActions = trackerActions(),
+        now: Instant = Instant.now(),
     ) {
         val state = AppContainer.repository.dashboardState.value
         composeRule.setContent {
@@ -749,6 +791,7 @@ class ExpandedReleaseUiInstrumentationTest {
                                 ),
                         ),
                     actions = actions,
+                    now = now,
                 )
             }
         }
@@ -878,8 +921,19 @@ class ExpandedReleaseUiInstrumentationTest {
         repository.completeOnboarding(Instant.parse("2026-03-13T00:00:00Z"))
     }
 
-    private fun assertText(text: String) {
-        assertThat(composeRule.onAllNodesWithText(text).fetchSemanticsNodes().size).isAtLeast(1)
+    private fun assertText(
+        text: String,
+        ignoreCase: Boolean = false,
+    ) {
+        assertThat(composeRule.onAllNodesWithText(text, ignoreCase = ignoreCase).fetchSemanticsNodes().size).isAtLeast(1)
+    }
+
+    private fun assertTextInLazyList(
+        listTag: String,
+        text: String,
+    ) {
+        composeRule.onNodeWithTag(listTag).performScrollToNode(hasText(text))
+        assertText(text)
     }
 
     private fun clickTaggedNodeAfterScrolling(tag: String) {

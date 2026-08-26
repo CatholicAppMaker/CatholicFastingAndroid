@@ -23,4 +23,7 @@ dependencies {
     implementation(libs.compose.ui)
     implementation(libs.compose.material3)
     implementation(libs.compose.foundation)
+
+    testImplementation(libs.junit4)
+    testImplementation(libs.truth)
 }
